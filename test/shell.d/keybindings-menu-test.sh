@@ -30,6 +30,13 @@ exec_bind() {
   printf 'bind\n\tmodmask: %s\n\tsubmap: \n\tkey: %s\n\tkeycode: 0\n\tcatchall: false\n\tdescription: %s\n\tdispatcher: exec\n\targ: %s\n' "$1" "$2" "$3" "$4"
 }
 
+# Hyprland 0.57 reports a Lua bind as what it was bound to rather than __lua:
+# HL.Dispatcher(<name>) for an hl.dsp dispatcher, the address of a Lua
+# function, and an id of its own as the arg.
+lua_057_bind() {
+  printf 'bind\n\tflags: \n\tmodmask: %s\n\tsubmap: \n\tkey: %s\n\tkeycode: 0\n\tcatchall: false\n\tdescription: %s\n\tdispatcher: %s\n\targ: %s\n' "$1" "$2" "$3" "$4" "$5"
+}
+
 stub_hyprctl() {
   {
     echo '#!/bin/bash'
@@ -255,6 +262,29 @@ keybindings >/dev/null
 grep -qP '→ Terminal\texec\tomarchy-launch-terminal$' "$tmpdir"/cache/omarchy/keybindings-*.records ||
   fail "picking the terminal bind from the menu launches a terminal" "$(cat "$tmpdir"/cache/omarchy/keybindings-*.records)"
 pass "picking the terminal bind from the menu launches a terminal"
+
+# Neither of Hyprland 0.57's names for a Lua bind can be run, so a row still
+# runs what the Lua source says, with or without arguments; one the source
+# can't explain runs nothing, and a bind with no description stays hidden.
+stub_hyprctl <<BINDS
+$(lua_057_bind 64 "SPACE" "Omarchy menu" "HL.Dispatcher(global)" 371)
+$(lua_057_bind 64 "W" "Close window" "HL.Dispatcher(close)" 101)
+$(lua_057_bind 64 "Q" "Close window" "HL.Dispatcher(close)" 102)
+$(lua_057_bind 64 "RETURN" "Terminal" "function: 0x5581c3a0e2f0" 140)
+$(lua_057_bind 68 "Z" "Zoom in" "function: 0x5581c3b17c80" 290)
+$(lua_057_bind 0 "switch:on:Lid Switch" "" "HL.Dispatcher(exec_cmd)" 77)
+BINDS
+
+rm -rf "$tmpdir/cache"
+keybindings >/dev/null
+records=$(cat "$tmpdir"/cache/omarchy/keybindings-*.records)
+grep -qP '→ Omarchy menu\tlua\thl\.dsp\.global\("omarchy:menu\.root"\)$' <<<"$records" &&
+  grep -qP '^SUPER \+ W / SUPER \+ Q +→ Close window\tlua\thl\.dsp\.window\.close\(\)$' <<<"$records" &&
+  grep -qP '→ Terminal\texec\tomarchy-launch-terminal$' <<<"$records" &&
+  grep -qP '→ Zoom in\t\t$' <<<"$records" &&
+  ! grep -qE 'HL\.Dispatcher|function: |Lid Switch' <<<"$records" ||
+  fail "picking a row runs its bind when Hyprland names Lua binds HL.Dispatcher or by address" "$records"
+pass "picking a row runs its bind when Hyprland names Lua binds HL.Dispatcher or by address"
 
 # A plugin that walks the window list while it loads must not wedge the scan,
 # and the binds after it must still be recovered from the Lua source.
