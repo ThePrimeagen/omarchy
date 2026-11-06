@@ -39,10 +39,15 @@ function windows(t) {
   return out.slice(0, Security.MAX_CODES)
 }
 
-function harvest(t, re, seen, out, keep) {
+// Matched in the whole text, never in a window cut out of it: a cut's edge
+// would read as the edge of a number, and "123456" as "23456". A code that
+// reaches into a window is taken whole.
+function harvest(t, spans, re, seen, out, keep) {
   var m
   re.lastIndex = 0
   while ((m = re.exec(t)) !== null) {
+    var end = re.lastIndex, start = end - m[1].length
+    if (!spans.some(function (s) { return start < s[1] && end > s[0] })) continue
     var value = keep(m[1])
     if (!value || seen[value]) continue
     seen[value] = true
@@ -56,22 +61,18 @@ function codes(text) {
   if (!spans.length) return []
 
   var out = [], seen = {}
-  for (var i = 0; i < spans.length; i++) {
-    harvest(t.slice(spans[i][0], spans[i][1]), CODE_SHAPE, seen, out, function (raw) {
-      var value = raw.replace(/^[A-Za-z]-/, "").replace(/[\s-]/g, "")
-      if (value.length < 4 || value.length > 8) return ""
-      if (/^(19|20)\d\d$/.test(value)) return ""      // a year
-      return value
-    })
-  }
+  harvest(t, spans, CODE_SHAPE, seen, out, function (raw) {
+    var value = raw.replace(/^[A-Za-z]-/, "").replace(/[\s-]/g, "")
+    if (value.length < 4 || value.length > 8) return ""
+    if (/^(19|20)\d\d$/.test(value)) return ""      // a year
+    return value
+  })
   if (out.length) return out.slice(0, Security.MAX_CODES)
 
-  for (var j = 0; j < spans.length; j++) {
-    harvest(t.slice(spans[j][0], spans[j][1]), CODE_ALNUM, seen, out, function (raw) {
-      // Needs both a digit and a letter, or it is a word in caps.
-      return (/\d/.test(raw) && /[A-Z]/.test(raw)) ? raw : ""
-    })
-  }
+  harvest(t, spans, CODE_ALNUM, seen, out, function (raw) {
+    // Needs both a digit and a letter, or it is a word in caps.
+    return (/\d/.test(raw) && /[A-Z]/.test(raw)) ? raw : ""
+  })
   return out.slice(0, Security.MAX_CODES)
 }
 
