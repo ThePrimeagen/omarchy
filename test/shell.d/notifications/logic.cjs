@@ -142,6 +142,11 @@ for (const body of ['Your verification code is 938271', 'Your code is 938 271', 
     assert.ok(!JSON.stringify(saved).includes('938271'))
   }
 }
+{ // A code that crosses the edge of its keyword's window is offered whole, never cut short.
+  for (const [summary, body] of [['482913', 'Your verification code is 482913'], ['Sign in', 'code' + ' '.repeat(D.NEAR_AFTER - 4) + '482913'],
+      ['Sign in', '482913' + ' '.repeat(D.NEAR_BEFORE - 4) + 'code'], ['Sign in', '4829 13' + ' '.repeat(D.NEAR_BEFORE - 6) + 'code']])
+    assert.equal(snap({ appName: 'Test', summary, body }).codes, '482913', summary + ' ' + body)
+}
 
 { // Restore recomputes the link from the text under today's policy, never
   // trusting the field on the stored entry.
