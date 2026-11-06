@@ -6,7 +6,8 @@
 
 set -euo pipefail
 
-url=${1:?Usage: omarchy-network-captive-portal <url>}
+url=${1:-}
+[[ -n $url ]] || { echo "Usage: omarchy-network-captive-portal <url>" >&2; exit 1; }
 tailscale_socket=/var/run/tailscale/tailscaled.sock
 lock=${XDG_RUNTIME_DIR:-/run/user/$UID}/omarchy-network-captive-portal.lock
 paused_exit_node=0

@@ -188,6 +188,14 @@ chmod +x "$tmp_dir/bin/openclaw"
   fail "--tui seeds the session through --message" "webapp opened instead"
 pass "--tui seeds the session through --message"
 
+: >"$TEST_LOG"
+if "$ROOT/bin/omarchy-launch-openclaw" --tui --message "" >"$tmp_dir/output" 2>&1; then
+  fail "--tui refuses an empty --message"
+fi
+[[ $(<"$tmp_dir/output") == "--message needs a value" && ! -s $TEST_LOG ]] ||
+  fail "--tui refuses an empty --message in its own words" "$(<"$tmp_dir/output")"
+pass "--tui refuses an empty --message in its own words"
+
 # With the package and no openclaw command, the package became the seed before
 # this user's OpenClaw moved; the launcher sets it up first.
 for stub in omarchy-cmd-present omarchy-pkg-present omarchy-install-openclaw-cli; do

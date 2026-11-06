@@ -53,3 +53,10 @@ run_failure_case \
   "network password helper refuses enterprise networks" \
   $'wpa-eap\nsecret\n' \
   "Enterprise Wi-Fi has no shareable password"
+
+if "$ROOT/bin/omarchy-network-password" "" >"$tmp/output" 2>"$tmp/error"; then
+  fail "network password helper refuses an empty interface" "helper unexpectedly succeeded"
+fi
+[[ $(<"$tmp/error") == "Usage: omarchy-network-password <interface>" ]] ||
+  fail "network password helper refuses an empty interface with its usage" "$(<"$tmp/error")"
+pass "network password helper refuses an empty interface with its usage"

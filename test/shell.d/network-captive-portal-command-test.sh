@@ -123,3 +123,9 @@ TEST_WEBAPP_FALLBACK_STATUS=1 TEST_NMCLI_PORTAL_CHECKS=100000 run_portal '{"Exit
 (( status == 1 )) || fail "gives up when a freshly started browser fails" "exit status $status"
 [[ $(tail -1 "$stage/log") == "notify -g  Tailscale exit node restored" ]] || fail "restores the exit node when a freshly started browser fails" "$(<"$stage/log")"
 pass "gives up and restores the exit node when a freshly started browser fails"
+
+status=0
+"$ROOT/bin/omarchy-network-captive-portal" "" >"$stage/output" 2>&1 || status=$?
+(( status == 1 )) && [[ $(<"$stage/output") == "Usage: omarchy-network-captive-portal <url>" ]] ||
+  fail "refuses an empty URL with its usage" "exit status $status: $(<"$stage/output")"
+pass "refuses an empty URL with its usage"

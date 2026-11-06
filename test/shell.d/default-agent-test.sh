@@ -945,6 +945,30 @@ grep -F "omarchy agent prompt" "$test_tmp/positional-output" >/dev/null ||
 [[ ! -s $launch_log ]] || fail "omarchy agent starts nothing for a positional prompt"
 pass "omarchy agent keeps prompts on the prompt route"
 
+# An empty prompt is no prompt, and an empty or missing value is refused in the
+# command's own words, never bash's ${N:?} error with a script path, a line and
+# an option the user may never have typed.
+refused() {
+  local expected=$1
+  shift
+  : >"$launch_log"
+  : >"$inline_log"
+  if "$@" >"$test_tmp/refused-output" 2>&1; then
+    fail "$* is refused"
+  fi
+  [[ $(<"$test_tmp/refused-output") == "$expected" ]] ||
+    fail "$* is refused with: $expected" "$(<"$test_tmp/refused-output")"
+  [[ ! -s $launch_log && ! -s $inline_log ]] || fail "$* starts nothing"
+}
+refused "Usage: omarchy agent prompt [--inline] <prompt...>" omarchy agent prompt ""
+refused "Usage: omarchy agent prompt [--inline] <prompt...>" omarchy agent prompt --inline ""
+refused "--agent needs an agent id" omarchy agent --agent ""
+refused "--agent needs an agent id" omarchy-agent --agent
+refused "--local-model needs a recipe id" omarchy agent --local-model ""
+refused "--prompt needs a value" omarchy-agent --prompt ""
+refused $'Not a PID: \nUsage: omarchy agent crash <pid>   (see: coredumpctl list)' omarchy agent crash ""
+pass "an empty prompt or option value is refused in the command's own words"
+
 printf '%s\n' "missing" >"$agent_file"
 if OMARCHY_TEST_MISSING_COMMAND=missing omarchy-agent >"$test_tmp/missing-output" 2>&1; then
   fail "agent launcher rejects a missing default command"

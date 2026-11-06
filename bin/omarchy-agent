@@ -28,8 +28,9 @@ while (($#)); do
       shift
       ;;
     --local-model)
+      [[ -n ${2:-} ]] || { echo "--local-model needs a recipe id" >&2; exit 1; }
       use_local=true
-      local_model=${2:?--local-model needs a recipe id}
+      local_model=$2
       shift 2
       ;;
     --prefer-local)
@@ -37,11 +38,13 @@ while (($#)); do
       shift
       ;;
     --agent)
-      agent_override=${2:?--agent needs an agent id}
+      [[ -n ${2:-} ]] || { echo "--agent needs an agent id" >&2; exit 1; }
+      agent_override=$2
       shift 2
       ;;
     --prompt)
-      prompt=${2:?--prompt needs a value}
+      [[ -n ${2:-} ]] || { echo "--prompt needs a value" >&2; exit 1; }
+      prompt=$2
       shift 2
       ;;
     *)

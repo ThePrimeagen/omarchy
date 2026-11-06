@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-pid=${1:?usage: omarchy-agent-crash <pid> [comm] [exe] [signal]}
+pid=${1:-}
 
 if [[ ! $pid =~ ^[0-9]+$ ]]; then
   echo "Not a PID: $pid" >&2

@@ -63,3 +63,10 @@ pass "update succeeds when the requested collectors all pass"
 [[ -e $usage_dir/skipped.json && ! -e $usage_dir/noisy.json ]] ||
   fail "update with agent arguments only runs the named collectors"
 pass "update with agent arguments only runs the named collectors"
+
+rm -rf "$usage_dir"
+output=$(HOME="$TEST_HOME" OMARCHY_PATH="$FAKE_OMARCHY" XDG_STATE_HOME="" \
+  "$ROOT/bin/omarchy-agent-usage-update" --except "" 2>&1) && fail "update refuses an empty --except"
+[[ $output == "--except needs an agent" && ! -e $usage_dir/good.json ]] ||
+  fail "update refuses an empty --except before updating anything" "$output"
+pass "update refuses an empty --except before updating anything"
