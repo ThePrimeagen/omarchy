@@ -88,6 +88,11 @@ deliver() {
 # Anything left staged by an interrupted run still deserves delivering.
 deliver
 
+if ! omarchy-cmd-present tailscale; then
+  echo "Tailscale CLI is not installed or not on PATH." >&2
+  exit 1
+fi
+
 while true; do
   if ! tailscale file get --wait --conflict=rename "$staging"; then
     $once && exit 1

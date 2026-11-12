@@ -11,6 +11,11 @@ if (($# < 1)); then
   exit 1
 fi
 
+if ! omarchy-cmd-present tailscale; then
+  echo "Tailscale CLI is not installed or not on PATH." >&2
+  exit 1
+fi
+
 machine="$1"
 shift
 
