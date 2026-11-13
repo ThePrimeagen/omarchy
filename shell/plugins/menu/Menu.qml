@@ -945,9 +945,17 @@ Item {
   }
 
   function cancel() {
+    var wasOpened = opened
     if (root.dmenuActive) root.finishRequest(null)
     opened = false
     filterText = ""
+    // The harness picker is the Quake console's seed, and it opens no window of
+    // its own, so cancelling it over an empty console still on screen would
+    // leave that console dimmed and blank. Close the console with the picker
+    // in that case, and leave a console holding a window alone.
+    if (wasOpened && root.activeMenu === "agent.harness") {
+      Util.execDetached("hyprctl monitors -j 2>/dev/null | jq -e 'tostring | contains(\"special:qconsole\")' >/dev/null && hyprctl clients -j 2>/dev/null | jq -e 'tostring | contains(\"special:qconsole\") | not' >/dev/null && { hyprctl dispatch 'hl.dsp.workspace.toggle_special(\"qconsole\")' >/dev/null 2>&1 || hyprctl dispatch togglespecialworkspace qconsole >/dev/null 2>&1; }")
+    }
   }
 
   function openExistingMenu(initialMenu) {
