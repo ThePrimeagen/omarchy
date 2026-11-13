@@ -44,7 +44,7 @@ hdl() {
   herdr pane run "$ai_pane" "$ai" >/dev/null
 
   # Run nvim in the left pane
-  herdr pane run "$editor_pane" "$EDITOR ." >/dev/null
+  herdr pane run "$editor_pane" "nvim ." >/dev/null
 }
 
 # Create a Herdr Dev Square layout with editor, diff watch, terminal, and opencode
