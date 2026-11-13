@@ -10,6 +10,8 @@ use_local=false
 prefer_local=false
 local_model=""
 agent_override=""
+prompt=""
+has_prompt=false
 
 # Flags only. A bare prompt would shadow the subcommands under this group, so
 # prompts go through omarchy-agent-prompt, which passes one here as --prompt.
@@ -41,7 +43,12 @@ while (($#)); do
       shift 2
       ;;
     --prompt)
-      prompt=${2:?--prompt needs a value}
+      if (($# < 2)); then
+        echo "--prompt needs a value" >&2
+        exit 1
+      fi
+      prompt=$2
+      has_prompt=true
       shift 2
       ;;
     *)
@@ -131,19 +138,19 @@ fi
 case "$agent" in
 opencode)
   command=(opencode --auto)
-  [[ -n ${prompt:-} ]] && command+=(--prompt "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(--prompt "$prompt")
   ;;
 agy)
   command=(agy --dangerously-skip-permissions)
-  [[ -n ${prompt:-} ]] && command+=(--prompt-interactive "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(--prompt-interactive "$prompt")
   ;;
 copilot)
   command=(copilot --allow-all)
-  [[ -n ${prompt:-} ]] && command+=(--interactive "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(--interactive "$prompt")
   ;;
 crush)
   # --yolo belongs to the interactive command only; `crush run` never prompts.
-  if [[ -n ${prompt:-} ]]; then
+  if [[ $has_prompt == "true" ]]; then
     command=(crush run "$prompt")
   else
     command=(crush --yolo)
@@ -151,11 +158,11 @@ crush)
   ;;
 claude)
   command=(claude --permission-mode auto)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 grok)
   command=(grok --permission-mode bypassPermissions)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 openclaw)
   # The launcher owns onboarding and the gateway dance: OpenClaw's terminal UI
@@ -164,11 +171,11 @@ openclaw)
   # prompts to skip, and --message seeds the session while keeping it
   # interactive.
   command=(omarchy-launch-openclaw --tui)
-  [[ -n ${prompt:-} ]] && command+=(--message "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(--message "$prompt")
   ;;
 codex)
   command=(codex --approve-for-me)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 cursor-agent)
   # --yolo covers commands only; the workspace trust dialog has its own flag.
@@ -176,10 +183,10 @@ cursor-agent)
   # subcommand after a bare --, so the agent subcommand is named outright, and
   # -- after it keeps a prompt starting with a dash from being read as an option.
   command=(cursor-agent --yolo --trust)
-  [[ -n ${prompt:-} ]] && command+=(agent -- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(agent -- "$prompt")
   ;;
 hermes)
-  if [[ -n ${prompt:-} ]]; then
+  if [[ $has_prompt == "true" ]]; then
     command=(env -u HERMES_SESSION_SOURCE hermes chat --yolo --tui "--query=$prompt")
   else
     command=(hermes --yolo)
@@ -188,26 +195,26 @@ hermes)
 muse)
   # --approval-mode never skips the tool prompts but keeps Muse's own sandbox.
   command=(muse --approval-mode never)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 omp)
   command=(omp --auto-approve)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 ori)
   # Ori is a harness launcher, and `ori code` is the agent it runs itself.
   # A prompt alone means one headless turn there, printed after the turn ends,
   # so --interactive is what seeds the session with it and keeps the window.
   command=(ori code)
-  [[ -n ${prompt:-} ]] && command+=(--interactive --prompt "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(--interactive --prompt "$prompt")
   ;;
 pi)
   command=(pi)
-  [[ -n ${prompt:-} ]] && command+=("$prompt")
+  [[ $has_prompt == "true" ]] && command+=("$prompt")
   ;;
 kimi)
   # --prompt is non-interactive print mode only; it cannot combine with --yolo.
-  if [[ -n ${prompt:-} ]]; then
+  if [[ $has_prompt == "true" ]]; then
     command=(kimi --prompt "$prompt")
   else
     command=(kimi --yolo)
@@ -216,7 +223,7 @@ kimi)
 qwen)
   # Bind the value so a prompt starting with a dash stays literal.
   command=(qwen --yolo)
-  [[ -n ${prompt:-} ]] && command+=("--prompt-interactive=$prompt")
+  [[ $has_prompt == "true" ]] && command+=("--prompt-interactive=$prompt")
   ;;
 dsh)
   # The browser UI has no prompt option, and the headless profile would run the
@@ -228,13 +235,13 @@ dsh)
 mcode)
   # The TUI has no no-approval flag; permission options belong to exec mode.
   command=(mcode)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 kiro-cli)
   # A positional input seeds the interactive chat; -- keeps a prompt starting
   # with a dash literal.
   command=(kiro-cli chat --trust-all-tools)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 freebuff)
   # Freebuff takes no starting prompt and asks no tool permissions, so a
@@ -246,19 +253,19 @@ kilo)
   # Kilo is built on OpenCode and shares its flags. Bind the prompt so one
   # starting with a dash stays literal.
   command=(kilo --auto)
-  [[ -n ${prompt:-} ]] && command+=("--prompt=$prompt")
+  [[ $has_prompt == "true" ]] && command+=("--prompt=$prompt")
   ;;
 devin)
   # A bare positional is a path that opens Devin Desktop, so the prompt
   # always follows --, which starts an interactive session with it.
   command=(devin --permission-mode dangerous --respect-workspace-trust false)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 amp)
   # Amp takes its first interactive message from piped input; a positional
   # message is for --execute, which exits after one turn. The binary rides in
   # as $0 so a user install below can replace it.
-  if [[ -n ${prompt:-} ]]; then
+  if [[ $has_prompt == "true" ]]; then
     command=(bash -c 'printf "%s\n" "$1" | exec "$0" --dangerously-allow-all' amp "$prompt")
   else
     command=(amp --dangerously-allow-all)
@@ -268,7 +275,7 @@ commandcode)
   # --yolo skips permission prompts and implies --trust. A positional prompt
   # seeds the interactive session; -- keeps one starting with a dash literal.
   command=(commandcode --yolo)
-  [[ -n ${prompt:-} ]] && command+=(-- "$prompt")
+  [[ $has_prompt == "true" ]] && command+=(-- "$prompt")
   ;;
 *)
   echo "Unsupported default agent: $agent" >&2
@@ -308,7 +315,7 @@ fi
 # An agent with no way to take a starting prompt still opens, with the prompt
 # on the clipboard to paste as its first message, so a prompted launch from the
 # agents panel or a crash report is not lost.
-if [[ -n ${prompt:-} && -n ${prompt_via_clipboard:-} ]]; then
+if [[ $has_prompt == "true" && -n ${prompt_via_clipboard:-} ]]; then
   printf '%s' "$prompt" | wl-copy
   omarchy-notification-send -g 󰅇 "$(omarchy-i18n agents.promptOnClipboard "$prompt_via_clipboard")" \
     "$(omarchy-i18n agents.promptOnClipboardBody)"
