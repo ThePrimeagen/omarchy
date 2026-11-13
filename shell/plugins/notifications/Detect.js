@@ -5,7 +5,7 @@
 
 // A code is only a code if the sender says so: by shape alone it is also an
 // order number, a port, a build number or a year.
-var CODE_WORDS = /\b(code|otp|one[\s-]?time|verification|verify|passcode|pin|2fa|two[\s-]factor|security key|confirm(?:ation)?)\b/i
+var CODE_WORDS = /\b(codes?|otps?|one[\s-]?time|verifications?|verify|verifies|passcodes?|pins?|2fa|two[\s-]?factors?|security keys?|confirm(?:ation)?s?)\b/i
 
 // "482913", "482 913", "84 2139", "482-913", "G-482913".
 var CODE_SHAPE = /(?:^|[^\w-])((?:[A-Za-z]-)?\d{2,4}[\s-]\d{2,5}|(?:[A-Za-z]-)?\d{4,8})(?![\w-])/g
@@ -21,9 +21,9 @@ var NEAR_AFTER = 72
 // "Claude Code", "VS Code": a capitalised word before a capitalised "Code" is
 // a product name. "use code SAVE20" and "Your Verification Code" are not.
 function isProductName(t, at, word) {
-  if (String(word).toLowerCase() !== "code") return false
+  if (String(word).toLowerCase() !== "code" && String(word).toLowerCase() !== "codes") return false
   if (word[0] !== word[0].toUpperCase()) return false
-  var before = t.slice(Math.max(0, at - 20), at).match(/([A-Za-z][\w.]*)\s+$/)
+  var before = t.slice(Math.max(0, at - 20), at).match(/([A-Za-z][\w.]*)[ \t]+$/)
   if (!before || !/^([A-Z][a-z]+|[A-Z]{2,})$/.test(before[1])) return false
   return !CODE_WORDS.test(before[1])
 }
