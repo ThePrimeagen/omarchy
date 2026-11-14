@@ -9,7 +9,16 @@ if omarchy-pkg-missing "$@"; then
   if (( EUID == 0 )); then
     pacman -S --noconfirm --needed -- "$@" || exit 1
   else
-    sudo pacman -S --noconfirm --needed -- "$@" || exit 1
+    # Bash holds a trap until a foreground command finishes, and sudo ignores
+    # Ctrl-C at its password prompt. Running sudo in the background behind a
+    # `wait` lets Ctrl-C stop it at once.
+    child_pid=""
+    trap '[[ -z $child_pid ]] || kill "$child_pid" 2>/dev/null; exit 130' INT TERM
+    sudo pacman -S --noconfirm --needed -- "$@" <&0 &
+    child_pid=$!
+    wait "$child_pid" || exit 1
+    child_pid=""
+    trap - INT TERM
   fi
 fi
 

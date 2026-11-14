@@ -9,6 +9,9 @@ source omarchy-restart-gum
 
 cmd="$*"
 # 130 is the user bailing with Ctrl-C; anything else gets the Done/Failed prompt.
-presentation_script="omarchy-show-logo; $cmd; code=\$?; if (( code != 130 )); then omarchy-show-done \$code; fi"
+# Bash holds a trap until a foreground command finishes, and sudo ignores
+# Ctrl-C at its password prompt. Running the command in the background
+# behind a `wait` lets Ctrl-C stop it at once.
+presentation_script="trap 'pkill -TERM -P \$\$ 2>/dev/null; exit 130' INT TERM; omarchy-show-logo; $cmd <&0 & child_pid=\$!; wait \$child_pid; code=\$?; trap - INT TERM; if (( code != 130 )); then omarchy-show-done \$code; fi"
 
 exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.omarchy.terminal --title=Omarchy -e bash -c "$presentation_script"
