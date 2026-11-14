@@ -561,12 +561,6 @@ keyboard_form() {
       language_form
       continue
     fi
-
-    # Rebooting is safe but not an escape from setup: this service runs again
-    # at next boot, and encrypted machines still auto-unlock from the staged
-    # keyfile until the re-key below. Confirm it so a stray Ctrl+C doesn't
-    # bounce the machine.
-    confirm_reboot && exec systemctl reboot
   done
 
   omarchy_persist_input_selection
