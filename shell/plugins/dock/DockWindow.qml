@@ -579,8 +579,6 @@ PanelWindow {
     id: menu
 
     readonly property var item: window.menuItem
-    readonly property bool hasEntry: !!item && !!window.dock && !!window.dock.entryFor(item)
-    readonly property bool running: !!item && item.windows.length > 0
 
     visible: window.contentShown && (!!item || window.settingsMenu)
     width: Math.max(Style.space(140), menuColumn.implicitWidth) + padding * 2
@@ -626,7 +624,7 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: menu.hasEntry && menu.running
+        visible: !!menu.item
         text: Commons.I18n.t("dock.newWindow")
         onTriggered: {
           window.dock.launch(menu.item)
@@ -635,7 +633,7 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: menu.hasEntry
+        visible: !!menu.item
         text: menu.item && menu.item.pinned ? Commons.I18n.t("dock.removeFromDock") : Commons.I18n.t("dock.keepInDock")
         onTriggered: {
           window.dock.setPinned(menu.item.key, !menu.item.pinned)
@@ -644,7 +642,7 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: menu.running
+        visible: !!menu.item
         text: Commons.I18n.t("dock.quit")
         onTriggered: {
           window.dock.quit(menu.item)
