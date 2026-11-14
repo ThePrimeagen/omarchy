@@ -31,6 +31,10 @@ o.window("org.omarchy.about", { size = { 920, 480 } })
 -- to fit the screen.
 o.window("folio-preview", { float = true })
 
+-- Files' column view needs more width than a tiled half screen gives it, so
+-- the file manager itself floats at the size it picks, like its preview.
+o.window("^folio$", { float = true })
+
 o.window("omacalc", { float = true })
 
 -- Popped window rounding.
