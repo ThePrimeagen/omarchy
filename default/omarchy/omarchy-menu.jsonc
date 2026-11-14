@@ -31,7 +31,7 @@
   "update": {"icon":"","label":"Update","aliases":["restart","refresh"]},
   "learn": {"icon":"󰧑","label":"Learn"},
   "about": {"icon":"","label":"About","action":"omarchy-launch-about"},
-  "system": {"icon":"","label":"System","aliases":["power-menu"]},
+  "system": {"icon":"","label":"System","aliases":["power-menu","power","setup.power"]},
 
   // Agent
   "agent.make": {"icon":"󰙴","label":"Make something"},
