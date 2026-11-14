@@ -55,9 +55,9 @@ PanelWindow {
   readonly property int slotSize: iconSize + iconInset * 2
   // An app that is starting pulses down to this.
   readonly property real pulseOpacity: 0.7
-  // Room inward of the dock for its menus: the tallest, the apps button's,
-  // has five rows.
-  readonly property int popupRoom: Style.spacing.popupRowHeight * 5 + Style.spacing.sm * 2 + Style.normalBorderWidth * 2 + gap * 2
+  // Room inward of the dock for its menus: the tallest, an app's, has eight
+  // rows.
+  readonly property int popupRoom: Style.spacing.popupRowHeight * 8 + Style.spacing.sm * 2 + Style.normalBorderWidth * 2 + gap * 2
   // Icons pop away from the screen edge.
   readonly property int popOrigin: position === "top" ? Item.Top
     : position === "left" ? Item.Left
@@ -131,6 +131,23 @@ PanelWindow {
   property Item menuSlot: null
   // The apps button's menu: where the dock sits and whether it hides.
   property bool settingsMenu: false
+
+  // The window with focus while a menu is open: a new window taking focus,
+  // such as a terminal opened with Super+Enter, closes the menu.
+  readonly property string activeToplevelAddress: {
+    var address = ""
+    var toplevels = Hyprland.toplevels.values
+    for (var i = 0; i < toplevels.length; i++) {
+      var toplevel = toplevels[i]
+      var wayland = toplevel.wayland
+      if (wayland && wayland.activated) {
+        address = toplevel.address || ""
+        break
+      }
+    }
+    return address
+  }
+  onActiveToplevelAddressChanged: if (window.menuOpen) window.closeMenu()
 
   onWorkspaceIdChanged: if (dock) dock.readMode(workspaceId)
   onShownChanged: {
@@ -605,7 +622,6 @@ PanelWindow {
         delegate: PopupMenuRow {
           required property var modelData
 
-          visible: window.settingsMenu
           text: modelData[1]
           checked: window.position === modelData[0]
           onTriggered: {
@@ -616,7 +632,6 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: window.settingsMenu
         text: Commons.I18n.t("dock.autoHide")
         checked: window.autohide
         onTriggered: {
@@ -626,7 +641,7 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: menu.hasEntry && menu.running
+        visible: menu.hasEntry
         text: Commons.I18n.t("dock.newWindow")
         onTriggered: {
           window.dock.launch(menu.item)
@@ -644,7 +659,7 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: menu.running
+        visible: menu.hasEntry || menu.running
         text: Commons.I18n.t("dock.quit")
         onTriggered: {
           window.dock.quit(menu.item)
