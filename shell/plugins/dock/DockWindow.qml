@@ -192,7 +192,7 @@ PanelWindow {
   color: "transparent"
   WlrLayershell.namespace: "omarchy-dock"
   WlrLayershell.layer: WlrLayer.Top
-  WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+  WlrLayershell.keyboardFocus: window.menuOpen ? (window.focusPrimed ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.Exclusive) : WlrKeyboardFocus.None
   // Kept clear of the bar's reserved edge, without reserving one of its own:
   // floating windows go where they are put.
   exclusionMode: ExclusionMode.Normal
@@ -216,6 +216,23 @@ PanelWindow {
   }
 
   onAutohideChanged: window.revealed = false
+  property bool focusPrimed: false
+  onMenuOpenChanged: {
+    if (menuOpen) {
+      window.focusPrimed = false
+      focusPrimeTimer.restart()
+      Qt.callLater(function() { if (window.menuOpen) menuKeyCatcher.forceActiveFocus() })
+    } else {
+      focusPrimeTimer.stop()
+      window.focusPrimed = false
+    }
+  }
+
+  Timer {
+    id: focusPrimeTimer
+    interval: 75
+    onTriggered: if (window.menuOpen) window.focusPrimed = true
+  }
 
   Timer {
     id: hideTimer
@@ -247,9 +264,15 @@ PanelWindow {
   }
 
   HyprlandFocusGrab {
-    active: window.menuOpen
+    active: window.menuOpen && window.focusPrimed
     windows: [window]
     onCleared: window.closeMenu()
+  }
+
+  Item {
+    id: menuKeyCatcher
+    focus: window.menuOpen
+    Keys.onEscapePressed: window.closeMenu()
   }
 
   Item {
