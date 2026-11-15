@@ -173,7 +173,7 @@ end)
 
 -- The panel is only centered while the console holds one tiled window, so the
 -- count has to be rechecked as apps come and go: opened and closed, moved on or
--- off (Super+Shift+Grave, Super+Shift+1), and floated or tiled (Super+T, Super+O).
+-- off (Super+Grave, Super+Shift+1), and floated or tiled (Super+T, Super+O).
 -- window.close is left out, since it still counts the window on its way out and
 -- window.destroy follows it anyway. Measured on Hyprland 0.56.2, a move is
 -- trailed by several window.update_rules, as is a float toggle, and the last of
