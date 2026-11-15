@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# omarchy:summary=Close the active window, or the Omarchy menu when it is open
+
+# The Omarchy menu is a layer surface, not a window, so window.close() cannot
+# dismiss it. Hide the menu when it is open and close the active window
+# otherwise.
+if hyprctl layers -j 2>/dev/null | grep -q '"omarchy-menu"'; then
+  omarchy-shell shell hide omarchy.menu
+else
+  hyprctl dispatch "hl.dsp.window.close()" >/dev/null
+fi

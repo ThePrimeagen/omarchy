@@ -1324,7 +1324,11 @@ Item {
 
         // Focus is on filterInput, which forwards every key here first.
         Keys.onPressed: function(event) {
-          if (root.deleteConfirmOpen) {
+          if ((event.modifiers & (Qt.MetaModifier | Qt.AltModifier)) && (event.key === Qt.Key_W || event.key === Qt.Key_Q || event.text === "w" || event.text === "W" || event.text === "q" || event.text === "Q" || event.nativeVirtualKey === Qt.Key_W || event.nativeVirtualKey === Qt.Key_Q)) {
+            root.cancel()
+            event.accepted = true
+            return
+          } else if (root.deleteConfirmOpen) {
             // Swallow the rest too, or it would type into the search line behind the dialog.
             deleteConfirm.handleKey(event)
             event.accepted = true
@@ -1406,6 +1410,7 @@ Item {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             keyHandler: keyCatcher
+            onCloseRequested: root.cancel()
             // Input-method commits bypass key handling, so the dialog has to refuse them here.
             readOnly: root.deleteConfirmOpen
             color: root.foreground

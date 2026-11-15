@@ -1,5 +1,8 @@
-o.bind("SUPER + W", "Close window", hl.dsp.window.close())
-o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+-- The Omarchy menu is a layer surface, not a window, so window.close() cannot
+-- dismiss it. The script hides the menu when it is open and closes the active
+-- window otherwise.
+o.bind("SUPER + W", "Close window", "omarchy-hyprland-window-close")
+o.bind("SUPER + Q", "Close window", "omarchy-hyprland-window-close")
 o.bind("CTRL + ALT + DELETE", "Close all windows", "omarchy-hyprland-window-close-all")
 
 o.bind("SUPER + J", "Toggle window split", hl.dsp.layout("togglesplit"))
