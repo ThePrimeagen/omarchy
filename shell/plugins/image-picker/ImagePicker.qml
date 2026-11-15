@@ -197,13 +197,14 @@ Item {
     if (themeMode && (deleteThemeProc.running || awaitingDeleteRefresh)) return
     var path = currentPath()
 
-    if (themeMode) {
+    if (themeMode && !requestActive) {
       themeMode = false
       root.opened = false
       if (path) Util.execArgv(["omarchy-theme-set", nameForPath(path)])
       return
     }
 
+    themeMode = false
     if (!path || !selectionFile) {
       cancel()
       return
@@ -573,7 +574,7 @@ Item {
     if (payload) {
       try { args = JSON.parse(payload) || {} } catch (e) { args = {} }
     }
-    if (args.source === "themes") {
+    if (args.source === "themes" && !args.selectionFile && !args.doneFile) {
       openThemes()
       return
     }
@@ -585,6 +586,11 @@ Item {
     var labels = args.showLabels === true || args.showLabels === "true"
     var filter = args.filterable === true || args.filterable === "true"
     openSelector(dirs, rows, sel, selFile, doneF, labels, filter)
+    themeMode = args.source === "themes"
+    if (themeMode) {
+      refreshExtraThemes()
+      refreshStockThemes()
+    }
   }
 
   function close() {
