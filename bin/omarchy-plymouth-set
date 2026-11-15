@@ -361,6 +361,61 @@ run_root_transaction() {
       validate_trusted_directory "$sddm_dir"
       rm -f -- "$sddm_dir/logo.svg"
     fi
+
+    # A plain KERNEL_CMDLINE[default]= in /etc/default/limine replaces every
+    # earlier += layer, so the boot image rebuilt after this transaction can
+    # lose initramfs_async=0 (and the other Omarchy defaults) even though
+    # omarchy-defaults.conf carries them. plymouthd then exits early and
+    # encrypted boots fall back to the unthemed text LUKS prompt. Put any
+    # defaults parameter the effective command line is missing back as += in
+    # that last layer, so the rebuild that follows carries it.
+    if [[ $mode != "refresh-sddm" ]]; then
+      limine_defaults=/etc/limine-entry-tool.d/omarchy-defaults.conf
+      limine_default=/etc/default/limine
+      if [[ -f $limine_defaults && -f $limine_default ]]; then
+        defaults_params=()
+        while IFS= read -r line || [[ -n $line ]]; do
+          [[ $line =~ ^KERNEL_CMDLINE\[default\]\+=\"(.*)\"[[:space:]]*$ ]] || continue
+          for param in ${BASH_REMATCH[1]}; do
+            defaults_params+=("$param")
+          done
+        done <"$limine_defaults"
+        effective=
+        shopt -s nullglob
+        for conf in /usr/share/limine-entry-tool.d/*.conf /etc/limine-entry-tool.conf /etc/limine-entry-tool.d/*.conf "$limine_default"; do
+          [[ -f $conf ]] || continue
+          while IFS= read -r line || [[ -n $line ]]; do
+            [[ $line =~ ^[[:space:]]*KERNEL_CMDLINE\[default\][[:space:]]*(\+?)=[[:space:]]*(.*)$ ]] || continue
+            appending=${BASH_REMATCH[1]}
+            value=${BASH_REMATCH[2]}
+            [[ $value == \"*\" ]] && value=${value:1:-1}
+            if [[ -n $appending ]]; then
+              effective+=" $value"
+            else
+              effective=$value
+            fi
+          done <"$conf"
+        done
+        shopt -u nullglob
+        missing_params=()
+        for param in "${defaults_params[@]}"; do
+          [[ " $effective " == *" $param "* ]] || missing_params+=("$param")
+        done
+        if (( ${#missing_params[@]} )); then
+          printf "KERNEL_CMDLINE[default]+=\" %s\"\n" "${missing_params[*]}" >>"$limine_default"
+        fi
+        if [[ -f /etc/kernel/cmdline ]]; then
+          kernel_cmdline=$(< /etc/kernel/cmdline)
+          kernel_missing=()
+          for param in "${defaults_params[@]}"; do
+            [[ " $kernel_cmdline " == *" $param "* ]] || kernel_missing+=("$param")
+          done
+          if (( ${#kernel_missing[@]} )); then
+            printf " %s" "${kernel_missing[*]}" >>/etc/kernel/cmdline
+          fi
+        fi
+      fi
+    fi
   ' bash "$mode" "$OMARCHY_PATH" "$bg_hex" "$text_hex" "$((64 * 1024 * 1024))"
 }
 
