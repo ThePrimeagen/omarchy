@@ -1,5 +1,30 @@
-o.bind("SUPER + W", "Close window", hl.dsp.window.close())
-o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+-- The Omarchy menu and its pickers are layer-shell overlays, not windows, so
+-- closing a window while one is open would close the window behind it.
+-- Dismiss the menu instead while its layer is on screen.
+local menu_layers = 0
+hl.on("layer.opened", function(layer)
+  if layer.namespace == "omarchy-menu" then
+    menu_layers = menu_layers + 1
+  end
+end)
+hl.on("layer.closed", function(layer)
+  if layer.namespace == "omarchy-menu" and menu_layers > 0 then
+    menu_layers = menu_layers - 1
+  end
+end)
+
+local function close_window()
+  if menu_layers > 0 then
+    hl.exec_cmd("omarchy-menu close")
+  else
+    hl.dispatch(hl.dsp.window.close())
+  end
+end
+o.close_window = close_window
+o.bind_expressions[close_window] = "o.close_window()"
+
+o.bind("SUPER + W", "Close window", close_window)
+o.bind("SUPER + Q", "Close window", close_window)
 o.bind("CTRL + ALT + DELETE", "Close all windows", "omarchy-hyprland-window-close-all")
 
 o.bind("SUPER + J", "Toggle window split", hl.dsp.layout("togglesplit"))
