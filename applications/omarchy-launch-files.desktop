@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Files
+Comment=Open directories in the Omarchy file manager
+Exec=omarchy-launch-files %F
+Icon=system-file-manager
+Type=Application
+MimeType=inode/directory;
+Terminal=false
+Categories=Utility;FileManager;
+NoDisplay=true

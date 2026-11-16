@@ -1,5 +1,6 @@
 #!/bin/bash
 
 # omarchy:summary=Launch Files
+# omarchy:args=[path]
 
-exec setsid uwsm-app -- folio
+exec setsid uwsm-app -- folio "$@"
