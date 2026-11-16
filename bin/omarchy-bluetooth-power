@@ -18,8 +18,15 @@
 
 POWER_WAIT_SECONDS=${OMARCHY_BLUETOOTH_POWER_WAIT_SECONDS:-2}
 
-controllers() {
-  timeout 2s bluetoothctl list 2>/dev/null | awk '{print $2}'
+# Bash defers a trap until a foreground command returns, and starts async
+# children with SIGINT ignored when job control is off, so Ctrl-C would wait
+# for the bluetoothctl timeout to expire. Running the command behind `wait`
+# lets the trap stop it and its children at once.
+trap 'pkill -TERM -P $$ 2>/dev/null || true; exit 130' INT
+
+interruptible() {
+  "$@" &
+  wait $!
 }
 
 # Any controller counts. The block is all-or-nothing across the radios, so the
@@ -27,10 +34,14 @@ controllers() {
 # default controller and miss a powered dongle sitting behind it.
 powered() {
   local controller
+  local status
 
-  for controller in $(controllers); do
-    [[ $(timeout 2s bluetoothctl show "$controller" 2>/dev/null) == *"Powered: yes"* ]] && return 0
-  done
+  while read -r controller; do
+    timeout 2s bluetoothctl show "$controller" </dev/null 2>/dev/null | grep -q "Powered: yes" &
+    wait $!
+    status=$?
+    (( status == 0 )) && return 0
+  done < <(timeout 2s bluetoothctl list 2>/dev/null | awk '{print $2}')
 
   return 1
 }
@@ -56,7 +67,7 @@ power_on() {
   # adapter powered down without a block, so ask directly before giving up.
   wait_powered && return 0
 
-  timeout 5s bluetoothctl power on >/dev/null 2>&1
+  interruptible timeout 5s bluetoothctl power on >/dev/null 2>&1
   wait_powered && return 0
 
   echo "omarchy-bluetooth-power: adapter did not come up" >&2

@@ -7,6 +7,17 @@
 
 set -e
 
+# Bash defers a trap until a foreground command returns, and starts async
+# children with SIGINT ignored when job control is off, so Ctrl-C would wait
+# for the bluetoothctl timeout to expire. Running the command behind `wait`
+# lets the trap stop it and its children at once.
+trap 'pkill -TERM -P $$ 2>/dev/null || true; exit 130' INT
+
+interruptible() {
+  "$@" &
+  wait $!
+}
+
 usage() {
   echo "Usage: omarchy-bluetooth-device [pair|connect|disconnect|forget] <address>" >&2
   exit 1
@@ -19,34 +30,37 @@ address=${2:-}
 [[ $address =~ ^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$ ]] || usage
 
 power_on() {
-  [[ $(timeout 2s bluetoothctl show 2>/dev/null) == *"Powered: yes"* ]] && return
+  timeout 2s bluetoothctl show 2>/dev/null | grep -q "Powered: yes" &
+  if wait $!; then
+    return
+  fi
   # Not bluetoothctl directly: Bluetooth is turned off by an rfkill soft block,
   # and BlueZ refuses to power an adapter up while one is set.
-  omarchy-bluetooth-power on || true
+  interruptible omarchy-bluetooth-power on || true
 }
 
 trust_device() {
-  bluetoothctl trust "$address" >/dev/null 2>&1 || true
+  interruptible bluetoothctl trust "$address" >/dev/null 2>&1 || true
 }
 
 case "$action" in
   pair)
     power_on
-    timeout 20s bluetoothctl pair "$address" >/dev/null 2>&1 || true
+    interruptible timeout 20s bluetoothctl pair "$address" >/dev/null 2>&1 || true
     trust_device
-    timeout 20s bluetoothctl connect "$address" >/dev/null 2>&1 || true
+    interruptible timeout 20s bluetoothctl connect "$address" >/dev/null 2>&1 || true
     ;;
   connect)
     power_on
     trust_device
-    timeout 20s bluetoothctl connect "$address" >/dev/null 2>&1 || true
+    interruptible timeout 20s bluetoothctl connect "$address" >/dev/null 2>&1 || true
     ;;
   disconnect)
-    timeout 10s bluetoothctl disconnect "$address" >/dev/null 2>&1 || true
+    interruptible timeout 10s bluetoothctl disconnect "$address" >/dev/null 2>&1 || true
     ;;
   forget)
     power_on
-    timeout 10s bluetoothctl disconnect "$address" >/dev/null 2>&1 || true
-    timeout 10s bluetoothctl remove "$address" >/dev/null 2>&1 || true
+    interruptible timeout 10s bluetoothctl disconnect "$address" >/dev/null 2>&1 || true
+    interruptible timeout 10s bluetoothctl remove "$address" >/dev/null 2>&1 || true
     ;;
 esac
