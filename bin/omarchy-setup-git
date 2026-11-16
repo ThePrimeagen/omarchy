@@ -94,6 +94,37 @@ if (( interactive )); then
     gh auth status --hostname github.com >/dev/null 2>&1; then
     omarchy-i18n gitSetup.ghSignedIn
   elif gum confirm --no-show-help --affirmative "$(omarchy-i18n common.yes)" --negative "$(omarchy-i18n common.no)" "$(omarchy-i18n gitSetup.ghSignIn)"; then
-    gh auth login
+    before=$(hyprctl clients -j 2>/dev/null | jq -r '.[].address')
+    (
+      set +e
+      browser=""
+      waited=0
+      while kill -0 $$ 2>/dev/null; do
+        if [[ -n $before ]]; then
+          now=$(hyprctl clients -j 2>/dev/null | jq -r '.[].address')
+          if [[ -z $browser ]]; then
+            browser=$(comm -13 <(sort <<<"$before") <(sort <<<"$now"))
+          elif [[ -n $now ]] && [[ -z $(comm -12 <(sort <<<"$browser") <(sort <<<"$now")) ]]; then
+            sleep 5
+            pkill -f "gh auth login" 2>/dev/null
+            break
+          elif ((waited >= 240)); then
+            pkill -f "gh auth login" 2>/dev/null
+            break
+          fi
+        fi
+        sleep 1
+        if [[ -n $browser ]]; then
+          waited=$((waited + 1))
+        fi
+      done
+    ) &
+    watchdog=$!
+    code=0
+    gh auth login || code=$?
+    kill "$watchdog" 2>/dev/null || true
+    wait "$watchdog" 2>/dev/null || true
+    if (( code == 124 || code == 143 )); then exit 1; fi
+    if (( code != 0 )); then exit $code; fi
   fi
 fi
