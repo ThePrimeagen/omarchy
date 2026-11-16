@@ -28,7 +28,7 @@ LC_ALL=C pactl list "$kind" 2>/dev/null | awk -v fronted="$fronted" -v header="$
       print name "\t0"
       return
     }
-    print name "\t" ((port_count == 0 || available) ? 1 : 0)
+    print name "\t" ((port_count == 0 || available || dummy || name == "auto_null") ? 1 : 0)
   }
 
   index($0, header) == 1 {
@@ -37,6 +37,7 @@ LC_ALL=C pactl list "$kind" 2>/dev/null | awk -v fronted="$fronted" -v header="$
     in_ports = 0
     port_count = 0
     available = 0
+    dummy = 0
     next
   }
 
@@ -58,6 +59,7 @@ LC_ALL=C pactl list "$kind" 2>/dev/null | awk -v fronted="$fronted" -v header="$
   in_ports && /^\t\t/ {
     port_count++
     if ($0 !~ /not available/) available = 1
+    if ($0 ~ /\] Dummy:/ || $0 ~ /type: Dummy/) dummy = 1
     next
   }
 

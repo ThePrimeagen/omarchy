@@ -6,10 +6,17 @@
 # silently bypass the tuning rather than pick a different output.
 fronted=$(omarchy-audio-tuning fronted-sink 2>/dev/null || true)
 
+# PipeWire drops auto_null once another sink exists, so a portless null sink
+# alone leaves no Dummy Output to cycle to; recreate it when no sink exposes a port.
+if ! LC_ALL=C timeout 2 pactl -f json list sinks |
+  jq -e '[.[] | select(.name == "auto_null" or (.ports | length > 0))] | length > 0' >/dev/null; then
+  pactl load-module module-null-sink sink_name=auto_null sink_properties=device.description="Dummy Output" >/dev/null 2>&1 || true
+fi
+
 # pactl translates availability, headers and yes/no; parse them in the C locale.
 sinks=$(LC_ALL=C timeout 2 pactl -f json list sinks |
   jq --arg fronted "$fronted" '[.[]
-    | select((.ports | length == 0) or ([.ports[]? | .availability != "not available"] | any))
+    | select((.ports | length == 0) or (.name == "auto_null") or ([.ports[]? | (.availability != "not available" or .name == "Dummy")] | any))
     | select($fronted == "" or .name != $fronted)]')
 sinks_count=$(jq 'length' <<<"$sinks")
 
