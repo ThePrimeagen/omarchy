@@ -537,6 +537,15 @@ rebuild_next_boot() {
     fi
     [[ -f $next/swap/swapfile ]] ||
       fail "hibernation setup did not recreate $next/swap/swapfile (see $LOG_FILE)"
+    # A resume hook baked into the UKI without a valid resume device and
+    # offset stalls the boot before first-boot setup. Hibernation setup
+    # installs no hook when it cannot determine them, so a hook here must
+    # carry a complete drop-in.
+    if [[ -f $next/etc/mkinitcpio.conf.d/omarchy_resume.conf ]] &&
+      ! grep -Eq 'resume=[^[:space:]"]+[[:space:]]+resume_offset=[0-9]+' \
+        "$next/etc/limine-entry-tool.d/resume.conf" 2>/dev/null; then
+      fail "hibernation setup installed the resume hook without a valid resume device and offset in the factory root (see $LOG_FILE)"
+    fi
   fi
 
   # The running system's identity is the one the reset replaces.
