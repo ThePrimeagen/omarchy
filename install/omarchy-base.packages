@@ -54,8 +54,10 @@ google-chrome
 grim
 gpu-screen-recorder
 gum
+gvfs
 gvfs-mtp
 gvfs-nfs
+openssh
 gvfs-smb
 herdr
 hype
@@ -87,6 +89,7 @@ mise-bin
 monologue
 mpv
 mpv-mpris
+nautilus
 gnome-disk-utility
 noto-fonts
 noto-fonts-cjk

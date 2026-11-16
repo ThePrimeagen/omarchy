@@ -1,5 +1,5 @@
 [Default Applications]
-inode/directory=folio.desktop
+inode/directory=org.gnome.Nautilus.desktop
 
 image/png=imv.desktop
 image/jpeg=imv.desktop

@@ -71,7 +71,7 @@
   "dock": {
     "position": "bottom",
     "pinned": [
-      "folio",
+      "org.gnome.Nautilus",
       "omarchy-browser",
       "omarchy-terminal",
       "omacalc",

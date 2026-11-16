@@ -1,0 +1,37 @@
+# Folio only opens local paths: a remote address such as sftp://...
+# is silently ignored and Files opens Home instead. Nautilus browses
+# remote locations through GVfs, so hand a remote address to it and
+# stay in the foreground until its window closes.
+folio() {
+  local arg uri=""
+
+  for arg in "$@"; do
+    if [[ $arg == *://* ]]; then
+      uri="$arg"
+      break
+    fi
+  done
+
+  if [[ -z $uri ]]; then
+    command folio "$@"
+    return $?
+  fi
+
+  command nautilus "$uri" &
+  local pid=$! waited=0
+
+  while ((waited < 40)); do
+    if hyprctl clients -j 2>/dev/null | jq -e 'any(.[]; (.class // "") | test("nautilus"; "i"))' >/dev/null 2>&1; then
+      break
+    fi
+    sleep 0.25
+    ((waited++))
+  done
+
+  while hyprctl clients -j 2>/dev/null | jq -e 'any(.[]; (.class // "") | test("nautilus"; "i"))' >/dev/null 2>&1; do
+    sleep 0.5
+  done
+
+  wait $pid
+  return $?
+}
