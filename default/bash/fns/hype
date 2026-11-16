@@ -1,0 +1,86 @@
+# Run Hype from the deck's directory, with the deck's media made absolute.
+# Hype resolves the media a deck references -- the images and videos beside
+# the deck file -- against its working directory, so a deck opened from
+# anywhere else reports that media as missing and exports nothing. The deck
+# and export paths are made absolute first, so they still mean what the
+# caller meant after the move, and for an export the deck handed to Hype
+# carries absolute media paths, so the media is found however Hype bases
+# its lookup. The original deck is never modified: the export runs on a
+# temporary copy, removed afterwards.
+hype() {
+  local deck="" arg prev="" deck_dir="" tmpdeck="" rc
+  local argv=()
+  local exporting=""
+
+  for arg in "$@"; do
+    if [[ $arg == "--pdf" || $arg == "--pptx" || $arg == --pdf=* || $arg == --pptx=* ]]; then
+      exporting=1
+    fi
+    if [[ -z $deck && $prev != "--pdf" && $prev != "--pptx" && $arg != -* && -f $arg ]]; then
+      deck=$arg
+    fi
+    prev=$arg
+  done
+
+  if [[ -z $deck ]]; then
+    command hype "$@"
+    return
+  fi
+
+  deck_dir=$(builtin cd -- "$(dirname -- "$deck")" && pwd) || return 1
+
+  local orig_deck=$deck
+  if [[ -n $exporting ]]; then
+    tmpdeck=$(mktemp --suffix=.md "$deck_dir/.hype-deck.XXXXXX") || return 1
+    # Rewrite every relative media reference in the copy to an absolute
+    # path beside the deck, leaving absolute and remote references alone.
+    while IFS= read -r line || [[ -n $line ]]; do
+      local rewritten="" rest=$line target
+      while [[ $rest =~ (\]\()([^\)]+)(\)) ]]; do
+        target=${BASH_REMATCH[2]}
+        rewritten+="${rest%%"${BASH_REMATCH[0]}"*}${BASH_REMATCH[1]}"
+        if [[ $target == /* || $target == *://* || $target == data:* || $target == \#* ]]; then
+          rewritten+=$target
+        elif [[ $target == \<* ]]; then
+          rewritten+="<$deck_dir/${target:1}"
+        else
+          rewritten+="$deck_dir/$target"
+        fi
+        rewritten+=${BASH_REMATCH[3]}
+        rest="${rest#*"${BASH_REMATCH[0]}"}"
+      done
+      printf '%s\n' "$rewritten$rest"
+    done <"$deck" >"$tmpdeck" || {
+      rm -f "$tmpdeck"
+      return 1
+    }
+    deck=$tmpdeck
+  fi
+
+  prev=""
+  for arg in "$@"; do
+    if [[ $arg == --pdf=* || $arg == --pptx=* ]]; then
+      local flag=${arg%%=*} value=${arg#*=}
+      if [[ $value != /* ]]; then
+        value="$PWD/$value"
+      fi
+      argv+=("$flag=$value")
+    elif [[ $arg == "$orig_deck" || $prev == "--pdf" || $prev == "--pptx" ]]; then
+      if [[ -n $tmpdeck && $arg == "$orig_deck" ]]; then
+        argv+=("$tmpdeck")
+      elif [[ $arg != /* ]]; then
+        argv+=("$PWD/$arg")
+      else
+        argv+=("$arg")
+      fi
+    else
+      argv+=("$arg")
+    fi
+    prev=$arg
+  done
+
+  (builtin cd -- "$deck_dir" && command hype "${argv[@]}")
+  rc=$?
+  [[ -n $tmpdeck ]] && rm -f "$tmpdeck"
+  return $rc
+}
