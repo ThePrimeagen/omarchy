@@ -1072,6 +1072,22 @@ dispatch_fast_or_help() {
       fi
     fi
 
+    if (( ${#remaining[@]} >= 1 )) && [[ ${remaining[0]} != -* ]] &&
+      group_has_child_commands "${DIRECT_RESOLVED_BINARY#omarchy-}-${remaining[0]}"; then
+      load_command_by_binary "$DIRECT_RESOLVED_BINARY"
+      key="${BINARY_TO_KEY[$DIRECT_RESOLVED_BINARY]}"
+      if [[ -n $key ]] && command_takes_only_flags "$key"; then
+        load_commands
+        echo "Unknown Omarchy command: omarchy ${args[*]}" >&2
+        suggestion=$(suggest_command "${args[0]}")
+        if [[ -n $suggestion ]]; then
+          echo "Did you mean: omarchy $suggestion ?" >&2
+        fi
+        echo "Run 'omarchy commands --all' to discover available commands." >&2
+        return 127
+      fi
+    fi
+
     exec "$binary_path" "${remaining[@]}"
   fi
 
@@ -1134,6 +1150,18 @@ dispatch_or_help() {
         show_command_help "$key"
         return 1
       fi
+    fi
+
+    if (( ${#remaining[@]} >= 1 )) && [[ ${remaining[0]} != -* ]] &&
+      group_has_child_commands "${COMMAND_BINARY[$key]#omarchy-}-${remaining[0]}" &&
+      command_takes_only_flags "$key"; then
+      echo "Unknown Omarchy command: omarchy ${args[*]}" >&2
+      suggestion=$(suggest_command "${args[0]}")
+      if [[ -n $suggestion ]]; then
+        echo "Did you mean: omarchy $suggestion ?" >&2
+      fi
+      echo "Run 'omarchy commands --all' to discover available commands." >&2
+      return 127
     fi
 
     exec "$binary_path" "${remaining[@]}"
