@@ -100,8 +100,13 @@ fail() {
 # half-made home behind.
 home=""
 browser=""
+saved_primary_claude_json=""
 cleanup() {
   [[ -n $browser ]] && rm -f "$browser"
+  if [[ -n $saved_primary_claude_json ]]; then
+    cp "$saved_primary_claude_json" "$HOME/.claude.json" 2>/dev/null || true
+    rm -f "$saved_primary_claude_json"
+  fi
   [[ -n $home && -d $home && $home == */.pending/* ]] && rm -rf "$home"
 }
 trap cleanup EXIT
@@ -134,11 +139,46 @@ private_browser() {
   chmod +x "$browser" || fail "$(omarchy-i18n agents.homeFailed)"
 }
 
+# Claude keeps its account file at ~/.claude.json for the primary home and
+# inside any other home, and a login into another home can rewrite the
+# primary's file. That would make the new login read as Main's, so the
+# primary's file is kept and put back around such a login.
+save_primary_claude_json() {
+  [[ $provider == claude && -f $HOME/.claude.json ]] || return 0
+  saved_primary_claude_json=$(mktemp "${XDG_RUNTIME_DIR:-/tmp}/omarchy-account-claude-json.XXXXXX") || fail "$(omarchy-i18n agents.homeFailed)"
+  cp "$HOME/.claude.json" "$saved_primary_claude_json" || fail "$(omarchy-i18n agents.homeFailed)"
+}
+
+restore_primary_claude_json() {
+  [[ -n $saved_primary_claude_json ]] || return 0
+  cp "$saved_primary_claude_json" "$HOME/.claude.json" || fail "$(omarchy-i18n agents.homeFailed)"
+  rm -f "$saved_primary_claude_json"
+  saved_primary_claude_json=""
+}
+
 case "$provider" in
 claude) login_command=(claude auth login) ;;
 codex) login_command=(codex login) ;;
 grok) login_command=(grok login) ;;
 esac
+
+# omarchy-mise-install's wrappers run `mise use` and `mise x`, current ones on
+# lines of their own and older ones after an inline variable; either way
+# running one installs the tool it wraps. A symlink is the user's own install.
+mise_wrapper() {
+  [[ ! -L $1 ]] && head -c 4096 "$1" | grep -qaE 'mise (use|x) '
+}
+
+# The user's own install in ~/.local/bin, which omarchy-default-agent counts as
+# installed, still wins over mise's lazy shim earlier on PATH, which would
+# install and run mise's copy instead. A bare name would resolve through the
+# mise command wrapper for this provider and run that lazy shim. Once mise
+# has installed its own, a terminal runs that one, so sign-in does too.
+user_install="$HOME/.local/bin/$provider"
+if [[ -f $user_install && -x $user_install ]] &&
+  ! mise_wrapper "$user_install" && ! MISE_OFFLINE=1 mise which "$provider" &>/dev/null; then
+  login_command[0]=$user_install
+fi
 
 # The CLI's own home, whatever this shell has pointed it at.
 login() {
@@ -162,7 +202,11 @@ if [[ -n $reauth ]]; then
   else
     say "$(omarchy-i18n agents.signInAgainPrivate)"
     private_browser
-    interruptible env BROWSER="$browser" "$home_env=$account_home" "${login_command[@]}" || fail "$(omarchy-i18n agents.signInFailed "$name")"
+    save_primary_claude_json
+    interruptible env BROWSER="$browser" "$home_env=$account_home" "${login_command[@]}"
+    login_status=$?
+    restore_primary_claude_json
+    ((login_status == 0)) || fail "$(omarchy-i18n agents.signInFailed "$name")"
   fi
 
   omarchy-agent-usage-update --force "$provider" >/dev/null 2>&1 &
@@ -221,7 +265,9 @@ EOF
   home=$(omarchy-agent-account-state begin "$provider" "$label" "$$") || fail "$(omarchy-i18n agents.homeFailed)"
 
   private_browser
+  save_primary_claude_json
   interruptible env BROWSER="$browser" "$home_env=$home" "${login_command[@]}"
+  restore_primary_claude_json
 
   if account=$(omarchy-agent-account-state register "$provider" "$label" "$home" 2>&1); then
     home=""

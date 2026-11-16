@@ -33,7 +33,22 @@ fi
 
 # Resolve before restoring dispatch on PATH: mise removes the wrapper paths to
 # avoid recursion, but the agent's subprocesses need them for other providers.
-if ! agent_binary=$(type -P "$provider"); then
+# omarchy-mise-install's wrappers run `mise use` and `mise x`, current ones on
+# lines of their own and older ones after an inline variable; either way
+# running one installs the tool it wraps. A symlink is the user's own install.
+mise_wrapper() {
+  [[ ! -L $1 ]] && head -c 4096 "$1" | grep -qaE 'mise (use|x) '
+}
+
+# The user's own install in ~/.local/bin, which omarchy-default-agent counts as
+# installed, still wins over mise's lazy shim earlier on PATH, which would
+# install and run mise's copy instead. Once mise has installed its own, a
+# terminal runs that one, so dispatch does too.
+user_install="$HOME/.local/bin/$provider"
+if [[ -f $user_install && -x $user_install ]] &&
+  ! mise_wrapper "$user_install" && ! MISE_OFFLINE=1 mise which "$provider" &>/dev/null; then
+  agent_binary=$user_install
+elif ! agent_binary=$(type -P "$provider"); then
   # A mise dispatcher can exist before its CLI or first-run installer does.
   # Omarchy declares these agents, so installing one leaves the user's config
   # alone. A user who removed the preinstalls selects it in their own config.
