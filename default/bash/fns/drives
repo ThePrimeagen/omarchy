@@ -36,6 +36,7 @@ format-drive() {
     echo "Example: format-drive /dev/sda 'My Stuff'"
     echo -e "\nAvailable drives:"
     lsblk -d -o NAME -n | awk '{print "/dev/"$1}'
+    return 1
   else
     echo "WARNING: This will completely erase all data on $1 and label it '$2'."
     read -rp "Are you sure you want to continue? (y/N): " confirm
