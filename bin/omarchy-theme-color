@@ -114,7 +114,9 @@ alias_theme_color() {
   local key="$1"
   local fallback="$2"
 
-  [[ ${THEME_COLORS[$key]} ]] || THEME_COLORS[$key]="${THEME_COLORS[$fallback]}"
+  if [[ ! ${THEME_COLORS[$key]} && ${THEME_COLORS[$fallback]} ]]; then
+    THEME_COLORS[$key]="${THEME_COLORS[$fallback]}"
+  fi
 }
 
 resolve_theme_mode() {
@@ -291,6 +293,7 @@ resolve_theme_colors
 
 if [[ $OUTPUT == "all" ]]; then
   while IFS= read -r key; do
+    [[ -n ${THEME_COLORS[$key]} ]] || continue
     printf '%s\t%s\n' "$key" "${THEME_COLORS[$key]}"
   done < <(printf '%s\n' "${!THEME_COLORS[@]}" | LC_ALL=C sort)
   exit 0
