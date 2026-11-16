@@ -35,5 +35,17 @@ fi
 
 # Now remove the theme directory for THEME_NAME
 rm -rf "$THEME_PATH"
+
+# A theme removed while it was current leaves theme.name and the staged copy
+# naming a theme that no longer exists, so fall back to a stock theme. A user
+# overlay on a stock theme is re-applied without the overlay instead.
+if [[ $(cat "$HOME/.local/state/omarchy/current/theme.name" 2>/dev/null) == "$THEME_NAME" ]]; then
+  if [[ -d $OMARCHY_PATH/themes/$THEME_NAME ]]; then
+    omarchy-theme-set "$THEME_NAME"
+  else
+    omarchy-theme-set "Tokyo Night"
+  fi
+fi
+
 omarchy-notification-send "$(omarchy-i18n theme.removed)" "$THEME_NAME" || true
 echo "Removed $THEME_NAME"
