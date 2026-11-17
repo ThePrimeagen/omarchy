@@ -118,7 +118,7 @@ build_lua_bind_cache() {
     [[ -z $modmask || -z $description || -z $key ]] && continue
 
     LUA_BIND_KEY_MAP["$modmask,$description"]="$key"
-    cache_key="$modmask,$description,$key"
+    cache_key="$modmask,$description,${key^^}"
     LUA_BIND_DISPATCHER_MAP["$cache_key"]="$dispatcher"
     LUA_BIND_ARG_MAP["$cache_key"]="$arg"
   done < <(
@@ -419,13 +419,13 @@ dynamic_bindings() {
         key="${LUA_BIND_KEY_MAP["$modmask,$description"]}"
       fi
 
-      if [[ $dispatcher == "__lua" && -n $description && -n $key ]]; then
-        cache_key="$modmask,$description,$key"
+      if [[ ( $dispatcher == "__lua" || $dispatcher == function:* || $dispatcher == HL.Dispatcher* ) && -n $description && -n $key ]]; then
+        cache_key="$modmask,$description,${key^^}"
         dispatcher="${LUA_BIND_DISPATCHER_MAP["$cache_key"]}"
         arg="${LUA_BIND_ARG_MAP["$cache_key"]}"
       fi
 
-      [[ -z $description && $dispatcher == "__lua" ]] && continue
+      [[ -z $description && ( $dispatcher == "__lua" || $dispatcher == function:* || $dispatcher == HL.Dispatcher* ) ]] && continue
 
       # The Copilot key just duplicates an existing binding, so keep it hidden
       [[ $key == "code:201" ]] && continue
@@ -682,7 +682,7 @@ output_binding_records_uncached() {
 
 keybindings_cache_key() {
   {
-    printf 'v19\n'
+    printf 'v21\n'
     leading_keyboard
     omarchy-language 2>/dev/null
     cat "$OMARCHY_PATH/default/i18n/$(omarchy-language 2>/dev/null)/keybindings.json" 2>/dev/null
