@@ -182,6 +182,12 @@ o.bind_commands = {}
 -- to run instead. The menu dispatches it as `hyprctl dispatch <expression>`.
 o.bind_expressions = {}
 
+-- Legacy plain dispatcher names, as globals so `hyprctl dispatch cycle_next`
+-- (evaluated by Hyprland as `return hl.dispatch(cycle_next)`) resolves to the
+-- same dispatcher Omarchy's own binds use instead of being rejected.
+cycle_next = hl.dsp.window.cycle_next()
+closewindow = hl.dsp.window.close()
+
 -- Hand the launcher the focused window's pid, which it would otherwise ask
 -- Hyprland for, to open the new terminal in that terminal's directory.
 function o.launch_terminal()

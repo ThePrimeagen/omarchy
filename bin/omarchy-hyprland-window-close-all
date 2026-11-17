@@ -21,7 +21,7 @@ jq -r ".[].address" <<<"$clients" | \
   done
 
 # Move to the focused monitor's first workspace
-hyprctl dispatch 'o.workspaces.focus(1)' >/dev/null 2>&1 || hyprctl dispatch workspace 1
+hyprctl dispatch 'o.workspaces.focus(1)' >/dev/null 2>&1
 
 if [[ -n ${waiter:-} ]]; then
   # No matching process means the applications have already exited.

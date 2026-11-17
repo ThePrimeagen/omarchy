@@ -129,9 +129,7 @@ logo_dimensions() {
 }
 
 hypr_dispatch() {
-  local lua="$1"
-  shift
-  hyprctl dispatch "$lua" >/dev/null 2>&1 || hyprctl dispatch "$@" >/dev/null
+  hyprctl dispatch "$1" >/dev/null 2>&1
 }
 
 remember_fit() {
@@ -242,8 +240,8 @@ fit_window() {
     target_w=$(( width + (shift_w >= 0 ? (shift_w + cols - 1) / cols : shift_w / cols) ))
     target_h=$(( height + (shift_h >= 0 ? (shift_h + rows - 1) / rows : shift_h / rows) ))
 
-    hypr_dispatch "hl.dsp.window.resize({ window = \"address:$address\", x = $target_w, y = $target_h })" resizewindowpixel "exact $target_w $target_h,address:$address"
-    hypr_dispatch "hl.dsp.window.center({ window = \"address:$address\" })" centerwindow
+    hypr_dispatch "hl.dsp.window.resize({ window = \"address:$address\", x = $target_w, y = $target_h })"
+    hypr_dispatch "hl.dsp.window.center({ window = \"address:$address\" })"
     settle_grid
   done
 

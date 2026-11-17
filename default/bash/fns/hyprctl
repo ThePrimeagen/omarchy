@@ -1,0 +1,85 @@
+# Translate legacy plain dispatcher names to their Lua hl.dsp.* forms.
+# Hyprland's Lua `hyprctl dispatch` evaluates its argument as Lua via
+# hl.dispatch(...), so a bare name like `cycle_next` or `workspace 1`
+# is rejected (or is a Lua syntax error). Rewrite the known legacy
+# spellings to the hl.dsp.* spelling Omarchy's own binds use, and pass
+# everything else through to the real hyprctl unchanged.
+__omarchy_hyprctl_lua_string() {
+  local value="$1"
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  printf '"%s"' "$value"
+}
+
+hyprctl() {
+  if [[ ${1:-} == "dispatch" ]]; then
+    local expr=""
+    case ${2:-} in
+      cycle_next)
+        expr='hl.dsp.window.cycle_next()'
+        ;;
+      closewindow)
+        if (( $# >= 3 )); then
+          expr="hl.dsp.window.close({ window = $(__omarchy_hyprctl_lua_string "$3") })"
+        else
+          expr='hl.dsp.window.close()'
+        fi
+        ;;
+      workspace)
+        if (( $# >= 3 )); then
+          expr="hl.dsp.focus({ workspace = $(__omarchy_hyprctl_lua_string "$3") })"
+        fi
+        ;;
+      focuswindow)
+        if (( $# >= 3 )); then
+          expr="hl.dsp.focus({ window = $(__omarchy_hyprctl_lua_string "$3") })"
+        fi
+        ;;
+      fullscreenstate)
+        if (( $# >= 4 )); then
+          expr="hl.dsp.window.fullscreen_state({ internal = $3, client = $4 })"
+        fi
+        ;;
+      exec)
+        if (( $# >= 3 )); then
+          local cmd="${*:3}"
+          expr="hl.dsp.exec_cmd($(__omarchy_hyprctl_lua_string "$cmd"))"
+        fi
+        ;;
+      pin)
+        if (( $# >= 3 )); then
+          expr="hl.dsp.window.pin({ window = $(__omarchy_hyprctl_lua_string "$3") })"
+        fi
+        ;;
+      togglefloating)
+        if (( $# >= 3 )); then
+          expr="hl.dsp.window.float({ window = $(__omarchy_hyprctl_lua_string "$3"), action = \"toggle\" })"
+        fi
+        ;;
+      tagwindow)
+        if (( $# >= 4 )); then
+          expr="hl.dsp.window.tag({ window = $(__omarchy_hyprctl_lua_string "$4"), tag = $(__omarchy_hyprctl_lua_string "$3") })"
+        fi
+        ;;
+      centerwindow)
+        if (( $# >= 3 )); then
+          expr="hl.dsp.window.center({ window = $(__omarchy_hyprctl_lua_string "$3") })"
+        else
+          expr='hl.dsp.window.center()'
+        fi
+        ;;
+      alterzorder)
+        if (( $# >= 4 )); then
+          expr="hl.dsp.window.alter_zorder({ mode = $(__omarchy_hyprctl_lua_string "$3"), window = $(__omarchy_hyprctl_lua_string "$4") })"
+        fi
+        ;;
+    esac
+
+    if [[ -n $expr ]]; then
+      command hyprctl dispatch "$expr"
+      return $?
+    fi
+  fi
+
+  command hyprctl "$@"
+}

@@ -115,14 +115,13 @@ layer_off_screen() {
 }
 
 # Close every window matching a class regex, by address so multi-window apps
-# are fully closed. Tries the quattro Lua dispatcher first, then classic.
+# are fully closed.
 close_windows() {
   local class="$1"
   local addr
 
   while read -r addr; do
-    hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null 2>&1 ||
-      hyprctl dispatch closewindow "address:$addr" >/dev/null 2>&1 || true
+    hyprctl dispatch "hl.dsp.window.close({ window = \"address:$addr\" })" >/dev/null 2>&1 || true
   done < <(hyprctl -j clients | jq -r --arg class "$class" '.[] | select(.class | test($class)) | .address')
 }
 

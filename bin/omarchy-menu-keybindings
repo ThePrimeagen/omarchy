@@ -760,7 +760,7 @@ dispatch_lua_expression() {
 dispatch_exec_binding() {
   local command="$1"
 
-  dispatch_lua_expression "hl.dsp.exec_cmd($(lua_string "$command"))" || hyprctl dispatch exec "$command"
+  dispatch_lua_expression "hl.dsp.exec_cmd($(lua_string "$command"))"
 }
 
 dispatch_sendshortcut_binding() {
@@ -779,8 +779,6 @@ dispatch_sendshortcut_binding() {
     dispatch_lua_expression "hl.dsp.send_key_state({ mods = $(lua_string "$mods"), key = $(lua_string "$key"), state = \"up\", window = $(lua_string "$window") })"
     return
   fi
-
-  hyprctl dispatch sendshortcut "$arg"
 }
 
 dispatch_binding() {
@@ -797,14 +795,7 @@ dispatch_binding() {
     lua)
       [[ -n $arg ]] && hyprctl dispatch "$arg"
       ;;
-    "") return 1 ;;
-    *)
-      if [[ -n $arg ]]; then
-        hyprctl dispatch "$dispatcher" "$arg"
-      else
-        hyprctl dispatch "$dispatcher"
-      fi
-      ;;
+    *) return 1 ;;
   esac
 }
 

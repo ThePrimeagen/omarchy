@@ -51,10 +51,7 @@ notify_saved_width() {
 }
 
 hypr_dispatch() {
-  local lua="$1"
-  shift
-
-  hyprctl dispatch "$lua" >/dev/null 2>&1 || hyprctl dispatch "$@" >/dev/null
+  hyprctl dispatch "$1" >/dev/null 2>&1
 }
 
 window_width() {
@@ -67,7 +64,7 @@ resize_width_by() {
   local window="$1"
   local delta="$2"
 
-  hypr_dispatch "hl.dsp.window.resize({ window = \"$window\", x = $delta, y = 0, relative = true })" resizeactive "$delta" 0 "$window"
+  hypr_dispatch "hl.dsp.window.resize({ window = \"$window\", x = $delta, y = 0, relative = true })"
 }
 
 save_width() {
