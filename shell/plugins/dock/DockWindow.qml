@@ -626,7 +626,7 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: menu.hasEntry && menu.running
+        visible: menu.hasEntry
         text: Commons.I18n.t("dock.newWindow")
         onTriggered: {
           window.dock.launch(menu.item)
@@ -635,7 +635,7 @@ PanelWindow {
       }
 
       PopupMenuRow {
-        visible: menu.hasEntry
+        visible: !!menu.item
         text: menu.item && menu.item.pinned ? Commons.I18n.t("dock.removeFromDock") : Commons.I18n.t("dock.keepInDock")
         onTriggered: {
           window.dock.setPinned(menu.item.key, !menu.item.pinned)
