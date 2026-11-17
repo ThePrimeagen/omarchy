@@ -8,6 +8,9 @@
 source omarchy-restart-gum
 
 cmd="$*"
+if [[ ! $cmd =~ [^[:space:]] ]]; then
+  cmd="true"
+fi
 # 130 is the user bailing with Ctrl-C; anything else gets the Done/Failed prompt.
 presentation_script="omarchy-show-logo; $cmd; code=\$?; if (( code != 130 )); then omarchy-show-done \$code; fi"
 
