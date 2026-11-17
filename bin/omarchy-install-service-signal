@@ -5,6 +5,26 @@
 
 set -e
 
+usage() {
+  echo "Usage: omarchy-install-service-signal"
+  echo ""
+  echo "Install Signal and launch it."
+}
+
+while (($#)); do
+  case "$1" in
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
 echo "Installing Signal..."
 omarchy-pkg-add signal-desktop
 

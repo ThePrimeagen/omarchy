@@ -4,6 +4,26 @@
 
 set -e
 
+usage() {
+  echo "Usage: omarchy-install-service-microsoft"
+  echo ""
+  echo "Install Microsoft Outlook, Word, Excel, PowerPoint, Teams, and OneDrive as web apps."
+}
+
+while (($#)); do
+  case "$1" in
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
 ICONS="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png"
 
 echo "Installing Microsoft Outlook..."

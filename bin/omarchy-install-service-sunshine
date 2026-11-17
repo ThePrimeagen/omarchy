@@ -5,6 +5,26 @@
 
 set -e
 
+usage() {
+  echo "Usage: omarchy-install-service-sunshine"
+  echo ""
+  echo "Install Sunshine and open Moonlight streaming ports for LAN and Tailscale."
+}
+
+while (($#)); do
+  case "$1" in
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
 TCP_PORTS=(47984 47989 48010)
 UDP_PORTS=(5353 47998 47999 48000 48002 48010)
 PRIVATE_CIDRS=(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16)

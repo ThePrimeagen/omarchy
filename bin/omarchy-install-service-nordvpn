@@ -3,6 +3,26 @@
 # omarchy:summary=Install the NordVPN service with optional GUI.
 # omarchy:requires-sudo=true
 
+usage() {
+  echo "Usage: omarchy-install-service-nordvpn"
+  echo ""
+  echo "Install the NordVPN service with optional GUI."
+}
+
+while (($#)); do
+  case "$1" in
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
 echo "Installing NordVPN..."
 omarchy-pkg-add nordvpn-bin
 
