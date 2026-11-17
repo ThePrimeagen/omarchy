@@ -44,5 +44,13 @@ fi
 
 # Now remove the theme directory for THEME_NAME
 rm -rf "$THEME_PATH"
+
+# A theme removed while it was current leaves theme.name naming it and the
+# staged copy behind, so fall back to the default the same way a fresh
+# install is seeded.
+if [[ $(cat "$HOME/.local/state/omarchy/current/theme.name" 2>/dev/null || true) == "$THEME_NAME" ]]; then
+  omarchy-theme-set "Tokyo Night"
+fi
+
 omarchy-notification-send "$(omarchy-i18n theme.removed)" "$THEME_NAME" || true
 echo "Removed $THEME_NAME"
