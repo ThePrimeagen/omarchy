@@ -66,6 +66,86 @@ hl.config({
   },
 })
 
+-- The scratchpad overlays the workspace underneath it on the right half of
+-- the screen, so the workspace it covers stays visible beside it rather
+-- than hidden behind a full-size overlay.
+local SCRATCHPAD = "special:scratchpad"
+
+if hl.workspace_rule and hl.on and hl.get_active_monitor and hl.get_workspace then
+local beside = nil
+
+local function cover(side)
+  if beside == side then
+    return false
+  end
+  beside = side
+
+  hl.workspace_rule({
+    workspace = SCRATCHPAD,
+    gaps_in = 5,
+    gaps_out = { top = 10, right = 10, bottom = 10, left = side },
+  })
+
+  return true
+end
+
+local function fit(monitor)
+  if not monitor or not monitor.scale or monitor.scale <= 0 then
+    return false
+  end
+
+  local width, height = monitor.width, monitor.height
+  if monitor.transform % 2 == 1 then
+    width, height = height, width
+  end
+
+  local reserved = monitor.reserved
+  width = width / monitor.scale - reserved.left - reserved.right
+
+  return cover(math.floor(width / 2))
+end
+
+local function scratchpad_monitor()
+  local ws = hl.get_workspace(SCRATCHPAD)
+  local mon = ws and ws.visible and ws.monitor
+
+  if mon and mon.scale and mon.scale > 0 then
+    return mon
+  end
+
+  return hl.get_active_monitor()
+end
+
+local function refit(monitor)
+  if fit(monitor or scratchpad_monitor()) then
+    hl.exec_scheduled_prop_refresh_immediately()
+  end
+end
+
+cover(0)
+fit(scratchpad_monitor())
+
+hl.on("monitor.layout_changed", function()
+  refit()
+end)
+
+hl.on("monitor.focused", function()
+  refit()
+end)
+
+hl.on("workspace.special_active", function(ws, mon)
+  if ws and ws.name == SCRATCHPAD then
+    refit(mon)
+  end
+end)
+
+hl.on("workspace.move_to_monitor", function(ws, mon)
+  if ws and ws.name == SCRATCHPAD then
+    refit(mon)
+  end
+end)
+end
+
 -- Default animations, see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Animations/
 hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
 hl.curve("easeInOutCubic", { type = "bezier", points = { { 0.65, 0.05 }, { 0.36, 1 } } })
@@ -134,6 +214,6 @@ hl.config({
   },
 
   binds = {
-    hide_special_on_workspace_change = true,
+    hide_special_on_workspace_change = false,
   },
 })

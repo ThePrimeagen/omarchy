@@ -28,9 +28,21 @@ for workspace = 1, 10 do
   o.bind("SUPER + SHIFT + ALT + " .. key, "Move window silently to workspace " .. workspace, o.workspaces.move_window(workspace, false))
 end
 
-o.bind("SUPER + S", "Toggle scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
+-- Toggle a special workspace through a Lua function rather than a dispatcher
+-- bind: Hyprland reports a dispatcher bind's argument as a display-only
+-- number, and the toggle then never shows the special workspace it names. A
+-- function bind dispatches the same toggle with its argument intact.
+local function toggle_special(name)
+  local function toggle()
+    hl.dispatch(hl.dsp.workspace.toggle_special(name))
+  end
+  o.bind_expressions[toggle] = "hl.dispatch(hl.dsp.workspace.toggle_special(" .. string.format("%q", name) .. "))"
+  return toggle
+end
+
+o.bind("SUPER + S", "Toggle scratchpad", toggle_special("scratchpad"))
 o.bind("SUPER + ALT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
-o.bind("SUPER + grave", "Toggle Quake console", hl.dsp.workspace.toggle_special("qconsole"))
+o.bind("SUPER + grave", "Toggle Quake console", toggle_special("qconsole"))
 o.bind("SUPER + M", "Minimize window to the dock", "omarchy-hyprland-window-minimize")
 o.bind("SUPER + SHIFT + grave", "Move window to Quake console", hl.dsp.window.move({ workspace = "special:qconsole", follow = false }))
 
