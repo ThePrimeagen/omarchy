@@ -868,7 +868,7 @@ group_exists() {
 
 show_group_help() {
   local group="$1"
-  local include_all="${2:-false}"
+  local include_all="${2:-true}"
   local key=""
   local rows=""
   local title="${GROUP_DESCRIPTIONS[$group]}"
@@ -893,16 +893,21 @@ show_group_help() {
 
 show_prefix_help() {
   local prefix="$1"
-  local prefix_with_space="$prefix "
+  local prefix_with_space=""
   local key=""
   local rows=""
+
+  while [[ $prefix == *" --help" || $prefix == *" -h" ]]; do
+    prefix="${prefix% *}"
+  done
+  prefix_with_space="$prefix "
 
   while IFS= read -r key; do
     [[ -n $key ]] || continue
     if [[ ${COMMAND_USAGE[$key]} == $prefix_with_space* ]]; then
       rows+="${COMMAND_USAGE[$key]}"$'\t'$'\t'"${COMMAND_SUMMARY[$key]}"$'\n'
     fi
-  done < <(sorted_keys false)
+  done < <(sorted_keys true)
 
   [[ -n $rows ]] || return 1
 
