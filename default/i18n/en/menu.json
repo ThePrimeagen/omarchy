@@ -337,6 +337,38 @@
   "trigger.clipboard-history": {
     "label": "Clipboard History"
   },
+  "trigger.audio": {
+    "label": "Audio",
+    "description": "Volume slider, output picker, per-app mixer"
+  },
+  "trigger.bluetooth": {
+    "label": "Bluetooth",
+    "description": "Bluetooth device list with connect/disconnect"
+  },
+  "trigger.monitor": {
+    "label": "Display",
+    "description": "Brightness slider and laptop display controls"
+  },
+  "trigger.network": {
+    "label": "Network",
+    "description": "Wi-Fi list and connection state"
+  },
+  "trigger.power": {
+    "label": "Power",
+    "description": "Battery, power profile, and system stats"
+  },
+  "trigger.clock": {
+    "label": "Clock",
+    "description": "Date/time label with a calendar popup"
+  },
+  "trigger.elsewhen": {
+    "label": "World Clock",
+    "description": "A world clock: one row per city, and a globe."
+  },
+  "trigger.agents": {
+    "label": "Agents",
+    "description": "Usage, limits, pace, and prepaid balances for every AI agent and provider in a native Omarchy bar panel."
+  },
   "trigger.reminder": {
     "label": "Reminder"
   },
