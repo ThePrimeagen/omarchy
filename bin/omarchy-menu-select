@@ -100,7 +100,7 @@ if (( ${#options[@]} == 0 )) && [[ ! -t 0 ]]; then
 fi
 
 if (( ${#options[@]} == 0 )); then
-  echo "Usage: omarchy-menu-select <prompt> [option...] [-- menu args...]" >&2
+  echo "$prompt: no options to pick" >&2
   exit 1
 fi
 

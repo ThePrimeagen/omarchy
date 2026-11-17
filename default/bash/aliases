@@ -1,6 +1,40 @@
 # File system
 if command -v eza &> /dev/null; then
-  alias ls='eza -lh --group-directories-first --icons=auto'
+  unalias ls 2>/dev/null || true
+  ls() {
+    local args=() arg stripped after_dashdash=0 reversed=0 scan_dashdash=0
+    for arg in "$@"; do
+      if (( scan_dashdash )); then
+        continue
+      elif [[ $arg == "--" ]]; then
+        scan_dashdash=1
+      elif [[ $arg == "--reverse" ]]; then
+        reversed=1
+      elif [[ $arg == -*r* && $arg != --* ]]; then
+        reversed=1
+      fi
+    done
+    for arg in "$@"; do
+      if (( after_dashdash )); then
+        args+=("$arg")
+      elif [[ $arg == "--" ]]; then
+        after_dashdash=1
+        args+=("$arg")
+      elif [[ $arg == "-t" ]]; then
+        args+=(--sort=modified)
+        (( reversed )) || args+=(--reverse)
+      elif [[ $arg == -*t* && $arg != --* ]]; then
+        stripped="-${arg#-}"
+        stripped="${stripped//t}"
+        [[ $stripped == "-" ]] || args+=("$stripped")
+        args+=(--sort=modified)
+        (( reversed )) || args+=(--reverse)
+      else
+        args+=("$arg")
+      fi
+    done
+    eza -lh --group-directories-first --icons=auto "${args[@]}"
+  }
   alias lsa='ls -a'
   alias lt='eza --tree --level=2 --long --icons --git'
   alias lta='lt -a'
