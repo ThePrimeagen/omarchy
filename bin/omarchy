@@ -1005,16 +1005,33 @@ resolve_route() {
 }
 
 suggest_command() {
-  local first="$1"
+  local query=""
+  local arg=""
+  local first=""
   local candidate=""
+  local fallback=""
+
+  for arg in "$@"; do
+    [[ $arg == "--help" || $arg == "-h" ]] || query+="${query:+ }$arg"
+  done
+  [[ -n $query ]] || return 1
+  first="${query%% *}"
 
   for candidate in "${!ROUTE_TO_KEY[@]}"; do
     candidate="${candidate#omarchy }"
-    if [[ $candidate == "$first"* ]]; then
-      printf '%s' "${candidate%% *}"
+    if [[ $candidate == "$query"* ]]; then
+      printf '%s' "$candidate"
       return 0
     fi
+    if [[ -z $fallback && $candidate == "$first"* ]]; then
+      fallback="$candidate"
+    fi
   done
+
+  if [[ -n $fallback ]]; then
+    printf '%s' "$fallback"
+    return 0
+  fi
 
   return 1
 }
@@ -1109,6 +1126,8 @@ dispatch_or_help() {
   local key=""
   local binary_path=""
   local suggestion=""
+  local prefix_args=()
+  local arg=""
 
   if resolve_route "$#" "${args[@]}"; then
     key="$RESOLVED_KEY"
@@ -1152,14 +1171,18 @@ dispatch_or_help() {
     return 0
   fi
 
-  if show_prefix_help "omarchy ${args[*]}"; then
+  for arg in "${args[@]}"; do
+    [[ $arg == "--help" || $arg == "-h" ]] || prefix_args+=("$arg")
+  done
+
+  if (( ${#prefix_args[@]} > 0 )) && show_prefix_help "omarchy ${prefix_args[*]}"; then
     return 0
   fi
 
   echo "Unknown Omarchy command: omarchy ${args[*]}" >&2
-  suggestion=$(suggest_command "${args[0]}")
+  suggestion=$(suggest_command "${args[@]}")
   if [[ -n $suggestion ]]; then
-    echo "Did you mean: omarchy $suggestion ?" >&2
+    echo "Did you mean: omarchy $suggestion?" >&2
   fi
   echo "Run 'omarchy commands --all' to discover available commands." >&2
   return 127
