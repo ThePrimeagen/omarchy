@@ -64,7 +64,7 @@ for theme_dir in "$USER_THEMES_PATH" "$OMARCHY_THEMES_PATH"; do
   fi
 done
 
-if [[ ! -f $fast_signature_file ]] || ! cmp -s "$fast_signature_file" <(printf '%s' "$fast_signature"); then
+if [[ ! -f $fast_signature_file ]] || ! cmp -s "$fast_signature_file" <(printf '%s' "$fast_signature") || [[ -z $(ls -A "$preview_dir") ]]; then
   theme_signature=""
   for theme_dir in "$USER_THEMES_PATH" "$OMARCHY_THEMES_PATH"; do
     if [[ -d $theme_dir ]]; then
@@ -82,7 +82,7 @@ if [[ ! -f $fast_signature_file ]] || ! cmp -s "$fast_signature_file" <(printf '
   done
 fi
 
-if [[ ! -f $fast_signature_file ]] || ! cmp -s "$fast_signature_file" <(printf '%s' "$fast_signature"); then
+if [[ ! -f $fast_signature_file ]] || ! cmp -s "$fast_signature_file" <(printf '%s' "$fast_signature") || [[ -z $(ls -A "$preview_dir") ]]; then
   rm -rf "$preview_dir"
   mkdir -p "$preview_dir"
 
