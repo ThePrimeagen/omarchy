@@ -45,6 +45,7 @@ Item {
   property bool stockThemesKnown: false
   property bool awaitingDeleteRefresh: false
   property string pendingDeleteTheme: ""
+  property bool deletedActiveTheme: false
   property string deleteSelectionPath: ""
   property bool deleteConfirmOpen: false
   // Bound to the central [image-picker] section in shell.toml via Commons.Color.qml.
@@ -66,7 +67,7 @@ Item {
   readonly property int previewRadius: Math.max(1, Math.min(16, Math.ceil((panel.width - expandedWidth) / (2 * (sliceWidth + sliceSpacing))) + 1))
   onPreviewRadiusChanged: updateVisibleItems()
 
-  onOpenedChanged: if (!opened) { layoutSettled = false; renderedFrames = 0; deleteConfirmOpen = false; pendingDeleteTheme = ""; deleteSelectionPath = ""; awaitingDeleteRefresh = false }
+  onOpenedChanged: if (!opened) { layoutSettled = false; renderedFrames = 0; deleteConfirmOpen = false; pendingDeleteTheme = ""; deletedActiveTheme = false; deleteSelectionPath = ""; awaitingDeleteRefresh = false }
 
   PreviewHold {
     id: previewHold
@@ -269,6 +270,7 @@ Item {
   function openSelector(nextImageDirs, nextImageRows, nextSelectedImage, nextSelectionFile, nextDoneFile, nextShowLabels, nextFilterable) {
     deleteConfirmOpen = false
     pendingDeleteTheme = ""
+    deletedActiveTheme = false
     deleteSelectionPath = ""
     awaitingDeleteRefresh = false
     if (requestActive && doneFile && doneFile !== nextDoneFile)
@@ -428,8 +430,12 @@ Item {
     deleteConfirmOpen = false
     pendingDeleteTheme = ""
     if (!name || deleteThemeProc.running) return
+    // A deleted active theme is replaced by the fallback omarchy-theme-remove
+    // applies, so selection should land on that theme, not on a neighbour
+    // that a later Enter would apply in its place.
+    deletedActiveTheme = name === String(themeNameFile.text() || "").trim()
     // Keep the user's place in the list once the deleted theme is gone.
-    if (name === selectedThemeName()) deleteSelectionPath = ImagePickerModel.replacementSelectionPath(imageArray, selectedIndex, filterText)
+    if (!deletedActiveTheme && name === selectedThemeName()) deleteSelectionPath = ImagePickerModel.replacementSelectionPath(imageArray, selectedIndex, filterText)
     deleteThemeProc.command = ["omarchy-theme-remove", name]
     deleteThemeProc.running = true
   }
@@ -444,8 +450,11 @@ Item {
     } else if (changed && rows && themeMode && opened) {
       // A theme was added or removed since the rows were last read. Keep the
       // user's place in the carousel rather than jumping back to the current;
-      // a just-deleted selection lands on the theme before it.
-      selectedImage = deleteSelectionPath || currentPath() || currentThemePreview()
+      // a just-deleted selection lands on the theme before it. When the
+      // deleted theme was the active one, the current theme is now the
+      // fallback it was replaced with, so that is where selection lands.
+      selectedImage = deletedActiveTheme ? (currentThemePreview() || deleteSelectionPath || currentPath()) : (deleteSelectionPath || currentPath() || currentThemePreview())
+      deletedActiveTheme = false
       deleteSelectionPath = ""
       awaitingDeleteRefresh = false
       imageRows = rows
@@ -507,7 +516,7 @@ Item {
     id: deleteThemeProc
     onExited: function(exitCode) {
       if (exitCode === 0) root.awaitingDeleteRefresh = true
-      else root.deleteSelectionPath = ""
+      else { root.deleteSelectionPath = ""; root.deletedActiveTheme = false }
       root.refreshExtraThemes()
       root.refreshThemeRows()
     }

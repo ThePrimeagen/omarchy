@@ -44,5 +44,17 @@ fi
 
 # Now remove the theme directory for THEME_NAME
 rm -rf "$THEME_PATH"
+
+# The theme in use is applied again without what was removed. A theme of the
+# user's own is gone, so the default takes over; one laid over a built-in
+# theme leaves that theme as Omarchy ships it.
+if [[ $(cat "$HOME/.local/state/omarchy/current/theme.name" 2>/dev/null) == "$THEME_NAME" ]]; then
+  if [[ -d $OMARCHY_PATH/themes/$THEME_NAME ]]; then
+    omarchy-theme-set "$THEME_NAME"
+  else
+    omarchy-theme-set "Tokyo Night"
+  fi
+fi
+
 omarchy-notification-send "$(omarchy-i18n theme.removed)" "$THEME_NAME" || true
 echo "Removed $THEME_NAME"
