@@ -75,4 +75,4 @@ for preview in "$preview_dir/$current".*; do
   selected="$preview"
 done
 
-exec omarchy-menu-images --print-name --show-labels --filterable --selected "$selected" "$preview_dir"
+exec omarchy-menu-images --print-name --show-labels --filterable --lazy-thumbnails --selected "$selected" "$preview_dir"
