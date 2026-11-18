@@ -156,14 +156,28 @@ set_language() {
   omarchy-notification-send -g  "$(omarchy-i18n language.changed "$name")" "$(omarchy-i18n language.newApps)"
 }
 
+usage_error() {
+  echo "Usage: omarchy-language [<code>|list|locale [<code>]]" >&2
+  exit 1
+}
+
 case "${1:-}" in
 "")
+  if (( $# != 0 )); then
+    usage_error
+  fi
   current_language
   ;;
 list)
+  if (( $# != 1 )); then
+    usage_error
+  fi
   list_languages
   ;;
 seed)
+  if (( $# != 2 )); then
+    usage_error
+  fi
   # Install finalization: the system step already generated the locale and
   # there is no session yet, so only files are written, and a language the
   # user already chose is kept: the preset is a default, never an override.
@@ -178,6 +192,9 @@ seed)
   echo "$code" >"$language_file"
   ;;
 locale)
+  if (( $# > 2 )); then
+    usage_error
+  fi
   code=${2:-$(current_language)}
   if ! known_language "$code"; then
     echo "Unknown language code: $code" >&2
@@ -186,6 +203,9 @@ locale)
   locale_for "$code"
   ;;
 *)
+  if (( $# != 1 )); then
+    usage_error
+  fi
   set_language "$1"
   ;;
 esac
