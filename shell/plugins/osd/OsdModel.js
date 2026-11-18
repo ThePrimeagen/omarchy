@@ -50,7 +50,7 @@ function stateForShow(iconName, rawMessage, rawValue, rawMax, rawProgressText, r
     maxValue: maxValue,
     hasProgress: hasProgress,
     value: value,
-    message: String(rawMessage || (hasProgress ? (rawProgressText || number(percent) + "%") : "")),
+    message: String(rawMessage || (hasProgress ? number(percent) + "%" : "")),
     icon: iconFor(iconName, percent),
     duration: isNaN(parsedDuration) ? 1200 : Math.max(0, parsedDuration)
   }

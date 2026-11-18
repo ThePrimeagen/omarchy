@@ -25,6 +25,10 @@ while (($#)); do
 done
 
 if [[ -n $progress ]]; then
+  if [[ ! $progress =~ ^[0-9]+$ ]] || ((10#$progress > 100)); then
+    echo "Progress must be between 0 and 100: $progress" >&2
+    exit 1
+  fi
   # Shown as given, so the number takes the language's digits here.
   progress_text="$(omarchy-i18n --number "$progress" 2>/dev/null || printf '%s' "$progress")%"
 fi
