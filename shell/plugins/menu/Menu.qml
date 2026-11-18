@@ -1372,7 +1372,7 @@ Item {
             root.requestDeleteSelected()
             event.accepted = true
           } else if (event.key === Qt.Key_Escape) {
-            if (root.filterText) root.setFilter("")
+            if (root.filterText && !root.dmenuActive) root.setFilter("")
             else root.cancel()
             event.accepted = true
           } else if (Util.editsFilter(event, root.filterText)) {
