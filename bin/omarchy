@@ -896,6 +896,8 @@ show_group_help() {
 
 show_prefix_help() {
   local prefix="$1"
+  prefix="${prefix% --help}"
+  prefix="${prefix% -h}"
   local prefix_with_space="$prefix "
   local key=""
   local rows=""
