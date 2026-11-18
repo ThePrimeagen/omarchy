@@ -127,4 +127,11 @@ if [[ $print_rows == true ]]; then
   menu_args+=(--print-rows)
 fi
 
-exec omarchy-menu-images "${menu_args[@]}" "$preview_dir"
+if [[ $print_rows == true ]]; then
+  omarchy-menu-images "${menu_args[@]}" "$preview_dir"
+else
+  theme=$(omarchy-menu-images "${menu_args[@]}" "$preview_dir")
+  if [[ -n $theme ]]; then
+    omarchy-theme-set "$theme"
+  fi
+fi
