@@ -197,7 +197,7 @@ Item {
     if (themeMode && (deleteThemeProc.running || awaitingDeleteRefresh)) return
     var path = currentPath()
 
-    if (themeMode) {
+    if (themeMode && !selectionFile) {
       themeMode = false
       root.opened = false
       if (path) Util.execArgv(["omarchy-theme-set", nameForPath(path)])
@@ -266,7 +266,7 @@ Item {
     }
   }
 
-  function openSelector(nextImageDirs, nextImageRows, nextSelectedImage, nextSelectionFile, nextDoneFile, nextShowLabels, nextFilterable) {
+  function openSelector(nextImageDirs, nextImageRows, nextSelectedImage, nextSelectionFile, nextDoneFile, nextShowLabels, nextFilterable, nextThemeMode) {
     deleteConfirmOpen = false
     pendingDeleteTheme = ""
     deleteSelectionPath = ""
@@ -275,8 +275,12 @@ Item {
       finishDoneFile(doneFile)
 
     requestSerial += 1
-    themeMode = false
+    themeMode = nextThemeMode === true || nextThemeMode === "true"
     themeOpenPending = false
+    if (themeMode) {
+      refreshExtraThemes()
+      refreshStockThemes()
+    }
 
     imageDirs = nextImageDirs
     imageRows = nextImageRows
@@ -584,7 +588,8 @@ Item {
     var doneF = String(args.doneFile || "")
     var labels = args.showLabels === true || args.showLabels === "true"
     var filter = args.filterable === true || args.filterable === "true"
-    openSelector(dirs, rows, sel, selFile, doneF, labels, filter)
+    var theme = args.themeMode === true || args.themeMode === "true"
+    openSelector(dirs, rows, sel, selFile, doneF, labels, filter, theme)
   }
 
   function close() {

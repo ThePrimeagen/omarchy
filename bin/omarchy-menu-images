@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # omarchy:summary=Open a generic image selector menu
-# omarchy:args=[--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--preload] [--prepare-only] [--cache-only] [--print-rows] <image-dir>...
+# omarchy:args=[--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--theme-mode] [--preload] [--prepare-only] [--cache-only] [--print-rows] <image-dir>...
 
 selected_image=""
 print_name=false
 show_labels=false
 filterable=false
 lazy_thumbnails=false
+theme_mode=false
 prepare_only=false
 preload=false
 cache_only=false
@@ -15,7 +16,7 @@ print_rows=false
 image_dirs=()
 
 usage() {
-  echo "Usage: omarchy-menu-images [--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--preload] [--prepare-only] [--cache-only] [--print-rows] <image-dir>..."
+  echo "Usage: omarchy-menu-images [--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--theme-mode] [--preload] [--prepare-only] [--cache-only] [--print-rows] <image-dir>..."
 }
 
 while (( $# > 0 )); do
@@ -43,6 +44,10 @@ while (( $# > 0 )); do
       ;;
     --lazy-thumbnails)
       lazy_thumbnails=true
+      shift
+      ;;
+    --theme-mode)
+      theme_mode=true
       shift
       ;;
     --prepare-only)
@@ -401,7 +406,8 @@ if ! open_result=$(omarchy-shell image-selector open \
      "$selection_file" \
      "$done_file" \
      "$show_labels" \
-     "$filterable"); then
+     "$filterable" \
+     "$theme_mode"); then
   echo "Image selector failed to accept request" >&2
   exit 1
 fi
