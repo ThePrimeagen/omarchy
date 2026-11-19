@@ -179,7 +179,9 @@ notice() {
   echo
   printf '%*s\033[32m● \033[0m%s\n' "$PADDING_LEFT" '' "$1"
   sleep "${2:-2}"
+  clear_logo
   echo
+  while IFS= read -rsN1 -t 0.01 _ 2>/dev/null </dev/tty; do :; done
 }
 
 log_step() {
