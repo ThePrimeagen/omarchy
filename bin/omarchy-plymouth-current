@@ -4,17 +4,40 @@
 # omarchy:examples=omarchy plymouth current
 
 # omarchy-plymouth-set installs the theme's unlock.png as a byte-for-byte
-# copy of logo.png, so matching it back identifies the current theme.
-installed_logo=/usr/share/plymouth/themes/omarchy/logo.png
+# copy of logo.png, so matching it back identifies the current theme. It
+# also recolours the script and assets, so the stock splash is only the
+# default when those match the packaged defaults too.
+installed_dir=/usr/share/plymouth/themes/omarchy
+installed_logo=$installed_dir/logo.png
 
-if cmp -s "$OMARCHY_PATH/default/plymouth/logo.png" "$installed_logo"; then
-  echo default
-  exit
-fi
-
-omarchy-plymouth-list | while read -r name; do
-  if cmp -s "$(omarchy-theme-dir "$name")/unlock.png" "$installed_logo"; then
-    echo "$name"
-    exit
+is_default=true
+for asset in logo.png bullet.png entry.png lock.png omarchy.plymouth omarchy.script preview-unlock.png progress_bar.png progress_box.png; do
+  if ! cmp -s "$OMARCHY_PATH/default/plymouth/$asset" "$installed_dir/$asset"; then
+    is_default=false
+    break
   fi
 done
+
+current=
+if ! $is_default; then
+  # Match every theme's unlock.png, not only those omarchy-plymouth-list
+  # returns: a theme may have been set by name without a preview image.
+  while read -r name; do
+    theme_dir=$(omarchy-theme-dir "$name")
+    if [[ -f $theme_dir/unlock.png ]] && cmp -s "$theme_dir/unlock.png" "$installed_logo"; then
+      current=$name
+      break
+    fi
+  done < <({
+    find ~/.config/omarchy/themes/ -mindepth 1 -maxdepth 1 \( -type d -o -type l \) -printf '%f\n' 2>/dev/null
+    find "$OMARCHY_PATH/themes/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n'
+  } | sort -u)
+fi
+
+if $is_default; then
+  echo default
+elif [[ -n $current ]]; then
+  echo "$current"
+else
+  echo custom
+fi
