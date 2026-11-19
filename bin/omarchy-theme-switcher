@@ -120,6 +120,7 @@ menu_args=(
   --show-labels
   --filterable
   --lazy-thumbnails
+  --source themes
   --selected "$selected_preview"
 )
 

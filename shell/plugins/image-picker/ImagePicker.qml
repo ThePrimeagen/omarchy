@@ -199,9 +199,11 @@ Item {
 
     if (themeMode) {
       themeMode = false
-      root.opened = false
       if (path) Util.execArgv(["omarchy-theme-set", nameForPath(path)])
-      return
+      if (typeof selectionFile === "undefined" || !selectionFile) {
+        root.opened = false
+        return
+      }
     }
 
     if (!path || !selectionFile) {
@@ -573,7 +575,7 @@ Item {
     if (payload) {
       try { args = JSON.parse(payload) || {} } catch (e) { args = {} }
     }
-    if (args.source === "themes") {
+    if (args.source === "themes" && !args.imageRows) {
       openThemes()
       return
     }
@@ -585,6 +587,11 @@ Item {
     var labels = args.showLabels === true || args.showLabels === "true"
     var filter = args.filterable === true || args.filterable === "true"
     openSelector(dirs, rows, sel, selFile, doneF, labels, filter)
+    if (args.source === "themes") {
+      themeMode = true
+      refreshExtraThemes()
+      refreshStockThemes()
+    }
   }
 
   function close() {

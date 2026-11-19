@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # omarchy:summary=Open a generic image selector menu
-# omarchy:args=[--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--preload] [--prepare-only] [--cache-only] [--print-rows] <image-dir>...
+# omarchy:args=[--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--preload] [--prepare-only] [--cache-only] [--print-rows] [--source <source>] <image-dir>...
 
 selected_image=""
+source=""
 print_name=false
 show_labels=false
 filterable=false
@@ -15,7 +16,7 @@ print_rows=false
 image_dirs=()
 
 usage() {
-  echo "Usage: omarchy-menu-images [--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--preload] [--prepare-only] [--cache-only] [--print-rows] <image-dir>..."
+  echo "Usage: omarchy-menu-images [--selected <image>] [--print-name] [--show-labels] [--filterable] [--lazy-thumbnails] [--preload] [--prepare-only] [--cache-only] [--print-rows] [--source <source>] <image-dir>..."
 }
 
 while (( $# > 0 )); do
@@ -27,6 +28,15 @@ while (( $# > 0 )); do
       fi
 
       selected_image="$2"
+      shift 2
+      ;;
+    --source)
+      if (( $# < 2 )); then
+        usage >&2
+        exit 1
+      fi
+
+      source="$2"
       shift 2
       ;;
     --print-name)
@@ -401,7 +411,8 @@ if ! open_result=$(omarchy-shell image-selector open \
      "$selection_file" \
      "$done_file" \
      "$show_labels" \
-     "$filterable"); then
+     "$filterable" \
+     "$source"); then
   echo "Image selector failed to accept request" >&2
   exit 1
 fi
