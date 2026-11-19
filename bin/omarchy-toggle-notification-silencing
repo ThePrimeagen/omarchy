@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # omarchy:summary=Toggle notification do-not-disturb mode
+# omarchy:args=[--status]
+
+if [[ ${1:-} == "--status" ]]; then
+  omarchy-shell notifications isDnd 2>/dev/null || echo ""
+  exit 0
+fi
 
 state=$(omarchy-shell notifications toggleDnd 2>/dev/null || echo "")
 omarchy-shell -q omarchy.indicators refresh
+echo "$state"
