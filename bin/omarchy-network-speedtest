@@ -2,12 +2,12 @@
 
 # omarchy:summary=Measure live internet speed for one direction
 # omarchy:group=network
-# omarchy:args=[down|up]
+# omarchy:args=<down|up>
 
 client=${OMARCHY_SPEEDTEST_BINARY:-/usr/lib/omarchy/speedtest}
 
 if (( $# != 1 )) || [[ $1 != "down" && $1 != "up" ]]; then
-  echo "Usage: omarchy-network-speedtest [down|up]" >&2
+  echo "Usage: omarchy-network-speedtest <down|up>" >&2
   exit 2
 elif [[ ! -x $client ]]; then
   echo "The speed test client is missing: install the omarchy-speedtest package" >&2
