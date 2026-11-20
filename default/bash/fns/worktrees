@@ -17,20 +17,17 @@ ga() {
 # Remove worktree and branch from within active worktree directory.
 gd() {
   if gum confirm "Remove worktree and branch?"; then
-    local cwd base branch root worktree
+    local worktree branch main
 
-    cwd="$(pwd)"
-    worktree="$(basename "$cwd")"
-
-    # split on first `--`
-    root="${worktree%%--*}"
-    branch="${worktree#*--}"
+    worktree="$(git rev-parse --show-toplevel 2>/dev/null)"
+    branch="$(git branch --show-current 2>/dev/null)"
+    main="$(git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p' | head -n 1)"
 
     # Protect against accidentally nuking a non-worktree directory
-    if [[ "$root" != "$worktree" ]]; then
-      cd "../$root"
-      git worktree remove "$cwd" --force || return 1
-      git branch -D "$branch"
+    if [[ -n "$worktree" && "$worktree" != "$main" ]]; then
+      cd "$main"
+      git worktree remove "$worktree" --force || return 1
+      [[ -n "$branch" ]] && git branch -D "$branch"
     fi
   fi
 }
