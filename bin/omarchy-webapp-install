@@ -136,6 +136,26 @@ desktop_exec_arg() {
   printf '"%s"' "$escaped"
 }
 
+usage() {
+  echo "Usage:"
+  echo "  omarchy webapp install [name url icon-url-or-name [custom-exec] [mime-types]]"
+  echo ""
+  echo "Create a desktop launcher for a web app"
+  echo ""
+  echo "Arguments:"
+  echo "  [name url icon-url-or-name [custom-exec] [mime-types]]"
+}
+
+if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if (( $# > 0 && $# < 3 )); then
+  usage >&2
+  exit 1
+fi
+
 if (( $# < 3 )); then
   echo -e "\e[32m$(omarchy-i18n webapp.intro)\n\e[0m"
   APP_NAME=$(gum input --prompt "$(omarchy-i18n tui.namePrompt)" --placeholder "$(omarchy-i18n webapp.namePlaceholder)")
