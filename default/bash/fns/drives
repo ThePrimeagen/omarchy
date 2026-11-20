@@ -17,7 +17,9 @@ iso2sd() {
       return 1
     fi
 
-    drive=$(omarchy-drive-select "$available_sds")
+    local status
+    drive=$(omarchy-drive-select "$available_sds") && status=0 || status=$?
+    ((status == 0)) || return $status
 
     if [[ -z $drive ]]; then
       echo "No drive selected"

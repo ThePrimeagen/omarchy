@@ -1,0 +1,71 @@
+# gum: Esc goes back, Ctrl+C stays a signal.
+#
+# gum prints the literal line "nothing selected" when a choose is cancelled,
+# so a captured result reads as a real answer instead of an empty one, and the
+# cancel drops the user back at the shell. Like the setup form, a cancelled
+# prompt here reports Esc as 1 and unwinds to the previous prompt, while
+# Ctrl+C reports 130 and does not unwind. Only choose and confirm are
+# wrapped; every other gum subcommand runs untouched.
+
+_omarchy_gum_stack=()
+_omarchy_gum_stack_input=()
+
+_omarchy_gum_run() {
+  local input=$1
+  shift
+
+  if [[ -n $input ]]; then
+    printf '%s' "$input" | command gum "$@"
+  else
+    command gum "$@"
+  fi
+}
+
+gum() {
+  case "$1" in
+    choose | confirm) ;;
+    *) command gum "$@"; return $? ;;
+  esac
+
+  local input="" output status
+  if [[ "$1" == "choose" && ! -t 0 ]]; then
+    input=$(cat)
+  fi
+
+  output=$(_omarchy_gum_run "$input" "$@") && status=0 || status=$?
+  [[ $output == "nothing selected" ]] && output=""
+
+  local signature
+  printf -v signature '%s\n' "$@"
+  local count=${#_omarchy_gum_stack[@]}
+
+  if ((status == 0)); then
+    if ((count == 0)) || [[ ${_omarchy_gum_stack[count - 1]} != "$signature" ]]; then
+      _omarchy_gum_stack[count]=$signature
+      _omarchy_gum_stack_input[count]=$input
+    fi
+    [[ -n $output ]] && printf '%s\n' "$output"
+    return 0
+  fi
+
+  if ((status == 1)); then
+    while ((count > 0)) && [[ ${_omarchy_gum_stack[count - 1]} == "$signature" ]]; do
+      count=$((count - 1))
+      unset "_omarchy_gum_stack[count]" "_omarchy_gum_stack_input[count]"
+    done
+
+    if ((count > 0)); then
+      count=$((count - 1))
+      local -a previous=()
+      mapfile -t previous < <(printf '%s' "${_omarchy_gum_stack[count]}")
+      local previous_input=${_omarchy_gum_stack_input[count]}
+      unset "_omarchy_gum_stack[count]" "_omarchy_gum_stack_input[count]"
+      printf '\033[1A\r\033[K\033[1B\r'
+      _omarchy_gum_run "$previous_input" "${previous[@]}" </dev/tty
+      return $?
+    fi
+  fi
+
+  [[ -n $output ]] && printf '%s\n' "$output"
+  return $status
+}
