@@ -93,7 +93,7 @@ link_dev_checkout() {
   omarchy-dev-link "$checkout" --no-reboot
 }
 
-(( $# > 0 )) || { usage; exit 1; }
+(( $# == 1 )) || { usage; exit 1; }
 
 dev_checkout=""
 channel="$1"
