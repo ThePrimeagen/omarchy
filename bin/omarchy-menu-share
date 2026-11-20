@@ -7,12 +7,17 @@
 # omarchy:examples=omarchy share clipboard | omarchy share file ~/Downloads/example.txt
 
 if (($# == 0)); then
-  echo "Usage: omarchy-menu-share [clipboard|file|folder]"
+  echo "Usage: omarchy share clipboard|file|folder"
   exit 1
 fi
 
 MODE="$1"
 shift
+
+if [[ $MODE != "clipboard" && $MODE != "file" && $MODE != "folder" ]]; then
+  echo "Usage: omarchy share clipboard|file|folder"
+  exit 1
+fi
 
 if [[ $MODE == "clipboard" ]]; then
   TEMP_FILE=$(mktemp --suffix=.txt)
