@@ -3,6 +3,7 @@
 source "$(dirname "${BASH_SOURCE[0]}")/base-test.sh"
 
 require_command lua
+require_command socat
 
 for bell_supported in false true; do
   OMARCHY_BELL_SUPPORTED="$bell_supported" lua - <<'LUA' || fail "look and feel loads before and after a Hyprland upgrade"
@@ -121,7 +122,12 @@ LUA
 }
 
 tmpdir=$(mktemp -d)
-trap 'rm -rf "$tmpdir"' EXIT
+omasnap_server_pid=""
+cleanup() {
+  [[ -n $omasnap_server_pid ]] && kill "$omasnap_server_pid" 2>/dev/null || true
+  rm -rf "$tmpdir"
+}
+trap cleanup EXIT
 
 fresh_home="$tmpdir/fresh-home"
 mkdir -p "$fresh_home"
@@ -256,3 +262,146 @@ number_claims=$(cut -f1 <<<"$panels_output" | grep -cE '^SUPER \+ CTRL \+ code:1
 (( number_claims == 9 )) ||
   fail "only the bar panel hotkeys bind SUPER + CTRL + a number" "$number_claims"
 pass "bar panel hotkeys bind SUPER + CTRL + a number without a collision"
+
+# Super+W and Super+Q dismiss an active Omasnap overlay through its runtime
+# socket and fall through to closing the focused window when no overlay listens.
+fire_close_bind() {
+  local keys="$1" runtime="$2" layers="${3:-}"
+
+  HOME="$tmpdir/close-home" XDG_CONFIG_HOME="$tmpdir/close-home/.config" \
+    XDG_STATE_HOME="$tmpdir/close-home/.local/state" XDG_RUNTIME_DIR="$runtime" \
+    OMARCHY_PATH="$ROOT" TEST_KEYS="$keys" TEST_LAYERS="$layers" lua - <<'LUA'
+package.path = os.getenv("OMARCHY_PATH") .. "/?.lua;" .. package.path
+
+local binds = {}
+local active_layers = {}
+for namespace in (os.getenv("TEST_LAYERS") or ""):gmatch("[^,]+") do
+  table.insert(active_layers, { namespace = namespace })
+end
+
+local function proxy()
+  return setmetatable({}, {
+    __index = function(self, key)
+      local value = proxy()
+      rawset(self, key, value)
+      return value
+    end,
+    __call = function()
+      return {}
+    end,
+  })
+end
+
+local close_token = { kind = "window.close" }
+local dsp = proxy()
+dsp.window.close = function() return close_token end
+
+hl = {
+  dsp = dsp,
+  bind = function(keys, dispatcher)
+    binds[keys] = dispatcher
+  end,
+  dispatch = function(action)
+    if action == close_token then
+      print("window.close")
+    end
+  end,
+  get_layers = function(query)
+    local matches = {}
+    for _, layer in ipairs(active_layers) do
+      if not query or not query.namespace or layer.namespace == query.namespace then
+        table.insert(matches, layer)
+      end
+    end
+    return matches
+  end,
+  exec_cmd = function() end,
+  on = function() end,
+}
+
+require("default.hypr.helpers")
+o.workspaces = proxy()
+require("default.hypr.bindings.tiling")
+
+local dispatcher = binds[os.getenv("TEST_KEYS")]
+if type(dispatcher) == "function" then
+  assert(o.bind_expressions[dispatcher] == "hl.dsp.window.close()", "close bind keeps its menu expression")
+  dispatcher()
+else
+  hl.dispatch(dispatcher)
+end
+LUA
+}
+
+close_runtime="$tmpdir/close-runtime"
+omasnap_socket="$close_runtime/omasnap/overlay-close.sock"
+omasnap_hits="$tmpdir/omasnap-hits"
+no_socat_bin="$tmpdir/no-socat-bin"
+no_socat_log="$tmpdir/no-socat.log"
+mkdir -p "$tmpdir/close-home" "$close_runtime/omasnap" "$no_socat_bin"
+: >"$omasnap_hits"
+: >"$no_socat_log"
+cat >"$no_socat_bin/socat" <<'SH'
+#!/bin/bash
+printf '%s\n' "$*" >>"$NO_SOCAT_LOG"
+exit 1
+SH
+chmod +x "$no_socat_bin/socat"
+
+for keys in "SUPER + W" "SUPER + Q"; do
+  close_out=$(PATH="$no_socat_bin:$PATH" NO_SOCAT_LOG="$no_socat_log" fire_close_bind "$keys" "$close_runtime" "") ||
+    fail "$keys runs cleanly when no Omasnap layer is open" "$close_out"
+  [[ $close_out == "window.close" ]] ||
+    fail "$keys closes the focused window when no Omasnap layer is open" "$close_out"
+done
+[[ ! -s $no_socat_log ]] ||
+  fail "closing a normal window skips socat when no Omasnap layer is open" "$(<"$no_socat_log")"
+pass "Super+W and Super+Q close the focused window without spawning socat when no Omasnap layer is open"
+
+OMASNAP_HITS="$omasnap_hits" socat UNIX-LISTEN:"$omasnap_socket",fork SYSTEM:'echo hit >> "$OMASNAP_HITS"' 2>/dev/null &
+omasnap_server_pid=$!
+for _ in $(seq 50); do [[ -S $omasnap_socket ]] && break; sleep 0.05; done
+[[ -S $omasnap_socket ]] || fail "fake Omasnap dismissal socket starts listening"
+
+expected_hits=0
+for keys in "SUPER + W" "SUPER + Q"; do
+  expected_hits=$(( expected_hits + 1 ))
+  close_out=$(fire_close_bind "$keys" "$close_runtime" "omasnap") ||
+    fail "$keys runs cleanly when an Omasnap overlay is listening" "$close_out"
+  [[ -z $close_out ]] ||
+    fail "$keys dismisses an open Omasnap overlay without closing the window underneath" "$close_out"
+  for _ in $(seq 50); do
+    (( $(wc -l <"$omasnap_hits") >= expected_hits )) && break
+    sleep 0.05
+  done
+  (( $(wc -l <"$omasnap_hits") == expected_hits )) ||
+    fail "$keys connects to Omasnap's overlay-close.sock" "$(<"$omasnap_hits")"
+done
+pass "Super+W and Super+Q dismiss an active Omasnap overlay via overlay-close.sock without closing the window underneath"
+
+# A crashed Omasnap leaves its socket file behind with nothing listening. Without
+# an omasnap layer, closing a window must skip socat; even if a layer were mapped
+# with a stale or missing socket, close must still fall through to the window.
+kill -9 "$omasnap_server_pid"
+wait "$omasnap_server_pid" 2>/dev/null || true
+omasnap_server_pid=""
+[[ -S $omasnap_socket ]] || fail "killing the Omasnap listener leaves a stale socket behind"
+
+: >"$no_socat_log"
+close_out=$(PATH="$no_socat_bin:$PATH" NO_SOCAT_LOG="$no_socat_log" fire_close_bind "SUPER + W" "$close_runtime" "") ||
+  fail "no Omasnap layer with a stale socket runs cleanly" "$close_out"
+[[ $close_out == "window.close" && ! -s $no_socat_log ]] ||
+  fail "no Omasnap layer closes the window without spawning socat even with a stale socket file" "out=$close_out log=$(<"$no_socat_log")"
+pass "a stale Omasnap socket without an omasnap layer closes the window without spawning socat"
+
+close_out=$(fire_close_bind "SUPER + W" "$close_runtime" "omasnap") ||
+  fail "an Omasnap layer with a stale socket runs cleanly" "$close_out"
+[[ $close_out == "window.close" ]] ||
+  fail "an Omasnap layer with a stale socket falls through to closing the focused window" "$close_out"
+
+rm -f "$omasnap_socket"
+close_out=$(fire_close_bind "SUPER + W" "$close_runtime" "omasnap") ||
+  fail "an Omasnap layer with a missing socket runs cleanly" "$close_out"
+[[ $close_out == "window.close" ]] ||
+  fail "an Omasnap layer with a missing socket falls through to closing the focused window" "$close_out"
+pass "an Omasnap layer with a stale or missing socket falls through to closing the focused window"

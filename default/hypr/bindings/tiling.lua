@@ -1,7 +1,35 @@
 local keyboard = require("default.hypr.keyboard")
 
-o.bind("SUPER + W", "Close window", hl.dsp.window.close())
-o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+-- Omasnap's overlay is a layer-shell surface, not a window, so window.close()
+-- would close the window underneath it. While an overlay is visible it listens
+-- on overlay-close.sock and treats any connection as Escape, preserving pins
+-- and edits. Fall through to closing the focused window when no overlay accepts.
+local function dismiss_omasnap_overlay()
+  if #hl.get_layers({ namespace = "omasnap" }) == 0 then
+    return false
+  end
+
+  local runtime = os.getenv("XDG_RUNTIME_DIR")
+  if not runtime or runtime == "" then
+    return false
+  end
+
+  local socket = runtime .. "/omasnap/overlay-close.sock"
+  return o.shell_succeeds(
+    "timeout --kill-after=1s 0.5s socat -u /dev/null " .. o.shell_quote("UNIX-CONNECT:" .. socket)
+  )
+end
+
+local function close_window()
+  if not dismiss_omasnap_overlay() then
+    hl.dispatch(hl.dsp.window.close())
+  end
+end
+
+o.bind_expressions[close_window] = "hl.dsp.window.close()"
+
+o.bind("SUPER + W", "Close window", close_window)
+o.bind("SUPER + Q", "Close window", close_window)
 o.bind("CTRL + ALT + DELETE", "Close all windows", "omarchy-hyprland-window-close-all")
 
 o.bind("SUPER + J", "Toggle window split", hl.dsp.layout("togglesplit"))
