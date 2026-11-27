@@ -57,7 +57,10 @@ fi
 # same way, so sharing first needs this machine's SSH server set up. The panel
 # has no terminal for its key prompts and sudo, so it gets one that sets the
 # server up and then shares; a share typed in a terminal sets it up in place.
-if [[ ${1:-} == "share" && -n ${2:-} && ${2:-} != -* && " $* " != *" --off "* ]] && ! systemctl is-active --quiet sshd.service; then
+# Only a model already set up on this machine can be shared; anything else
+# falls through to the engine so no SSH server is set up for a refused share.
+if (( $# == 2 )) && [[ $1 == "share" && -n $2 && $2 != -* ]] && ! systemctl is-active --quiet sshd.service &&
+  omarchy-local-ai status --json 2>/dev/null | jq -e --arg recipe "$2" '.models[$recipe] | . and .unit != "installing"' >/dev/null 2>&1; then
   if [[ -t 0 ]]; then
     omarchy-setup-security-sshd || exit 1
   else

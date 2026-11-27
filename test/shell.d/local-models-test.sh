@@ -121,9 +121,20 @@ pass "setting up or removing a model brings its launcher up to date"
 # sets it up in a terminal first, until it runs.
 printf '#!/bin/bash\nexit %s\n' 3 >"$wrapper_dir/systemctl"
 chmod +x "$wrapper_dir/systemctl"
+printf '#!/bin/bash\nif [[ "$*" == "status --json" ]]; then printf "%%s\\n" '\''{"models":{"nemotron-3.5-bolt-tensorfold":{"unit":"inactive"},"downloading-model":{"unit":"installing"}}}'\''; exit 0; fi\nprintf "%%s\\n" "omarchy-local-ai $*" >>"%s/calls"\n' "$wrapper_dir" >"$wrapper_dir/omarchy-local-ai"
+chmod +x "$wrapper_dir/omarchy-local-ai"
 calls=$(run_wrapper 1 share nemotron-3.5-bolt-tensorfold </dev/null)
 [[ $calls == "omarchy-launch-floating-terminal-with-presentation omarchy-setup-security-sshd && omarchy-local-ai 'share' 'nemotron-3.5-bolt-tensorfold'" ]] || fail "sharing without an SSH server sets one up in a terminal first" "$calls"
 pass "sharing without an SSH server sets one up in a terminal first"
+calls=$(run_wrapper 1 share nosuchrecipe </dev/null)
+[[ $calls == "omarchy-local-ai share nosuchrecipe" ]] || fail "sharing a recipe that isn't set up never asks for an SSH server" "$calls"
+pass "sharing a recipe that isn't set up never asks for an SSH server"
+calls=$(run_wrapper 1 share downloading-model </dev/null)
+[[ $calls == "omarchy-local-ai share downloading-model" ]] || fail "sharing a model still installing never asks for an SSH server" "$calls"
+pass "sharing a model still installing never asks for an SSH server"
+calls=$(run_wrapper 1 share nemotron-3.5-bolt-tensorfold --help </dev/null)
+[[ $calls == "omarchy-local-ai share nemotron-3.5-bolt-tensorfold --help" ]] || fail "sharing with extra flags never asks for an SSH server" "$calls"
+pass "sharing with extra flags never asks for an SSH server"
 calls=$(run_wrapper 1 share nemotron-3.5-bolt-tensorfold --off </dev/null)
 [[ $calls == "omarchy-local-ai share nemotron-3.5-bolt-tensorfold --off" ]] || fail "stopping a share never asks for an SSH server" "$calls"
 pass "stopping a share never asks for an SSH server"
