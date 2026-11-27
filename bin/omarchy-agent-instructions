@@ -37,7 +37,6 @@ config="${XDG_CONFIG_HOME:-$HOME/.config}"
 # GROK_HOME select an added account: each account home links that file back
 # to the primary one (omarchy-agent-account-state's shared_files).
 declare -A links=(
-  [config]="$config/AGENTS.md"
   [claude]="$HOME/.claude/CLAUDE.md"
   [codex]="$HOME/.codex/AGENTS.md"
   [pi]="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/AGENTS.md"
@@ -88,18 +87,39 @@ link() {
   echo "Linked $target"
 }
 
+targets=()
+if (($#)); then
+  failed=0
+  for harness in "$@"; do
+    case "$harness" in
+    omp | kimi | dsh | devin | muse | openclaw | hermes | cursor-agent | ori | local) ;;
+    crush | amp) targets+=("$config/AGENTS.md") ;;
+    *)
+      if [[ -n $harness && -n ${links[$harness]:-} ]]; then
+        targets+=("${links[$harness]}")
+      else
+        echo "Unknown harness: $harness" >&2
+        failed=1
+      fi
+      ;;
+    esac
+  done
+  if ((failed)); then
+    exit 1
+  fi
+fi
+
 mkdir -p "$(dirname "$canonical")"
 blank && printf '%s\n' "$header" >"$canonical"
 
 if (($#)); then
-  for harness in "$@"; do
-    case "$harness" in
-    omp | kimi | dsh) ;;
-    crush | amp) link "${links[config]}" ;;
-    *) [[ -n ${links[$harness]:-} ]] && link "${links[$harness]}" ;;
-    esac
+  for target in "${targets[@]}"; do
+    link "$target"
   done
 else
+  if [[ -d $config ]]; then
+    link "$config/AGENTS.md"
+  fi
   for harness in "${!links[@]}"; do
     target=${links[$harness]}
     if [[ $harness == "freebuff" ]]; then

@@ -1059,3 +1059,50 @@ OMARCHY_TEST_MISSING_COMMAND=claude omarchy-agent </dev/null >/dev/null 2>&1
   fail "launching a claude that isn't installed installs it first" "$(tr '\0' ' ' <"$terminal_log")"
 [[ ! -s $launch_log ]] || fail "a claude that isn't installed opens no window before it is"
 pass "launching an agent whose CLI isn't installed installs it, then opens it"
+
+# omarchy-agent-instructions refuses unknown harness names (including the
+# internal ~/.config/AGENTS.md target name and empty strings) without creating
+# links or opening the editor, while accepting every known harness, including
+# those that need no link of their own.
+instructions_home="$test_tmp/instructions-home"
+mkdir -p "$instructions_home"
+editor_log="$test_tmp/instructions-editor"
+printf '#!/bin/bash\nprintf "%%s\\n" "$*" >>"%s"\n' "$editor_log" >"$mock_bin/omarchy-launch-editor"
+chmod +x "$mock_bin/omarchy-launch-editor"
+
+for bad in unknownharness config ""; do
+  if HOME="$instructions_home" omarchy-agent-instructions "$bad" >"$test_tmp/instructions.out" 2>"$test_tmp/instructions.err"; then
+    fail "omarchy-agent-instructions refuses unknown harness '$bad'"
+  fi
+  grep -Fq "Unknown harness: $bad" "$test_tmp/instructions.err" ||
+    fail "omarchy-agent-instructions names rejected harness '$bad'" "$(<"$test_tmp/instructions.err")"
+done
+
+: >"$editor_log"
+if HOME="$instructions_home" omarchy-agent-instructions --edit codex unknownharness >"$test_tmp/instructions.out" 2>"$test_tmp/instructions.err"; then
+  fail "omarchy-agent-instructions refuses mixed valid and unknown harnesses"
+fi
+grep -Fq "Unknown harness: unknownharness" "$test_tmp/instructions.err" ||
+  fail "omarchy-agent-instructions names unknown harness in mixed args" "$(<"$test_tmp/instructions.err")"
+[[ ! -e $instructions_home/.agents/AGENTS.md && ! -e $instructions_home/.codex/AGENTS.md && ! -s $editor_log ]] ||
+  fail "omarchy-agent-instructions creates nothing and opens no editor when any harness is unknown"
+
+for noop in omp kimi dsh devin muse openclaw hermes cursor-agent ori local; do
+  HOME="$instructions_home" omarchy-agent-instructions "$noop" >"$test_tmp/instructions.out" 2>"$test_tmp/instructions.err" ||
+    fail "omarchy-agent-instructions accepts no-link harness $noop" "$(<"$test_tmp/instructions.err")"
+  [[ ! -s $test_tmp/instructions.err ]] ||
+    fail "omarchy-agent-instructions is silent on stderr for no-link harness $noop" "$(<"$test_tmp/instructions.err")"
+done
+
+HOME="$instructions_home" omarchy-agent-instructions codex crush >"$test_tmp/instructions.out" 2>"$test_tmp/instructions.err" ||
+  fail "omarchy-agent-instructions links valid harnesses" "$(<"$test_tmp/instructions.err")"
+[[ -L $instructions_home/.codex/AGENTS.md && -L $instructions_home/.config/AGENTS.md && ! -s $test_tmp/instructions.err ]] ||
+  fail "omarchy-agent-instructions links codex and shared config harnesses"
+
+rm -f "$instructions_home/.config/AGENTS.md"
+HOME="$instructions_home" omarchy-agent-instructions >"$test_tmp/instructions.out" 2>"$test_tmp/instructions.err" ||
+  fail "omarchy-agent-instructions unnamed run succeeds" "$(<"$test_tmp/instructions.err")"
+[[ -L $instructions_home/.config/AGENTS.md && ! -s $test_tmp/instructions.err ]] ||
+  fail "omarchy-agent-instructions unnamed run still links ~/.config/AGENTS.md"
+rm "$mock_bin/omarchy-launch-editor"
+pass "omarchy-agent-instructions refuses unknown harnesses and accepts every known one"
