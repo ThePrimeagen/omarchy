@@ -68,3 +68,19 @@ if [[ -b $device ]]; then
 else
   skip "format-drive: no block device for the failure paths"
 fi
+
+# iso2sd prints usage for -h and --help without touching drives, while a
+# positional file named "help" is still written.
+for flag in -h --help; do
+  : >"$SUDO_LOG"
+  rc=0
+  PATH="$work/bin" iso2sd "$flag" >"$work/out" 2>"$work/err" || rc=$?
+  (( rc == 0 )) && grep -Fq "Usage: iso2sd" "$work/out" && [[ ! -s $SUDO_LOG ]] ||
+    fail "iso2sd $flag prints usage and runs nothing" "$(cat "$work/out" "$work/err" "$SUDO_LOG")"
+done
+: >"$SUDO_LOG"
+rc=0
+PATH="$work/bin" iso2sd help /dev/sda >"$work/out" 2>"$work/err" || rc=$?
+(( rc == 0 )) && ! grep -Fq "Usage: iso2sd" "$work/out" && grep -Eq '^dd .*if=help of=/dev/sda' "$SUDO_LOG" ||
+  fail "iso2sd treats a positional file named help as an input file" "$(cat "$work/out" "$work/err" "$SUDO_LOG")"
+pass "iso2sd prints usage for -h and --help without treating a file named help as a flag"

@@ -1,5 +1,11 @@
 # Write iso file to sd card
 iso2sd() {
+  if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
+    echo "Usage: iso2sd <input_file> [output_device]"
+    echo "Example: iso2sd ~/Downloads/ubuntu-25.04-desktop-amd64.iso /dev/sda"
+    return 0
+  fi
+
   if (( $# < 1 )); then
     echo "Usage: iso2sd <input_file> [output_device]"
     echo "Example: iso2sd ~/Downloads/ubuntu-25.04-desktop-amd64.iso /dev/sda"
