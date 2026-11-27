@@ -72,3 +72,21 @@ fi
 [[ $output == "--except needs an agent" && ! -e $usage_dir/good.json ]] ||
   fail "update refuses an empty --except before collecting anything" "$output"
 pass "update refuses an empty --except before collecting anything"
+
+rm -rf "$usage_dir"
+if output=$(HOME="$TEST_HOME" OMARCHY_PATH="$FAKE_OMARCHY" XDG_STATE_HOME="" \
+  "$ROOT/bin/omarchy-agent-usage-update" --bogus good 2>&1); then
+  fail "update refuses an unknown option"
+fi
+[[ $output == "omarchy-agent-usage-update: unknown option: --bogus" && ! -e $usage_dir/good.json ]] ||
+  fail "update refuses an unknown option before collecting anything" "$output"
+pass "update refuses an unknown option before collecting anything"
+
+if output=$(HOME="$TEST_HOME" OMARCHY_PATH="$FAKE_OMARCHY" XDG_STATE_HOME="" \
+  "$ROOT/bin/omarchy-agent-usage-update" missing update good 2>&1); then
+  fail "update fails when a requested agent has no collector"
+fi
+[[ $output == $'omarchy-agent-usage-update: unknown agent: missing\nomarchy-agent-usage-update: unknown agent: update' &&
+  $(jq -r '.totalPrompts' "$usage_dir/good.json") == "3" ]] ||
+  fail "update reports unknown requested agents while still running valid ones" "$output"
+pass "update reports unknown requested agents while still running valid ones"

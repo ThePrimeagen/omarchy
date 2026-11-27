@@ -28,6 +28,10 @@ while (( $# > 0 )); do
       shift
     fi
     ;;
+  -*)
+    echo "omarchy-agent-usage-update: unknown option: $1" >&2
+    exit 1
+    ;;
   *) only+=("$1") ;;
   esac
   shift
@@ -69,11 +73,13 @@ fi
 export OMARCHY_AGENT_USAGE_REFRESH_AT=${EPOCHREALTIME/,/.}
 
 pids=()
+declare -A matched
 for collector in "$OMARCHY_PATH"/bin/omarchy-agent-usage-*; do
   [[ -x $collector ]] || continue
   agent="${collector##*/omarchy-agent-usage-}"
   [[ $agent == "update" ]] && continue
   wanted "$agent" || continue
+  matched[$agent]=1
   collect "$collector" "$agent" &
   pids+=($!)
 done
@@ -81,6 +87,12 @@ done
 status=0
 for pid in "${pids[@]}"; do
   wait "$pid" || status=1
+done
+
+for agent in "${only[@]}"; do
+  [[ -n ${excluded[$agent]} || -n ${matched[$agent]} ]] && continue
+  echo "omarchy-agent-usage-update: unknown agent: $agent" >&2
+  status=1
 done
 
 # Fresh limits are when an account near a limit gets announced.
