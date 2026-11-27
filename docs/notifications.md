@@ -128,7 +128,7 @@ an action and just expect click-to-jump.
 `--exec` consumes the rest of the line as the click command:
 
 ```bash
-omarchy-notification-send "Download complete" "$title" --exec omaview open "$file"
+omarchy-notification-send "Download complete" "$title" --exec omaview "$file"
 ```
 
 The caller's shell has already split those words into discrete arguments, and a
@@ -142,7 +142,7 @@ can never be reparsed as a command. The login shell keeps the PATH and session
 environment that GUI click targets (the screenshot editor, Omaview, xdg-open) expect.
 
 The critical rule: **the splitting must happen at the call site, not inside the
-tool.** Passing a single quoted string (`--exec "omaview open $title"`) and letting the
+tool.** Passing a single quoted string (`--exec "omaview $title"`) and letting the
 tool whitespace-split it would hand argument boundaries to whoever controls the
 string's content — a title with a space could inject an extra option or program.
 So `--exec` refuses a lone quoted-string argument and points at the unquoted
@@ -175,7 +175,7 @@ as a `busctl` option; the summary/body themselves are never parsed as options.)
 
 ```bash
 omarchy-notification-send "Screen recording saved" "$name" \
-  --action "Play" omaview open \
+  --action "Play" omaview \
   --action "Show in folder" nautilus --select \
   --with "$filename"
 ```

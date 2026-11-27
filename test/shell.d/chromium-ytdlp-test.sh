@@ -265,7 +265,7 @@ grep -qF -- $'OMARCHY_FILE\t%(title)s' "$ytdlp_argv" &&
   fail "yt-dlp native host never prints the title into the file record" "$(cat "$ytdlp_argv")"
 pass "yt-dlp native host never prints the title into the file record"
 
-grep -qF -- "--action Open omaview open --action Cut omacut --with $fake_file" "$notify_argv" ||
+grep -qF -- "--action Open omaview --action Cut omacut --with $fake_file" "$notify_argv" ||
   fail "yt-dlp native host offers Open in Omaview and Cut in Omacut for the download" "$(cat "$notify_argv")"
 pass "yt-dlp native host offers Open in Omaview and Cut in Omacut for the download"
 

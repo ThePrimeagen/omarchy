@@ -527,7 +527,7 @@ stop_screenrecording() {
 
     omarchy-notification-send "$(omarchy-i18n capture.recordingSaved)" "$(recording_details "$filename")" \
       -t 10000 "${image_args[@]}" \
-      --action "$(omarchy-i18n capture.recordingOpen)" omaview open \
+      --action "$(omarchy-i18n capture.recordingOpen)" omaview \
       --action "$(omarchy-i18n capture.recordingCut)" omacut \
       --with "$filename"
 

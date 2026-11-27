@@ -214,7 +214,7 @@ download_url() {
     # discrete --with argument, so it never reaches a shell.
     omarchy-notification-send -g 󰄬 "$(omarchy-i18n download.complete)" "$title" \
       -t 10000 --image "${preview:-$filepath}" \
-      --action "$(omarchy-i18n download.open)" omaview open \
+      --action "$(omarchy-i18n download.open)" omaview \
       --action "$(omarchy-i18n download.cut)" omacut \
       --with "$filepath" || true
 
