@@ -1,48 +1,48 @@
 # Navigācija
 
-Viss Omarchy notiek ar tastatūru — _VISU!_ Kad sistēma pirmo reizi startējas, jūs burtiski neko nevarat izdarīt tikai ar peli. Bet jūs varat nospiest `Super + Space`, lai atvērtu Omarchy izvēlni, un no šejienes jūs varat izdarīt gandrīz visu.
+Omarchy vidē viss notiek ar tastatūru — _VISU!_ Kad sistēma tikko startējusies, ar peli vien tu burtiski neko nespēj izdarīt. Bet vari nospiest `Super + Space`, lai atvērtu Omarchy Menu, un no šejienes vari izdarīt gandrīz visu.
 
-Bet Omarchy izvēlne pat nav paredzēta kā galvenais veids, kā lielāko daļu laika darboties ar sistēmu. Mēs varam ātrāk! Visas svarīgākās lietotnes ir piesaistītas tieši atsevišķiem karstajiem taustiņiem. Jūs startējat termināli ar `Super + Return` un pārlūku ar `Super + Shift + Return`. Mēģiniet izdarīt vienu pēc otra, un jūs redzēsiet Hyprland flīzēšanas maģiju darbībā:
+Tomēr Omarchy izvēlne lielāko daļu laika pat nav paredzēta kā galvenais sistēmas vadīšanas veids. Mēs varam ātrāk! Visas svarīgākās lietotnes ir piesaistītas tieši atsevišķiem karstajiem taustiņiem. Termināli palaiž ar `Super + Return`, bet pārlūku — ar `Super + Shift + Return`. Pamēģini vienu pēc otra, un redzēsi Hyprland flīzēšanas burvību darbībā:
 
  ![navigation-browser-terminal](images/navigation-browser-terminal.webp)
 
-Pēc tam jūs varat nospiest `Super + J`, lai sakrautu tos vienu virs otra, nevis blakus:
+Tad vari nospiest `Super + J`, lai sakrautu tos vienu virs otra, nevis blakus:
 
  ![navigation-stacked](images/navigation-stacked.webp)
 
-Nospiediet `Super + J` vēlreiz, lai atgrieztu tos blakus pozīcijās. Pēc tam mēģiniet nospiest `Super + Shift + Arrow Right`, kamēr esat pārlūkā, lai samainītu logus vietām.
+Nospied `Super + J` vēlreiz, lai atgrieztu tos blakus novietojumā. Tad, esot pārlūkā, pamēģini `Super + Shift + Arrow Right`, lai apmainītu logus vietām.
 
-Tagad mēģiniet nospiest `Super + Shift + T`, lai startētu Aktivitātes monitoru. Tas parādīsies kā peldošs logs. Jūs varat to flīzēt, izmantojot `Super + T` (un nospiest to vēlreiz, lai padarītu to atkal peldošu). Tagad nospiediet `Super + Shift + F`, lai atvērtu failu pārvaldnieku. Jums būs glīts četru logu izkārtojums:
+Tagad pamēģini `Super + Shift + T`, lai palaistu Activity monitor. Tas parādīsies kā peldošs logs ar virsrakstjoslu, aiz kuras to vilkt, un pogām, lai to minimizētu, maksimizētu un aizvērtu. Tādu saņem katrs peldošs logs, lai kur tas atrastos. Vari to noflīzēt ar `Super + T` (un nospiest to vēlreiz, lai atkal padarītu to peldošu). Tagad nospied `Super + Shift + F`, lai atvērtu failu pārvaldnieku. Tev būs glīts četru logu izkārtojums:
 
  ![navigation-fourway-tiling](images/navigation-fourway-tiling.webp)
 
-Jūs pārvietojaties starp logu, kuru vēlaties padarīt aktīvu, ar `Super + Arrow`. Tas pārslēgs fokusu un pārvietos kursoru uz jaunās lietotnes centru. Ekrāna malā tas turpinās uz monitoru tajā pusē.
+Starp logiem, kuru vēlies aktivizēt, pārvietojies ar `Super + Arrow`. Tas pārslēgs fokusu un pārvietos kursoru uz jaunās lietotnes centru. Ekrāna malā tas turpinās uz monitoru tajā pusē.
 
-Ja jūs nospiedīsiet `Super + Shift + 2`, jūs pārvietosiet pašreizējo fokusēto lietotni uz otro darbvietu. `Super + Shift + 1` pārvieto to atpakaļ. (Un `Super + Shift + Alt + 2` pārvietos pašreizējo fokusēto lietotni uz otro darbvietu, nepārslēdzoties uz to).
+Ja nospiedīsi `Super + Shift + 2`, pārvietosi pašlaik fokusēto lietotni uz otro darbvietu. `Super + Shift + 1` to pārvieto atpakaļ. (Un `Super + Shift + Alt + 2` pārvietos pašlaik fokusēto lietotni uz otro darbvietu, nepārslēdzoties uz to).
 
-Ar vairāk nekā vienu monitoru katram monitoram ir savas darbvietas no 1 līdz 10. `Super + 2` dodas uz tā monitora otro darbvietu, kurā atrodaties, un katra monitora augšējā josla rāda savas darbvietas un to, kuru tas rāda. `Super + Tab` cikliski pārslēdz darbvietas monitorā, kurā atrodaties. `Super + Shift + Ctrl + Arrows` pārvieto logu, kurā atrodaties, uz monitoru tajā virzienā, uz darbvietu, kuru tas rāda, un `Super + Shift + Alt + Arrows` pārvieto darbvietu, kurā atrodaties, uz monitoru tajā virzienā, kur tā iegūst to pašu numuru, ja tas ir brīvs. Monitors saglabā savas darbvietas, kad jūs to atvienojat: tās pievienojas cita ekrāna darbvietām, numurētas pēc tām, kas tam jau ir, un atgriežas ar saviem vecajiem numuriem, kad monitors atgriežas.
+Ja ir vairāk nekā viens monitors, katram monitoram ir savas darbvietas no 1 līdz 10. `Super + 2` dodas uz tā monitora otro darbvietu, kurā atrodies, un katra monitora augšjoslā ir redzamas tā paša darbvietas un tā, kuru tas rāda. `Super + Tab` cikliski pārslēdz darbvietas monitorā, kurā atrodies. `Super + Shift + Ctrl + Arrows` pārvieto logu, kurā atrodies, uz monitoru tajā virzienā, uz darbvietu, kuru tas rāda, un `Super + Shift + Alt + Arrows` pārvieto darbvietu, kurā atrodies, uz monitoru tajā virzienā, kur tā iegūst to pašu numuru, ja tas ir brīvs. Monitors saglabā savas darbvietas, kad to atvieno: tās pievienojas cita ekrāna darbvietām, sanumurētas pēc tām, kas tam jau ir, un atgriežas ar saviem vecajiem numuriem, kad monitors atgriežas.
 
-Ja jūs turat nospiestu `Super` un izmantojat peli, lai noklikšķinātu uz loga, jūs varēsiet pārkārtot, kur tas atrodas. Ja jūs turat `Super` un izmantojat peles labo pogu, jūs varat brīvi mainīt loga izmēru.
+Ja turēsi nospiestu `Super` un ar peli noklikšķināsi uz loga, varēsi pārkārtot, kur tas atrodas. Ja turēsi `Super` un izmantosi peles labo pogu, varēsi brīvi mainīt loga izmēru.
 
-Jūs aizverat logu ar `Super + W` vai `Super + Q` (un aizverat visus logus ar `Ctrl + Alt + Delete`).
+Logu aizver ar `Super + W` vai `Super + Q` (un visus logus aizver ar `Ctrl + Alt + Delete`).
 
-Jūs varat arī pāriet pilnekrāna režīmā ar `Super + F` vai pat tikai pilnā platumā (saglabājot augšējo joslu) ar `Super + Alt + F` vai pilnekrāna režīmā loga iekšpusē ar `Super + Ctrl + F` (labi piemērots YouTube!).
+Vari arī ieslēgt pilnekrāna režīmu ar `Super + F` vai pat tikai pilnu platumu (saglabājot augšjoslu) ar `Super + Alt + F`, vai pilnekrāna režīmu loga iekšienē ar `Super + Ctrl + F` (lieliski YouTube!).
 
 ### Dwindle pret ritināšanas izkārtojumu
 
-Omarchy noklusējuma izkārtojums tiek saukts par dwindle. Tas visu laiku saglabā visus logus, kurus atverat vienā darbvietā, redzamus, pat ja tam tie jāsamazina.
+Omarchy noklusējuma izkārtojumu sauc par dwindle. Tas visu laiku tur visus logus, kurus atver vienā darbvietā, redzamus, pat ja tam tie jāsamazina.
 
  ![navigation-dwindle-layout](images/navigation-dwindle-layout.webp)
 
-Bet jūs varat arī izvēlēties pārvērst darbvietu ritināšanas izkārtojumā, kur logi ir sarindoti blakus, aiz displeja redzamās malas. Jūs pārvēršat vienu darbvietu šajā izkārtojumā, izmantojot `Super + L`.
+Bet vari arī izvēlēties darbvietu pārvērst ritināšanas izkārtojumā, kur logi sarindoti blakus aiz displeja redzamās malas. Vienu darbvietu šajā izkārtojumā pārvērt ar `Super + L`.
 
-Vēlreiz nospiežot `Super + L`, darbvieta kļūst peldoša, kur logi brīvi pārklājas un jūs tos novietojat pats, un trešā nospiešana atgriež to uz dwindle. `Super + Alt + L` iziet tos otrā virzienā. Logs, kas tik un tā peld — tāds, kuru jūs izcēlāt ar `Super + T`, vai lietotne, kas vienmēr atveras peldoša — turpina peldēt, kad darbvieta atgriežas flīzēšanā. Augšējā josla atzīmē darbvietu, kurā atrodaties, ar tās izkārtojumu: kvadrāts dwindle, aplis ritināšanai un trijstūris peldošajam. Noklikšķinot uz šīs atzīmes, arī cikliski mainās izkārtojums.
+Nospiežot `Super + L` vēlreiz, darbvieta kļūst peldoša, kur logi brīvi pārklājas un tu tos novieto pats, un trešā nospiešana to atgriež pie dwindle. `Super + Alt + L` iet caur tiem otrā virzienā. Logs, kas tāpat peldošs — tāds, kuru izcēli ar `Super + T`, vai lietotne, kas vienmēr atveras peldoša, — paliek peldošs, kad darbvieta atgriežas pie flīzēšanas. Augšjosla atzīmē darbvietu, kurā atrodies, ar tās izkārtojumu: kvadrāts dwindle, aplis ritināšanai un trijstūris peldošajam. Noklikšķinot uz šīs atzīmes, izkārtojums arī cikliski mainās, tāpat kā ar displeja taustiņu klēpjdatoros, kuriem tāds ir.
 
  ![navigation-scrolling-layout](images/navigation-scrolling-layout.webp)
 
-Izvēle ir katrai darbvietai atsevišķi, un tā saglabājas. Tātad jūs varat saglabāt 1. darbvietu dwindle pārlūkošanai un 2. darbvietu ritināšanai kodam, un tās atgriezīsies tādā veidā pēc restartēšanas.
+Izvēle ir katrai darbvietai atsevišķi, un tā saglabājas. Tā vari darbvietu 1 turēt dwindle pārlūkošanai un darbvietu 2 ritināšanā kodam, un pēc restartēšanas tās atgriezīsies tādas pašas.
 
-Ja vēlaties izmantot ritināšanas izkārtojumu kā noklusējumu, jūs varat to iestatīt `~/.config/hypr/looknfeel.lua`:
+Ja vēlies ritināšanas izkārtojumu izmantot kā noklusējumu, vari to iestatīt `~/.config/hypr/looknfeel.lua`:
 
 ```lua
 hl.config({
@@ -54,38 +54,38 @@ hl.config({
 
 ### Peldošās darbvietas
 
-Peldoša darbvieta darbojas kā tradicionāla darbvirsma: logi pārklājas, un jūs tos pārvietojat un maināt to izmēru pats. Katrs logs iegūst virsrakstjoslu jūsu motīva krāsās, ar pogām minimizēšanai, maksimizēšanai un aizvēršanai. `Super + M` minimizē arī fokusēto logu. Minimizēts logs gaida dokā; noklikšķiniet uz tā lietotnes, lai to atgrieztu. Noklikšķiniet uz loga, lai izvirzītu to priekšplānā. Mainiet tā izmēru no jebkuras malas vai stūra. Veiciet dubultklikšķi uz virsrakstjoslas, lai maksimizētu logu, vienlaikus saglabājot augšējo joslu redzamu, un vēlreiz, lai atgūtu tā veco izmēru.
+Peldoša darbvieta darbojas kā tradicionāla darbvirsma: logi pārklājas, un tu tos pārvieto un maini to izmēru pats. Katrs logs saņem virsrakstjoslu tavas tēmas krāsās ar pogām, lai minimizētu, maksimizētu un aizvērtu. `Super + M` arī minimizē fokusēto logu. Minimizēts logs gaida dokā; noklikšķini uz tā lietotnes, lai to atgrieztu. Noklikšķini uz loga, lai izceltu to priekšplānā. Maini tā izmēru no jebkuras malas vai stūra. Veic dubultklikšķi uz virsrakstjoslas, lai maksimizētu logu, saglabājot augšjoslu redzamu, un vēlreiz, lai atgūtu tā veco izmēru. Chrome un citi uz Chromium balstīti pārlūki, Disks un Document Viewer izlaiž virsrakstjoslu un tā vietā izmanto savējo galveni; `Super + Alt + F` tos maksimizē, un `Super + M` tos minimizē.
 
-Peldoša darbvieta rāda arī doku ar jūsu piespraustajām lietotnēm, visu, kas darbojas, un visu lietotņu režģi aiz lietotņu pogas, kuru atver arī `Super + Alt + Space` un _Lietotnes_ Omarchy izvēlnē. Ar peles labo pogu noklikšķiniet uz lietotnes režģī vai nospiediet `Delete`, lai to atinstalētu. Noklikšķiniet uz lietotnes, lai to atvērtu vai izvirzītu tās logu priekšplānā; noklikšķiniet vēlreiz, lai cikliski pārslēgtos starp tās logiem. Vidējais klikšķis atver jaunu logu. Velciet ikonu gar doku, lai to pārvietotu; ievelkot darbojošos lietotni starp pārējām, tā tur paliek. Ar peles labo pogu noklikšķiniet, lai paturētu lietotni dokā, izņemtu to vai aizvērtu to. Doks atkāpjas pilnekrāna logam. Ar peles labo pogu noklikšķiniet uz lietotņu pogas, lai pārvietotu doku uz citu malu vai liktu tam slēpties, līdz rādītājs sasniedz tā malu. Pozīcija ir arī sadaļā _Izskats > Doks > Doka pozīcija_, un `omarchy dock position left` un `omarchy dock autohide on` iestata abus no termināļa. Lietotnes, kuras jūs paturat dokā, ir izbalējušas, kamēr tās nedarbojas.
+Katrai darbvietai ir doks ar piespraustajām lietotnēm, visu, kas darbojas, un visu lietotņu režģi aiz lietotņu pogas, kuru atver arī `Super + Alt + Space` un _Apps_ Omarchy izvēlnē. Ar labo pogu noklikšķini uz lietotnes režģī vai nospied `Delete`, lai to atinstalētu. Noklikšķini uz lietotnes, lai to atvērtu vai izceltu tās logu priekšplānā; noklikšķini vēlreiz, lai cikliski pārslēgtos starp tās logiem. Files atgriež tikai logu no darbvietas, kurā atrodies, un citādi atver jaunu, un Terminal un Agent vienmēr palaiž vēl vienu, lai gan minimizēts logs atgriežas vispirms. Klikšķis ar vidējo pogu atver jaunu logu. Velc ikonu gar doku, lai to pārvietotu; ievelkot darbojošos lietotni starp pārējām, tā tur paliek. Ar labo pogu noklikšķini, lai paturētu lietotni dokā, izņemtu to no tā vai aizvērtu. Doks paliek ārā, kamēr darbvieta ir tukša, un, tiklīdz darbvietā ir logs, tas paslēpjas, līdz rādītājs sasniedz tā malu. Pilnekrāna logs to paslēpj pavisam. Velc lietotņu pogu citas ekrāna malas virzienā, lai pārvietotu doku tur. Ar labo pogu noklikšķini uz tās, lai ar _Position_ izvēlētos malu, ar _Layout_ iestatītu noklusējuma izkārtojumu, kā to dara _Appearance > Workspace Layout_, un ar _Visibility_ paturētu doku vienmēr ieslēgtu, liktu pirmajai lietotnei to paslēpt vai paturētu to vienmēr paslēptu. `omarchy dock visibility always` to iestata no termināļa. Pozīcija ir arī zem _Appearance > Dock > Dock Position_, un `omarchy dock position left` to iestata no termināļa. Lietotnes, kuras turi dokā, ir izbalējušas, kamēr tās nedarbojas. Lai doku paturētu tikai peldošām darbvietām, izmanto _Appearance > Dock > Dock Only on Floating_ vai `omarchy dock tiling off`.
 
-Jaunas darbvietas un jebkuras, kurām neesat piešķīris savu izkārtojumu ar `Super + L`, izmanto noklusējuma izkārtojumu. Noklusējuma maiņa atiestata katru darbvietu bez logiem uz to, bet darbvieta ar logiem saglabā izkārtojumu, kāds tai ir. Logs, kas minimizēts dokā, joprojām tiek uzskatīts par logu darbvietā, kuru tas pameta. Izvēlieties to sadaļā _Izskats > Darbvietas izkārtojums_: Flīzēšana, Ritināšana vai Peldošais. `omarchy-hyprland-workspace-layout-default scrolling` iestata to no termināļa.
+Jaunas darbvietas un jebkura, kurai neesi piešķīris savu izkārtojumu ar `Super + L`, izmanto noklusējuma izkārtojumu. Noklusējuma maiņa atiestata uz to katru darbvietu bez logiem, bet tā, kurā ir logi, saglabā izkārtojumu, kas tai ir. Dokā minimizēts logs joprojām skaitās logs darbvietā, kuru tas atstāja. Izvēlies to zem _Appearance > Workspace Layout_: Tiling, Scrolling vai Floating. `omarchy hyprland workspace layout default scrolling` to iestata no termināļa.
 
 ### Logu grupēšana
 
-Logus var grupēt, izmantojot `Super + G`. Kad esat grupā, katrs logs, kuru startējat, kamēr tā ir aktīva, piederēs grupai. Jūs varat pārvietoties starp šiem grupētajiem logiem, izmantojot `Super + Ctrl + Arrow Left/Right` vai `Super + Alt + 1/2/3/4`, lai dotos tieši uz grupētajiem logiem kārtībā.
+Logus var grupēt, izmantojot `Super + G`. Tiklīdz esi grupā, katrs logs, kuru palaidīsi, kamēr tā ir aktīva, piederēs grupai. Starp šiem grupētajiem logiem vari pārvietoties, izmantojot `Super + Ctrl + Arrow Left/Right` vai `Super + Alt + 1/2/3/4`, lai dotos tieši uz grupētajiem logiem pēc kārtas.
 
-Jūs varat pārvietot logu ārā no grupēšanas ar `Super + Alt + G` vai izjaukt visu grupu, vēlreiz nospiežot `Super + G`. Visbeidzot, jūs varat pārvietot logus ārpus grupas tajā ar `Super + Alt + Arrows`.
+Logu vari izņemt no grupas ar `Super + Alt + G` vai izjaukt visu grupu, nospiežot `Super + G` vēlreiz. Visbeidzot, logus ārpus grupas vari pārvietot tajā ar `Super + Alt + Arrows`.
 
 ### Logu izcelšana
 
-Jūs varat izcelt logu no tā darbvietas piešķīruma ar `Super + O`. Tas to piespraudīs kā peldošu logu, kas seko jums uz jebkuru darbvietu, uz kuru dodaties. Lieliski piemērots video atskaņotājiem un tamlīdzīgiem.
+Logu vari izcelt no tā darbvietas piešķīruma ar `Super + O`. Tas to piespraudīs kā peldošu logu, kas seko tev, uz kuru darbvietu vien dodies. Lieliski video atskaņotājiem un tamlīdzīgiem.
 
  ![navigation-popped-window](images/navigation-popped-window.webp)
 
 ### Scratchpad darbvieta
 
-Ir īpaša pilna izmēra Scratchpad darbvieta, kas pārklājas pār jebkuru darbvietu, kurā pašlaik atrodaties. Jūs piekļūstat tam, kas tajā atrodas, izmantojot `Super + S`, un jūs novietojat logus tur, izmantojot `Super + Alt + S`.
+Ir īpaša pilna izmēra scratchpad darbvieta, kas pārklājas pār jebkuru darbvietu, kurā pašlaik atrodies. Tam, kas tajā atrodas, piekļūsti ar `Super + S`, un logus tur novieto ar `Super + Alt + S`.
 
-Tā labi darbojas vadīklām vai terminālim, ar kuru vēlaties ātri mijiedarboties, nepametot pašreizējo darbvietu.
+Tā labi der vadīklām vai terminālim, ar kuru vēlies ātri sazināties, nepametot pašreizējo darbvietu.
 
 ### Quake konsole
 
-Visbeidzot, ir pusaugstuma Quake konsole, kas nolaižas pār jebkuru darbvietu, kurā pašlaik atrodaties. Pārslēdziet to ar `Super + Grave` un novietojiet logu tur, izmantojot `Super + Shift + Grave`.
+Visbeidzot, ir pusaugstuma Quake konsole, kas nolaižas pār jebkuru darbvietu, kurā pašlaik atrodies. Pārslēdz to ar `Super + the key above Tab` (ASV izkārtojumos gravis), un logu tur novieto ar `Super + Shift + the key above Tab`.
 
-Tā atveras ar jūsu noklusējuma aģentu gatavu darbam. Kamēr konsolē ir viens logs, tā nolaižas kā centrēts panelis, nevis stiepjas pāri ekrānam. Novietojiet tajā otro lietotni, un tā atgriežas pilnā platumā, lai abām būtu vieta blakus.
+Pirmajā atvēršanas reizē tā palaiž tavu noklusējuma aģentu vai lūdz izvēlēties vienu, ja vēl neesi to izvēlējies. Kamēr konsolē ir viens logs, tā nolaižas kā centrēts panelis, nevis stiepjas pāri ekrānam. Novieto tajā otro lietotni, un tā atgriežas pilnā platumā, lai abām būtu vieta blakus.
 
-Lai pārvietotu logu nost no Scratchpad vai konsoles, nosūtiet to tieši uz citu darbvietu ar kaut ko līdzīgu `Super + Shift + 1`.
+Lai logu pārvietotu prom vai nu no scratchpad, vai konsoles, nosūti to tieši uz citu darbvietu ar kaut ko līdzīgu `Super + Shift + 1`.
 
-### Pie tā jāpierod!
+### Pie tā mazliet jāpierod!
 
-Ir nepieciešams nedaudz laika, lai pierastu šādi pārvietoties pa darbvirsmu, bet, kad jūs to izdarīsiet, būs grūti atgriezties pie tradicionālas ar peli vadītas darbvirsmas pieredzes!
+Paies mazliet laika, līdz pieradīsi šādi pārvietoties pa savu darbvirsmu, bet, tiklīdz pieradīsi, būs grūti atgriezties pie tradicionālas, ar peli vadītas darbvirsmas pieredzes!

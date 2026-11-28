@@ -40,7 +40,7 @@ trap 'rm -f "$CALL_LOG.inhibited"' EXIT
 "$@"
 SH
 
-for command in uwsm omarchy-state omarchy-hyprland-window-close-all omarchy-osd omarchy-notification-send sleep timeout systemctl; do
+for command in uwsm omarchy-state omarchy-hyprland-window-close-all omarchy-osd omarchy-shell omarchy-notification-send sleep timeout systemctl; do
   cat >"$mock_bin/$command" <<'SH'
 #!/bin/bash
 
@@ -56,6 +56,19 @@ case $command in
       /usr/bin/sleep 10
     fi
     ;;
+  sleep)
+    if [[ $1 == "0.500" ]]; then
+      /usr/bin/sleep 0.05
+      touch "$CALL_LOG.fade"
+    else
+      /usr/bin/sleep 0.3
+    fi
+    ;;
+  omarchy-shell)
+    if [[ $1 == "shell" && $2 == "showShutdownCover" && -n ${SHUTDOWN_COVER_MS:-} ]]; then
+      echo "$SHUTDOWN_COVER_MS"
+    fi
+    ;;
   omarchy-notification-send)
     [[ ${FAIL_NOTIFICATION:-false} != "true" ]] || exit 42
     ;;
@@ -69,6 +82,9 @@ case $command in
     ;;
   uwsm | systemctl)
     [[ -f $CALL_LOG.grace ]] || exit 2
+    if [[ ${SHUTDOWN_COVER_MS:-0} =~ ^[1-9][0-9]*$ ]]; then
+      [[ -f $CALL_LOG.fade ]] || exit 2
+    fi
     if [[ $1 == "poweroff" ]]; then
       [[ -f $CALL_LOG.inhibited ]] || exit 2
     fi
@@ -88,6 +104,14 @@ run_power_command() {
   "$ROOT/bin/omarchy-system" "$action"
 }
 
+# The OSD waits so a quick exit doesn't flash it, and the exit never waits for the OSD.
+assert_delayed_osd() {
+  local label="$1" exit_line osd_line
+  exit_line=$(grep -n -m1 -E '^(systemctl|uwsm) ' "$CALL_LOG" | cut -d: -f1)
+  osd_line=$(grep -n -m1 '^omarchy-osd ' "$CALL_LOG" | cut -d: -f1)
+  grep -q '^sleep 2$' "$CALL_LOG" && (( exit_line < osd_line )) || fail "$label shows its OSD only after the exit request"
+}
+
 for action in reboot logout; do
   run_power_command "$action" || fail "$action service is scheduled"
   (( $(wc -l <"$call_log") == 1 )) || fail "$action preparation runs outside the launching terminal"
@@ -96,16 +120,25 @@ for action in reboot logout; do
   PATH=/stale/bin OMARCHY_PATH=/stale/checkout HYPRLAND_INSTANCE_SIGNATURE=stale /bin/bash "$CALL_LOG.worker" || fail "$action worker succeeds"
   [[ -f $CALL_LOG.environment ]] || fail "$action forwards the caller environment over stale manager values"
   grep -q '^timeout 2s omarchy-hyprland-window-close-all --wait$' "$CALL_LOG" || fail "$action waits for application exit with a deadline"
-  ! grep -q '^sleep ' "$CALL_LOG" || fail "$action has no fixed sleep"
+  assert_delayed_osd "$action"
   rm -f "$CALL_LOG.grace"
   BLOCK_WINDOW_CLOSE=true bash "$CALL_LOG.worker" || fail "$action proceeds after the close deadline"
   ! grep -q '^omarchy-notification-send ' "$CALL_LOG" || fail "$action does not report a close timeout as failure"
+  : >"$call_log"
   rm -f "$CALL_LOG.grace"
   if FAIL_EXIT=true bash "$CALL_LOG.worker"; then
     fail "$action propagates a rejected exit request"
   fi
   grep -q "^omarchy-notification-send -u critical ${action^} failed " "$CALL_LOG" || fail "$action reports a rejected exit request"
-  pass "$action waits outside the launching terminal without a fixed delay"
+  ! grep -q '^omarchy-osd ' "$CALL_LOG" || fail "$action shows no OSD when the exit is rejected quickly"
+  grep -q '^omarchy-shell -q osd close$' "$CALL_LOG" || fail "$action closes its OSD when the exit is rejected"
+  if [[ $action == "logout" ]]; then
+    ! grep -q 'showShutdownCover\|hideShutdownCover' "$CALL_LOG" || fail "logout does not show or hide the shutdown cover"
+  else
+    grep -q '^omarchy-shell shell showShutdownCover$' "$CALL_LOG" || fail "$action shows the shutdown cover"
+    ! grep -q '^omarchy-shell -q shell hideShutdownCover$' "$CALL_LOG" || fail "$action skips hiding the cover when the shell did not show one"
+  fi
+  pass "$action waits outside the launching terminal and delays its OSD"
 done
 
 run_power_command shutdown || fail "shutdown service is scheduled"
@@ -118,7 +151,7 @@ osd_line=$(grep -n '^omarchy-osd ' "$CALL_LOG" | cut -d: -f1)
 (( inhibit_line < osd_line )) || fail "inhibition precedes preparation"
 grep -q '^omarchy-state clear re\*-required$' "$CALL_LOG" || fail "shutdown clears restart state"
 grep -q '^timeout 2s omarchy-hyprland-window-close-all --wait$' "$CALL_LOG" || fail "shutdown waits for applications with a deadline"
-! grep -q '^sleep ' "$CALL_LOG" || fail "shutdown has no fixed sleep"
+assert_delayed_osd shutdown
 grep -q '^systemctl poweroff --no-wall$' "$CALL_LOG" || fail "poweroff runs after the grace period while inhibited"
 [[ ! -f $CALL_LOG.inhibited ]] || fail "accepted poweroff releases inhibition"
 ! grep -q '^omarchy-notification-send ' "$CALL_LOG" || fail "successful shutdown sends no failure notification"
@@ -204,3 +237,31 @@ for action in logout reboot shutdown; do
 done
 "$ROOT/bin/omarchy" system lock --help | grep -q 'omarchy-system-lock' || fail "system lock remains routed to its own command"
 pass "existing system subcommands keep their routes"
+
+cat >"$mock_bin/busctl" <<'SH'
+#!/bin/bash
+
+printf 'busctl %s\n' "$*" >>"$CALL_LOG"
+printf 's "%s"\n' "${FIRMWARE_SETUP:-yes}"
+SH
+chmod +x "$mock_bin/busctl"
+run_power_command firmware || fail "firmware reboot service is scheduled"
+if FIRMWARE_SETUP=no bash "$CALL_LOG.worker"; then
+  fail "firmware reboot fails without firmware setup support"
+fi
+! grep -q 'omarchy-hyprland-window-close-all' "$CALL_LOG" || fail "unsupported firmware reboot leaves applications open"
+! grep -q 'showShutdownCover' "$CALL_LOG" || fail "unsupported firmware reboot never shows the shutdown cover"
+grep -q '^omarchy-notification-send -u critical Reboot to BIOS failed ' "$CALL_LOG" || fail "unsupported firmware reboot is reported"
+: >"$call_log"
+rm -f "$CALL_LOG.fade" "$CALL_LOG.grace"
+FIRMWARE_SETUP=yes SHUTDOWN_COVER_MS=400 bash "$CALL_LOG.worker" || fail "supported firmware reboot waits for the shutdown cover fade before rebooting"
+grep -q '^omarchy-shell shell showShutdownCover$' "$CALL_LOG" || fail "firmware reboot shows the shutdown cover"
+! grep -q '^sleep 2$' "$CALL_LOG" && ! grep -q '^omarchy-osd ' "$CALL_LOG" || fail "firmware reboot skips the delayed OSD when the shutdown cover is shown"
+grep -q '^systemctl reboot --firmware-setup --no-wall$' "$CALL_LOG" || fail "firmware reboot asks for the firmware setup"
+: >"$call_log"
+rm -f "$CALL_LOG.fade" "$CALL_LOG.grace"
+if FIRMWARE_SETUP=yes SHUTDOWN_COVER_MS=400 FAIL_EXIT=true bash "$CALL_LOG.worker"; then
+  fail "rejected firmware reboot with cover propagates failure"
+fi
+grep -q '^omarchy-shell -q shell hideShutdownCover$' "$CALL_LOG" || fail "rejected exit hides the shutdown cover when shown"
+pass "firmware reboot checks support before closing applications"

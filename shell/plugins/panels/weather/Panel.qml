@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Networking
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
@@ -23,9 +24,13 @@ Panel {
   property var hostWidget: null
   readonly property var barIdentity: hostWidget || root
 
+  // Open-Meteo's API answers curl's default User-Agent with 403 Forbidden,
+  // which leaves the forecast fetch failing and the bar widget hidden.
+  // Identify the caller the way the API asks and the same query answers 200.
+  readonly property string openMeteoUserAgent: "omarchy-shell (+https://github.com/omacom/omarchy)"
+
   function open() {
     openedFromHotkey = false
-    setCenterHoverRevealSuppressed(false)
     root.controller.show()
     locationFile.reload()
     root.refresh()
@@ -36,18 +41,9 @@ Panel {
     root.controller.show()
     locationFile.reload()
     root.refresh()
-    // Set after showing, not before: showing hands the popout coordinator
-    // over, which closes whichever panel was open, and that close clears the
-    // shared flag. Deferring means the panel taking over always wins, while
-    // a handoff to a panel that does not manage the flag still leaves it
-    // cleared rather than stuck on.
-    Qt.callLater(function() {
-      if (root.opened) setCenterHoverRevealSuppressed(true)
-    })
   }
 
   function close() {
-    setCenterHoverRevealSuppressed(false)
     if (root.editingLocation) root.cancelEditingLocation()
     root.controller.hide()
   }
@@ -61,13 +57,6 @@ Panel {
     if (root.bar && typeof root.bar.switchPanelFrom === "function")
       return root.bar.switchPanelFrom(root.barIdentity, direction)
     return false
-  }
-
-  function setCenterHoverRevealSuppressed(value) {
-    if (root.bar && typeof root.bar.setCenterHoverRevealSuppressed === "function")
-      root.bar.setCenterHoverRevealSuppressed(value)
-    else if (root.bar && "centerHoverRevealSuppressed" in root.bar)
-      root.bar.centerHoverRevealSuppressed = value
   }
 
   // Parsed wttr.in j1 response. Kept on failure so stale data stays visible.
@@ -209,7 +198,7 @@ Panel {
       + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,is_day"
       + "&forecast_days=4"
       + "&timezone=auto"
-    dailyForecastProc.command = ["curl", "-fsS", "--max-time", "5", url]
+    dailyForecastProc.command = ["curl", "-fsS", "--max-time", "5", "-A", root.openMeteoUserAgent, url]
     dailyForecastProc.running = true
   }
 
@@ -309,7 +298,7 @@ Panel {
 
   function startGeocode() {
     geocodeActiveQuery = geocodePendingQuery
-    geocodeProc.command = ["curl", "-fsS", "--max-time", "5",
+    geocodeProc.command = ["curl", "-fsS", "--max-time", "5", "-A", root.openMeteoUserAgent,
       "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(geocodeActiveQuery) + "&count=5&language=en&format=json"]
     geocodeProc.running = true
   }
@@ -512,6 +501,13 @@ Panel {
     }
   }
 
+  // Refetch the moment NetworkManager reports full internet connectivity, so a
+  // slow Wi-Fi join at boot or wake doesn't leave the bar empty until the next
+  // scheduled refresh. Restarting the timer fetches at once (triggeredOnStart)
+  // and counts the next scheduled refresh from there.
+  readonly property bool online: Networking.connectivity === NetworkConnectivity.Full
+  onOnlineChanged: if (online) refreshTimer.restart()
+
   Timer {
     id: refreshTimer
     interval: root.refreshMinutes * 60 * 1000
@@ -629,7 +625,7 @@ Panel {
 
         Column {
           id: heroRight
-          width: weatherStats.implicitWidth
+          width: Math.max(Style.space(190), weatherStats.implicitWidth)
           anchors.right: parent.right
           anchors.rightMargin: Style.space(20)
           anchors.verticalCenter: parent.verticalCenter
@@ -664,69 +660,78 @@ Panel {
             }
           }
 
-          Row {
+          TextField {
+            id: locationField
             visible: root.editingLocation
-            spacing: Style.space(6)
+            width: parent.width
+            trailingPadding: locationEditActions.width + Style.space(8)
+            enabled: !root.savingLocation
+            placeholderText: Commons.I18n.t("weather.searchCity")
+            foreground: root.bar.foreground
+            font.family: root.bar.fontFamily
 
-            TextField {
-              id: locationField
-              width: Style.space(190)
-              enabled: !root.savingLocation
-              placeholderText: Commons.I18n.t("weather.searchCity")
-              foreground: root.bar.foreground
-              font.family: root.bar.fontFamily
+            onTextChanged: if (root.editingLocation && !root.savingLocation) geocodeDebounce.restart()
 
-              onTextChanged: if (root.editingLocation && !root.savingLocation) geocodeDebounce.restart()
-
-              Keys.onPressed: function(event) {
-                if (event.key === Qt.Key_Escape) {
-                  root.cancelEditingLocation()
-                  event.accepted = true
-                } else if (event.key === Qt.Key_Down) {
-                  if (root.suggestionIndex < root.locationSuggestions.length - 1) root.suggestionIndex++
-                  event.accepted = true
-                } else if (event.key === Qt.Key_Up) {
-                  if (root.suggestionIndex > 0) root.suggestionIndex--
-                  event.accepted = true
-                } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                  root.commitLocation()
-                  event.accepted = true
-                }
+            Keys.onPressed: function(event) {
+              if (event.key === Qt.Key_Escape) {
+                root.cancelEditingLocation()
+                event.accepted = true
+              } else if (event.key === Qt.Key_Down) {
+                if (root.suggestionIndex < root.locationSuggestions.length - 1) root.suggestionIndex++
+                event.accepted = true
+              } else if (event.key === Qt.Key_Up) {
+                if (root.suggestionIndex > 0) root.suggestionIndex--
+                event.accepted = true
+              } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                root.commitLocation()
+                event.accepted = true
               }
             }
 
-            // Clear back to IP auto-detect. While a committed location is
-            // loading, this same compact affordance becomes a spinner.
-            Rectangle {
-              width: Style.space(18)
-              height: Style.space(18)
+            // Reset a saved city back to IP auto-detect or cancel editing
+            // without changing it. While a committed location is loading, the
+            // spinner occupies the same box.
+            Row {
+              id: locationEditActions
+              visible: !root.savingLocation
+              anchors.right: parent.right
+              anchors.rightMargin: Style.space(4)
               anchors.verticalCenter: parent.verticalCenter
-              radius: Math.min(4, Style.cornerRadius)
-              color: !root.savingLocation && clearLocationArea.containsMouse ? Style.hoverFillFor(root.bar.foreground, Commons.Color.accent) : "transparent"
+              spacing: Style.space(2)
 
-              Text {
-                textFormat: Text.PlainText
-                anchors.centerIn: parent
-                text: root.savingLocation ? "󰦖" : "✕"
-                font.family: root.bar.fontFamily
-                color: Qt.darker(root.bar.foreground, 1.4)
-                font.pixelSize: Style.font.bodySmall
-
-                RotationAnimator on rotation {
-                  running: root.savingLocation && !Style.reduceMotion
-                  from: 0; to: 360
-                  duration: Style.duration(800)
-                  loops: Animation.Infinite
-                }
+              PanelActionButton {
+                visible: root.configuredLocation !== ""
+                iconText: "󰆤"
+                tooltipText: Commons.I18n.t("weather.useAutoLocation")
+                foreground: root.bar.foreground
+                fontFamily: root.bar.fontFamily
+                onClicked: root.clearLocation()
               }
 
-              MouseArea {
-                id: clearLocationArea
-                anchors.fill: parent
-                enabled: !root.savingLocation
-                hoverEnabled: true
-                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                onClicked: root.clearLocation()
+              PanelActionButton {
+                iconText: "✕"
+                fontSize: Style.font.bodySmall
+                tooltipText: Commons.I18n.t("common.cancel")
+                foreground: root.bar.foreground
+                fontFamily: root.bar.fontFamily
+                onClicked: root.cancelEditingLocation()
+              }
+            }
+
+            Text {
+              visible: root.savingLocation
+              textFormat: Text.PlainText
+              anchors.centerIn: locationEditActions
+              text: "󰦖"
+              font.family: root.bar.fontFamily
+              color: Qt.darker(root.bar.foreground, 1.4)
+              font.pixelSize: Style.font.bodySmall
+
+              RotationAnimator on rotation {
+                running: root.savingLocation && !Style.reduceMotion
+                from: 0; to: 360
+                duration: Style.duration(800)
+                loops: Animation.Infinite
               }
             }
           }

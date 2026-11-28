@@ -143,6 +143,14 @@ for (const body of ['Your verification code is 938271', 'Your code is 938 271', 
   }
 }
 
+{ // A code is read whole across its keyword's window, and counts only when it starts inside it.
+  for (const [summary, body, codes] of [['123456', 'Your verification code is 123456', '123456'],
+      ['AB12CD34', 'Use the sign-in code AB12CD34', 'AB12CD34'],
+      ['Sign in', 'Your code is below. It expires in ten minutes, so please use it right away: 48291375', '48291375'],
+      ['Sign in', '12345678' + '.'.repeat(20) + 'code A9F3K2', 'A9F3K2']])
+    assert.equal(D.scan(summary, body).codes, codes, summary + ' / ' + body)
+}
+
 { // Restore recomputes the link from the text under today's policy, never
   // trusting the field on the stored entry.
   const entry = body => ({ key: 'n1', app: 'Chat', summary: 'New message', body, rawBody: body, urgency: 1 })
@@ -241,6 +249,9 @@ for (const body of ['Your verification code is 938271', 'Your code is 938 271', 
   // A hostname-looking app is not a site unless a browser lifted it.
   same(Icons.candidates({ app: 'example.com', source: 'example.com', groupKey: 'app:example-com' }).themed, ['example.com'])
   same(Icons.candidates({}), { themed: [], entries: [] })
+  // An anonymous sender names no app, so its glyph is not covered by the logo.
+  same(Icons.candidates(snap({ appName: 'omarchy-action', summary: 'Reminder', hints: { 'omarchy-glyph': '\u{f088c}' } })), { themed: [], entries: [] })
+  same(Icons.candidates(snap({ appName: 'notify-send', appIcon: 'dialog-information', summary: 'Hi' })).themed, ['dialog-information'])
   assert.equal(Icons.slug('  Google Chrome!! '), 'google-chrome')
   assert.equal(Icons.slug('../../etc/passwd'), 'etc-passwd')
   // One-colour icons go by their freedesktop name, as a theme name or a file.
@@ -260,15 +271,22 @@ for (const body of ['Your verification code is 938271', 'Your code is 938 271', 
 
 // ------------------------------------------------------------------ delivery
 {
-  for (const [row, dnd, expected] of [
-    [{ app: 'Slack', urgency: 1 }, false, ''],
-    [{ app: 'Slack', urgency: 1 }, true, 'silenced'],
-    [{ app: 'Slack', urgency: 2 }, true, 'silenced'],      // a branded critical does not punch through
-    [{ app: 'notify-send', urgency: 2 }, true, ''],
-    [{ app: 'notify-send', urgency: 1 }, true, 'silenced'],
-    [{ app: 'omarchy-action', urgency: 0 }, true, ''],
-    [{ app: 'Google', urgency: 1, code: '482913' }, true, ''],
-  ]) assert.equal(Delivery.quietReason(row, dnd), expected, JSON.stringify([row, dnd]))
+  for (const [row, dnd, fullscreen, expected] of [
+    [{ app: 'Slack', urgency: 1 }, false, false, ''],
+    [{ app: 'Slack', urgency: 1 }, true, false, 'silenced'],
+    [{ app: 'Slack', urgency: 2 }, true, false, 'silenced'],      // a branded critical does not punch through
+    [{ app: 'notify-send', urgency: 2 }, true, false, ''],
+    [{ app: 'notify-send', urgency: 1 }, true, false, 'silenced'],
+    [{ app: 'omarchy-action', urgency: 0 }, true, false, ''],
+    [{ app: 'Google', urgency: 1, code: '482913' }, true, false, ''],
+    [{ app: 'Slack', urgency: 1 }, false, true, 'fullscreen'],
+    [{ app: 'Slack', urgency: 2 }, false, true, 'fullscreen'],
+    [{ app: 'notify-send', urgency: 1 }, false, true, 'fullscreen'],
+    [{ app: 'notify-send', urgency: 2 }, false, true, ''],
+    [{ app: 'omarchy-action', urgency: 0 }, false, true, ''],
+    [{ app: 'Google', urgency: 1, code: '482913' }, false, true, ''],
+    [{ app: 'Slack', urgency: 1 }, true, true, 'silenced'],
+  ]) assert.equal(Delivery.quietReason(row, dnd, fullscreen), expected, JSON.stringify([row, dnd, fullscreen]))
   // The number keys count buttons in the order the card draws them: codes, --action, the sender's.
   const deeds = Delivery.deeds({ codes: '482913 771204', execActions: JSON.stringify([{ label: 'Edit', argv: ['omasnap'] }]) },
                                [{ id: 'join', text: 'Join call' }])
@@ -299,24 +317,47 @@ for (const body of ['Your verification code is 938271', 'Your code is 938 271', 
 
 // --------------------------------------------------- Service.qml functions
 const source = fs.readFileSync(load.dir + '/Service.qml', 'utf8')
-// One function from Service.qml by name: its own line when that balances,
+// One QML function by name: its own line when that balances,
 // else up to the closing brace at its indent. QML return types are dropped.
-function fn(name) {
-  const m = source.match(new RegExp('^( *)function ' + name + '\\(.*$', 'm'))
-  if (!m) throw new Error('Service.qml has no function ' + name)
+function fn(name, code = source) {
+  const m = code.match(new RegExp('^( *)function ' + name + '\\(.*$', 'm'))
+  if (!m) throw new Error('QML has no function ' + name)
   let text = m[0]
   const opens = text.split('{').length - 1
   if (!opens || opens > text.split('}').length - 1) {
-    const end = source.indexOf('\n' + m[1] + '}', m.index)
-    if (end < 0) throw new Error('Service.qml function ' + name + ' never closes')
-    text = source.slice(m.index, end + m[1].length + 2)
+    const end = code.indexOf('\n' + m[1] + '}', m.index)
+    if (end < 0) throw new Error('QML function ' + name + ' never closes')
+    text = code.slice(m.index, end + m[1].length + 2)
   }
   return text.replace(/^( *function \w+\([^)]*\))\s*:\s*\w+/, '$1')
 }
 function runIn(scope, ...names) {
   vm.createContext(scope)
-  vm.runInContext(names.map(fn).join('\n'), scope)
+  vm.runInContext(names.map(name => fn(name)).join('\n'), scope)
   return scope
+}
+
+{ // A cached themed miss must not hide an installed icon, or invent a generic one.
+  const toast = fs.readFileSync(load.dir + '/Toast.qml', 'utf8')
+  const library = { iconIndex: {}, themeRevision: 0, userIconsPath: '/user/icons/' }
+  const scope = { card: { scene: { shell: { appLibrary: library } } }, root: library,
+    Quickshell: { iconPath: name => ['existing', 'application-x-executable'].includes(name) ? 'image://icon/' + name : '' },
+    Util: { fileUrl: name => 'file://' + name } }
+  vm.createContext(scope)
+  vm.runInContext(fn('entryIcon', toast) + '\n' + fn('iconSource', fs.readFileSync(load.dir + '/../../services/AppLibrary.qml', 'utf8')), scope)
+  library.iconSource = scope.iconSource
+  assert.equal(scope.entryIcon('late'), '')
+  library.iconIndex = { late: '/icons/late.png', existing: '/icons/other.png' }
+  assert.equal(scope.entryIcon('late'), 'file:///icons/late.png')
+  assert.equal(scope.entryIcon('existing'), 'image://icon/existing', 'the active theme still wins')
+  assert.equal(scope.entryIcon('missing'), '', 'missing icons retain the letter/glyph fallback')
+  for (const name of ['constructor', 'toString', '__proto__']) assert.equal(scope.entryIcon(name), '', name)
+  assert.equal(scope.entryIcon('/icons/absolute.png'), 'file:///icons/absolute.png')
+  assert.equal(scope.entryIcon(''), '')
+  scope.card.scene.shell.appLibrary = {}
+  assert.equal(scope.entryIcon('late'), '')
+  scope.card.scene = null
+  assert.equal(scope.entryIcon('late'), '')
 }
 
 { // Hostile compositor metadata must not become Lua; only a hex address dispatches.
@@ -344,8 +385,8 @@ function runIn(scope, ...names) {
 // signals, the deferred event loop and external effects are faked.
 const capacityFunctions = ['pinDeckDisplay', 'showsOn', 'fullscreenOn',
   'durationFor', 'liveCount', 'reserveLive', 'releaseLive',
-  'nextKey', 'rowIndexFor', 'keyForOriginal', 'handleNotification', 'watchNotification', 'showRow', 'release', 'closeToast',
-  'closeToasts', 'unmarkLeaving', 'finishDeparted', 'newestLive', 'finishLeaving', 'finishClose', 'clearAll', 'dismissNewest', 'releaseHeld', 'restoreRows', 'actionsOf', 'dismissOne',
+  'nextKey', 'rowIndexFor', 'keyForOriginal', 'keyForDuplicate', 'handleNotification', 'watchNotification', 'showRow', 'release', 'closeToast',
+  'closeToasts', 'unmarkLeaving', 'finishDeparted', 'newestLive', 'finishLeaving', 'finishClose', 'clearAll', 'dismissNewest', 'releaseHeld', 'restoreRows', 'actionsOf', 'senderActions', 'dismissOne',
   'deedsFor', 'runDeed', 'invokeAction', 'invokeSenderAction', 'actOnNewest', 'act', 'clickable', 'activate', 'openWindows', 'windowForPid', 'focusWindow',
   'storePut', 'storeClose', 'storeDrop', 'storeRecord', 'saveSoon', 'loadLive']
 
@@ -355,18 +396,22 @@ function newCapacityScope() {
     get(i) { return this.rows[i] },
     insert(i, row) { this.rows.splice(i, 0, { ...row }) },
     setProperty(i, role, value) { this.rows[i][role] = value },
-    remove(i) { this.rows.splice(i, 1) } }
+    remove(i) { this.rows.splice(i, 1); if (this.rows.length === 0) s.deckDisplayName = '' } }
   const later = []
   const s = {
     toasts, refs: {}, refsRevision: 0, keySeed: 0, liveKeys: Object.create(null),
-    maxLiveNotifications: 100, heights: {}, fresh: {}, leaving: {}, departures: {}, layoutRevision: 0,
+    maxLiveNotifications: 100, heights: {}, widths: {}, fresh: {}, leaving: {}, departures: {}, layoutRevision: 0,
     arriving: '', jumping: false, travel: 24, arriveDuration: 250, leaveDuration: 200, placements: {},
+    notificationWidth: 380,
     held: [], doNotDisturb: false,
     liveEntries: [], historyEntries: [], unsaved: {}, liveLoaded: false,
     saveTimer: { running: false, start() {} },
     deckDisplayName: '',
     hyprRevision: 0,
     displayNames: ['fixture-display'], focusedDisplayName: 'fixture-display',
+    get targetDisplayName() {
+      return this.displayNames.indexOf(this.deckDisplayName) >= 0 ? this.deckDisplayName : this.focusedDisplayName
+    },
     Quickshell: { screens: [] }, Hyprland: { monitorFor: screen => screen.monitor },
     lowDuration: 5000, normalDuration: 8000, maxDuration: 30000,
     Security: S, Delivery, Store, Markup: M,
@@ -382,6 +427,9 @@ function newCapacityScope() {
   s.service = s
   runIn(s, ...capacityFunctions)
   s.drainCallLater = () => { while (later.length) later.shift()() }
+  // Each fake says something of its own: word for word the same, two arriving
+  // together would be one card.
+  let serial = 0
   s.fakeNotification = (id = 0, summary = 'Synthetic', urgency = 1) => {
     let tracked = false, destroyed = false
     const signal = () => {
@@ -397,7 +445,7 @@ function newCapacityScope() {
       else n.dismissals++
       n.closed.emit()
     }
-    const n = { id, summary, body: 'Synthetic body: ' + summary, urgency, appName: 'Fixture',
+    const n = { id, summary, body: 'Synthetic body ' + (++serial) + ': ' + summary, urgency, appName: 'Fixture',
       actions: [{ identifier: 'open', text: summary }], dismissals: 0, expiries: 0,
       closeAttempts: 0, destroyedCloseAttempts: 0, closed: signal(),
       get tracked() { return tracked },
@@ -428,6 +476,147 @@ const summaries = rows => Array.from(rows, row => row.summary)
   assert.equal(s.fullscreenOn('game'), false)
   game.lastIpcObject.fullscreen = 2
   assert.equal(s.fullscreenOn('game'), true)
+}
+
+{ // A real fullscreen window on the target display silences ordinary notifications
+  // into history without flipping manual Do Not Disturb, while bypassing rows still show.
+  const s = newCapacityScope()
+  const game = { lastIpcObject: { fullscreen: 2, class: 'steam_app_31' } }
+  s.displayNames = ['game', 'desk']
+  s.focusedDisplayName = 'game'
+  s.Quickshell.screens = [
+    { name: 'game', monitor: { activeWorkspace: { hasFullscreen: true, toplevels: { values: [game] } } } },
+    { name: 'desk', monitor: { activeWorkspace: { hasFullscreen: false, toplevels: { values: [] } } } },
+  ]
+
+  const chat = s.fakeNotification(1, 'Chat ping', 1)
+  chat.appName = 'Slack'
+  const brandedCritical = s.fakeNotification(2, 'Chat urgent', 2)
+  brandedCritical.appName = 'Slack'
+  const ephemeral = s.fakeNotification(3, 'Minor CLI', 1)
+  ephemeral.appName = 'notify-send'
+  s.admit(chat, brandedCritical, ephemeral)
+  assert.equal(s.toasts.count, 0)
+  assert.equal(s.doNotDisturb, false, 'fullscreen silencing never overwrites manual DND')
+  assert.deepEqual(
+    Array.from(s.historyEntries, e => e.summary + ':' + e.closed_reason),
+    ['Chat urgent:fullscreen', 'Chat ping:fullscreen'],
+    'non-ephemeral notifications are recorded in history under fullscreen',
+  )
+
+  // Omarchy actions, bare notify-send critical alerts, and verification codes still show.
+  const action = s.fakeNotification(4, 'Screenshot saved', 0)
+  action.appName = 'omarchy-action'
+  const alert = s.fakeNotification(5, 'Disk full', 2)
+  alert.appName = 'notify-send'
+  const otp = s.fakeNotification(6, 'Sign in', 1)
+  otp.appName = 'Google'
+  otp.body = 'Your verification code is 482913'
+  s.admit(action, alert, otp)
+  assert.deepEqual(summaries(s.toasts.rows), ['Sign in', 'Disk full', 'Screenshot saved'])
+
+  // Clear the deck, then check a merely maximised window does not silence.
+  s.clearAll('dismissed', true)
+  s.drainCallLater()
+  game.lastIpcObject.fullscreen = 1
+  s.admit(s.fakeNotification(7, 'Maximised shows', 1))
+  assert.deepEqual(summaries(s.toasts.rows), ['Maximised shows'])
+
+  // With the game fullscreen again, focusing the non-fullscreen monitor delivers there.
+  s.clearAll('dismissed', true)
+  s.drainCallLater()
+  game.lastIpcObject.fullscreen = 2
+  s.focusedDisplayName = 'desk'
+  s.admit(s.fakeNotification(8, 'On desk monitor', 1))
+  assert.deepEqual(summaries(s.toasts.rows), ['On desk monitor'])
+  assert.equal(s.deckDisplayName, 'desk')
+}
+
+{ // A special workspace covers the base workspace: a non-fullscreen scratchpad
+  // over a fullscreen game does not silence, while a fullscreen window inside
+  // the visible special workspace does.
+  const s = newCapacityScope()
+  const game = { lastIpcObject: { fullscreen: 2, class: 'steam_app_31' } }
+  const scratchpad = { workspace: { name: 'special:scratchpad' }, lastIpcObject: { fullscreen: 0 } }
+  const otherSpecial = { workspace: { name: 'special:other' }, lastIpcObject: { fullscreen: 2 } }
+  s.displayNames = ['game', 'desk']
+  s.focusedDisplayName = 'game'
+  s.Hyprland.toplevels = { values: [scratchpad, otherSpecial] }
+  s.Quickshell.screens = [
+    { name: 'game', monitor: {
+      activeWorkspace: { hasFullscreen: true, toplevels: { values: [game] } },
+      lastIpcObject: { specialWorkspace: { id: -99, name: 'special:scratchpad' } },
+    } },
+    { name: 'desk', monitor: {
+      activeWorkspace: { hasFullscreen: false, toplevels: { values: [] } },
+      lastIpcObject: { specialWorkspace: { id: -99, name: 'special:scratchpad' } },
+    } },
+  ]
+
+  assert.equal(s.fullscreenOn('game'), false, 'non-fullscreen special workspace over fullscreen base does not silence')
+  s.admit(s.fakeNotification(1, 'Over scratchpad', 1))
+  assert.deepEqual(summaries(s.toasts.rows), ['Over scratchpad'])
+
+  // Maximized in the special workspace still does not silence.
+  s.clearAll('dismissed', true)
+  s.drainCallLater()
+  scratchpad.lastIpcObject.fullscreen = 1
+  assert.equal(s.fullscreenOn('desk'), false)
+
+  // True fullscreen inside the visible special workspace silences even over a non-fullscreen base.
+  scratchpad.lastIpcObject.fullscreen = 2
+  s.focusedDisplayName = 'desk'
+  assert.equal(s.fullscreenOn('desk'), true)
+  const muted = s.fakeNotification(2, 'Inside fullscreen special', 1)
+  muted.appName = 'Slack'
+  s.admit(muted)
+  assert.equal(s.toasts.count, 0)
+  assert.deepEqual(
+    Array.from(s.historyEntries, e => e.summary + ':' + e.closed_reason),
+    ['Inside fullscreen special:fullscreen', 'Over scratchpad:dismissed'],
+  )
+}
+
+{ // Silenced replacements with the same key deduplicate history instead of
+  // stacking duplicates and evicting older items.
+  const s = newCapacityScope()
+  const game = { lastIpcObject: { fullscreen: 2, class: 'steam_app_31' } }
+  s.displayNames = ['game']
+  s.focusedDisplayName = 'game'
+  s.Quickshell.screens = [
+    { name: 'game', monitor: { activeWorkspace: { hasFullscreen: false, toplevels: { values: [game] } } } },
+  ]
+  const progress = s.fakeNotification(1, 'Downloading 10%', 1)
+  progress.appName = 'Browser'
+  s.admit(progress)
+  const key = s.keyForOriginal(1)
+
+  // Fullscreen starts; a muted replacement records under the same key, and closing
+  // the card later replaces that key in history rather than adding a second row.
+  s.Quickshell.screens[0].monitor.activeWorkspace.hasFullscreen = true
+  progress.replace({ summary: 'Downloading 50%' })
+  s.drainCallLater()
+  assert.equal(s.historyEntries.length, 1)
+  assert.equal(s.historyEntries[0].key, key)
+  assert.equal(s.historyEntries[0].summary, 'Downloading 50%')
+  s.finishClose(key, 'expired')
+  assert.equal(s.historyEntries.length, 1, 'same key is not duplicated in history')
+  assert.equal(s.historyEntries[0].key, key)
+  assert.equal(s.historyEntries[0].summary, 'Downloading 50%', 'closing the old visible card keeps the newer silenced update')
+  assert.equal(s.historyEntries[0].closed_reason, 'fullscreen')
+
+  // Repeated updates for one key never evict unrelated history entries, and a
+  // stale arrival timestamp never overwrites a newer entry for the same key.
+  const now = 1e6
+  let history = []
+  for (let i = 0; i < 99; i++) history = Store.addHistory(history, { key: 'msg-' + i, summary: 'Msg ' + i, ts: now - 200 + i, closed_ts: now - 200 + i, closed_reason: 'fullscreen' }, now)
+  for (let pct = 1; pct <= 150; pct++) history = Store.addHistory(history, { key: 'progress', summary: 'Progress ' + pct + '%', ts: now - 10 + pct / 1000, closed_ts: now - 10 + pct / 1000, closed_reason: 'fullscreen' }, now)
+  history = Store.addHistory(history, { key: 'progress', summary: 'Progress 1%', ts: now - 20, closed_ts: now, closed_reason: 'expired' }, now)
+  assert.equal(history.length, 100)
+  assert.equal(history[0].key, 'progress')
+  assert.equal(history[0].summary, 'Progress 150%')
+  assert.equal(history.filter(e => e.key === 'progress').length, 1)
+  assert.equal(history[99].key, 'msg-0', 'earlier real history items are not evicted')
 }
 
 { // Rapid single dismissals must skip rows that are leaving but not yet removed.
@@ -535,6 +724,25 @@ const summaries = rows => Array.from(rows, row => row.summary)
   assert.deepEqual(s.toasts.rows.map(row => row.key), [back], 'its deadline removes it without the scene settling')
 }
 
+{ // IPC invokeAction(n) must skip a leaving front toast and act on the newest live card.
+  const s = newCapacityScope()
+  const first = s.fakeNotification(1, 'Older'), second = s.fakeNotification(2, 'Newer')
+  let invoked = ''
+  first.actions = [{ identifier: 'reply', text: 'Reply', invoke: () => { invoked = 'older' } }]
+  second.actions = [{ identifier: 'reply', text: 'Reply', invoke: () => { invoked = 'newer' } }]
+  s.admit(first, second)
+  const [front, back] = s.toasts.rows.map(row => row.key)
+  const at = { y: 0, scale: 1, opacity: 1, height: 58 }
+  s.snapshot = () => ({ [front]: at, [back]: at })
+  s.closeToast(front, 'dismissed')
+  const ipcBlock = source.slice(source.indexOf('target: "notifications"'))
+  const ipcInvokeAction = fn('invokeAction', ipcBlock)
+    .replace(/function invokeAction\([^)]*\)/, 'function ipcInvokeAction(n)')
+  vm.runInContext(ipcInvokeAction, s)
+  assert.equal(s.ipcInvokeAction(1), 'ok')
+  assert.equal(invoked, 'older', 'invokeAction IPC skips a leaving toast and invokes the newest live card')
+}
+
 { // A sender replacing a card during its exit brings it back instead of losing the update.
   const s = newCapacityScope()
   const sender = s.fakeNotification(1, 'Expiring')
@@ -566,7 +774,7 @@ const summaries = rows => Array.from(rows, row => row.summary)
   const other = s.fakeNotification(9, 'Other app')
   other.appName = 'Other'
   s.admit(other, ...[1, 2, 3, 4, 5].map(id => s.fakeNotification(id, 'Card ' + id)))
-  Object.assign(s, { Layout, gap: 6, targetDisplayName: 'fixture-display', marginsFor: () => ({ top: 10, right: 10 }),
+  Object.assign(s, { Layout, gap: 6, marginsFor: () => ({ top: 10, right: 10 }),
     Quickshell: { screens: [{ name: 'fixture-display', height: 300 }] }, keyboardMode: true, keyboardRejected: {} })
   runIn(s, 'layoutWith', 'reachable', 'moveSelection', 'keepSelectionInReach', 'keyboardOrder')
   for (const row of s.toasts.rows) s.heights[row.key] = 100
@@ -1022,6 +1230,57 @@ const eq = (actual, expected, message) => assert.deepEqual(plain(actual), plain(
   assert.equal(s.liveEntries.length, 0)
 }
 
+{ // One reminder from a web app open in two tabs arrives as two notifications
+  // in the same moment, each with its own id and its own copy of the picture.
+  // It is one card: the copy takes over the slot, like a replaces_id update.
+  const s = newCapacityScope()
+  const reminder = (id, site = 'app.hey.com') => Object.assign(s.fakeNotification(id, 'Træning', 2), { appName: 'Chromium',
+    body: '<a href="https://' + site + '/">' + site + '</a>\n\nToday, 10:00 AM', image: '/tmp/.org.chromium.Chromium.' + id + '/icon.png' })
+  const first = reminder(9), second = reminder(10), third = reminder(11)
+  // The second lands while the first still waits to be shown; the third, on the shown card.
+  s.handleNotification(first)
+  s.handleNotification(second)
+  s.drainCallLater()
+  eq([s.toasts.count, s.liveCount(), s.liveEntries.length, s.toasts.get(0).originalId], [1, 1, 1, 10])
+  const key = s.toasts.get(0).key
+  s.admit(third)
+  eq([s.toasts.count, s.liveCount(), s.liveEntries.length, s.toasts.get(0).originalId], [1, 1, 1, 11])
+  assert.equal(s.toasts.get(0).key, key)
+  // The copies it superseded are closed at the sender; the last one answers a click.
+  eq([first, second, third].map(n => [n.tracked, n.dismissals]), [[false, 1], [false, 1], [true, 0]])
+  assert.equal(s.refs[key], third)
+  // Another site saying the same, or the same toast opening another file, is its own card.
+  s.admit(reminder(12, 'calendar.example.com'))
+  assert.equal(s.toasts.count, 2)
+  const shot = file => Object.assign(s.fakeNotification(0, 'Screenshot saved'), { appName: 'omarchy-action', body: '3,840 × 2,160',
+    hints: { 'omarchy-exec-argv': JSON.stringify(['xdg-open', file]) } })
+  s.admit(shot('/tmp/one.png'), shot('/tmp/two.png'))
+  assert.equal(s.toasts.count, 4)
+  // Each of those unnamed toasts is its own deck, grouped by the key it ended up with.
+  eq(s.toasts.rows.slice(0, 2).map(r => r.groupKey), s.toasts.rows.slice(0, 2).map(r => 'toast:' + r.key))
+  // The same words after the moment has passed are a second message, not a copy.
+  s.toasts.get(s.rowIndexFor(key)).ts -= 10
+  s.admit(reminder(13))
+  assert.equal(s.toasts.count, 5)
+  // A card on its way out is not brought back by a copy of itself.
+  const leavingKey = s.toasts.get(0).key
+  s.closeToast(leavingKey, 'dismissed')
+  s.admit(reminder(14))
+  eq([s.toasts.count, s.rowIndexFor(leavingKey) >= 0, !!s.leaving[leavingKey]], [6, true, true])
+  // The same words offering different buttons are two cards, each keeping its own.
+  const call = (id, button) => Object.assign(s.fakeNotification(id, 'Standup'), { body: 'Starting now',
+    actions: [{ identifier: button.toLowerCase(), text: button }] })
+  const before = s.toasts.count
+  s.admit(call(20, 'Reply'), call(21, 'Join'), call(22, 'Join'))
+  assert.equal(s.toasts.count, before + 2)
+  eq(s.toasts.rows.slice(0, 2).map(r => [r.originalId, s.actionsOf(r.key).map(a => a.text)]), [[22, ['Join']], [20, ['Reply']]])
+  // One card, one history entry.
+  const t = newCapacityScope()
+  t.admit(Object.assign(t.fakeNotification(1, 'Twice'), { body: 'Same' }), Object.assign(t.fakeNotification(2, 'Twice'), { body: 'Same' }))
+  t.finishClose(t.toasts.get(0).key, 'dismissed')
+  eq([t.toasts.count, t.liveEntries.length, t.historyEntries.length], [0, 0, 1])
+}
+
 { // A pending card silenced before it showed leaves nothing to restore.
   const s = newCapacityScope()
   s.pointerHolding = true
@@ -1048,6 +1307,26 @@ const eq = (actual, expected, message) => assert.deepEqual(plain(actual), plain(
   assert.ok(s.toasts.rows.filter(r => r.restored).every(r => r.duration === Store.RESTORE_GRACE))
   s.loadLive('[]')
   assert.equal(s.liveEntries.length, 100, 'a second load event is ignored')
+}
+
+{ // Dynamic card widths: a collapsed deck shares its front card's width, an
+  // open deck gives each card its own, and the deck width fits the widest card.
+  const rows = [
+    { key: 'a1', groupKey: 'app:chat' },
+    { key: 'a2', groupKey: 'app:chat' },
+    { key: 'b1', groupKey: 'toast:battery' },
+  ]
+  const widths = { a1: 220, a2: 380, b1: 450 }
+  const shut = Layout.compute(rows, { expanded: false, widthOf: k => widths[k] })
+  assert.equal(shut.placements.a1.width, 220)
+  assert.equal(shut.placements.a2.width, 220, 'collapsed cards behind a front card match its width')
+  assert.equal(shut.placements.b1.width, 450)
+  assert.equal(shut.width, 450)
+
+  const open = Layout.compute(rows, { expanded: true, openDeck: 'app:chat', widthOf: k => widths[k] })
+  assert.equal(open.placements.a1.width, 220)
+  assert.equal(open.placements.a2.width, 380, 'opening a deck restores each card to its own width')
+  assert.equal(open.width, 450)
 }
 
 console.log('notification logic: passed')

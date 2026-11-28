@@ -1,48 +1,48 @@
 # Navigacija
 
-Vse v Omarchyju se dogaja prek tipkovnice — _VSE!_ Ko se sistem prvič zažene, z miško samo dobesedno ne moreš narediti ničesar. Lahko pa pritisneš `Super + Space`, da prikažeš meni Omarchy, in od tu lahko narediš skoraj vse.
+Vse v sistemu Omarchy se dogaja prek tipkovnice — _ČISTO VSE!_ Ko se sistem prvič zažene, z miško samo dobesedno ne morete narediti ničesar. Lahko pa pritisnete `Super + Space`, da prikažete meni Omarchy, od tu pa lahko naredite skoraj vse.
 
-Vendar meni Omarchy večinoma sploh ni namenjen temu, da bi bil glavni način upravljanja sistema. Lahko smo hitrejši od tega! Vse najpomembnejše aplikacije so vezane neposredno na posamezne bližnjice. Terminal zaženeš s `Super + Return`, brskalnik pa s `Super + Shift + Return`. Poskusi eno za drugim in videl boš čarobnost tlakovanja v Hyprlandu v akciji:
+Toda meni Omarchy večinoma niti ni namenjen kot glavni način upravljanja sistema. Lahko smo hitrejši od tega! Vse najpomembnejše aplikacije so neposredno vezane na posamezne bližnjice. Terminal zaženete s `Super + Return`, brskalnik pa s `Super + Shift + Return`. Poskusite narediti eno za drugim in videli boste čarobnost ploščičnega razporejanja v Hyprlandu v akciji:
 
  ![navigation-browser-terminal](images/navigation-browser-terminal.webp)
 
-Nato lahko pritisneš `Super + J`, da ju zložiš eno na drugo namesto eno ob drugo:
+Nato lahko pritisnete `Super + J`, da ju zložite eno na drugo namesto eno ob drugo:
 
  ![navigation-stacked](images/navigation-stacked.webp)
 
-Znova pritisni `Super + J`, da ju vrneš v položaj eno ob drugo. Nato v brskalniku poskusi `Super + Shift + Arrow Right`, da zamenjaš okni.
+Znova pritisnite `Super + J`, da ju vrnete v položaj eno ob drugo. Nato medtem ko ste v brskalniku, poskusite `Super + Shift + Arrow Right`, da zamenjate okni.
 
-Zdaj poskusi `Super + Shift + T`, da zaženeš nadzornik dejavnosti. Pojavil se bo kot plavajoče okno. Lahko ga vtlačiš s `Super + T` (in to znova pritisneš, da spet postane plavajoče). Zdaj pritisni `Super + Shift + F`, da odpreš upravitelja datotek. Imel boš lično razporeditev na štiri dele:
+Zdaj poskusite `Super + Shift + T`, da zaženete Activity monitor. Ta se bo prikazal kot plavajoče okno z naslovno vrstico, za katero ga lahko vlečete, in gumbi za minimiziranje, maksimiziranje in zapiranje. Vsako plavajoče okno jo dobi, kjer koli je. Lahko ga razporedite v ploščice s `Super + T` (in znova pritisnete isto, da spet postane plavajoče). Zdaj pritisnite `Super + Shift + F`, da odprete upravitelja datotek. Imeli boste lično štirismerno postavitev:
 
  ![navigation-fourway-tiling](images/navigation-fourway-tiling.webp)
 
-Med okni, ki želiš, da je aktivno, se pomikaš s `Super + Arrow`. To preklopi fokus in premakne kazalec na sredino nove aplikacije. Na robu zaslona nadaljuje na monitor na tisti strani.
+Med okni, ki naj bodo aktivna, se pomikate s `Super + Arrow`. To preklopi fokus in premakne kazalec v središče nove aplikacije. Na robu zaslona nadaljuje na monitor na tisti strani.
 
-Če pritisneš `Super + Shift + 2`, premakneš trenutno fokusirano aplikacijo na drugi delovni prostor. `Super + Shift + 1` jo premakne nazaj. (In `Super + Shift + Alt + 2` premakne trenutno fokusirano aplikacijo na drugi delovni prostor, ne da bi preklopil nanj).
+Če pritisnete `Super + Shift + 2`, boste trenutno fokusirano aplikacijo premaknili na drugi delovni prostor. `Super + Shift + 1` jo premakne nazaj. (In `Super + Shift + Alt + 2` bo trenutno fokusirano aplikacijo premaknila na drugi delovni prostor, ne da bi preklopili nanj).
 
-Pri več kot enem monitorju ima vsak monitor svojih delovnih prostorov od 1 do 10. `Super + 2` gre na drugi delovni prostor monitorja, na katerem si, zgornja vrstica vsakega monitorja pa prikazuje njegove delovne prostore in tistega, ki ga prikazuje. `Super + Tab` kroži med delovnimi prostori na monitorju, na katerem si. `Super + Shift + Ctrl + Arrows` premakne okno, na katerem si, na monitor v tisti smeri, na delovni prostor, ki ga prikazuje, `Super + Shift + Alt + Arrows` pa premakne delovni prostor, na katerem si, na monitor v tisti smeri, kjer prevzame isto številko, če je prosta. Monitor obdrži svoje delovne prostore, ko ga izklopiš: pridružijo se drugemu zaslonu, oštevilčeni za tistimi, ki jih že ima, in se vrnejo pod svoje stare številke, ko se monitor vrne.
+Z več kot enim monitorjem ima vsak monitor svoje delovne prostore od 1 do 10. `Super + 2` gre na drugi delovni prostor monitorja, na katerem ste, zgornja vrstica vsakega monitorja pa prikazuje njegove delovne prostore in tistega, ki ga prikazuje. `Super + Tab` kroži med delovnimi prostori na monitorju, na katerem ste. `Super + Shift + Ctrl + Arrows` premakne okno, na katerem ste, na monitor v tisti smeri, na delovni prostor, ki ga prikazuje, `Super + Shift + Alt + Arrows` pa premakne delovni prostor, na katerem ste, na monitor v tisti smeri, kjer prevzame isto številko, če je prosta. Monitor obdrži svoje delovne prostore, ko ga izključite: pridružijo se drugemu zaslonu, oštevilčeni za tistimi, ki jih ta že ima, in se vrnejo pod svoje stare številke, ko se monitor vrne.
 
-Če držiš `Super` in z miško klikneš na okno, ga boš lahko preuredil, kjer sedi. Če držiš `Super` in uporabiš desni gumb miške, lahko oknu prosto spreminjaš velikost.
+Če držite `Super` in z miško kliknete na okno, boste lahko preuredili, kje sedi. Če držite `Super` in uporabite desni gumb miške, lahko oknu prosto spreminjate velikost.
 
-Okno zapreš s `Super + W` ali `Super + Q` (vsa okna pa zapreš s `Ctrl + Alt + Delete`).
+Okno zaprete s `Super + W` ali `Super + Q` (in vsa okna zaprete s `Ctrl + Alt + Delete`).
 
-Lahko greš tudi na cel zaslon s `Super + F` ali celo samo na celotno širino (pri čemer obdržiš zgornjo vrstico) s `Super + Alt + F` ali na cel zaslon znotraj okna s `Super + Ctrl + F` (dobro za YouTube!).
+Lahko greste tudi na cel zaslon s `Super + F` ali celo samo na celo širino (pri čemer ohranite zgornjo vrstico) s `Super + Alt + F` ali na cel zaslon znotraj okna s `Super + Ctrl + F` (dobro za YouTube!).
 
-### Postavitev dwindle proti drsni postavitvi
+### Postavitev dwindle v primerjavi z drsečo postavitvijo
 
-Privzeta postavitev v Omarchyju se imenuje dwindle. Vsa okna, ki jih odpreš na enem delovnem prostoru, ohranja ves čas vidna, tudi če jih mora za to pomanjšati.
+Privzeta postavitev sistema Omarchy se imenuje dwindle. Vsa okna, ki jih odprete na enem delovnem prostoru, ves čas ohranja vidna, tudi če jih mora zaradi tega zmanjšati.
 
  ![navigation-dwindle-layout](images/navigation-dwindle-layout.webp)
 
-Lahko pa se odločiš, da delovni prostor spremeniš v drsno postavitev, kjer so okna zvrščena eno ob drugem onkraj vidnega roba zaslona. Posamezen delovni prostor v to postavitev spremeniš s `Super + L`.
+Lahko pa se odločite tudi, da delovni prostor spremenite v drsečo postavitev, kjer so okna poravnana eno ob drugem, onkraj vidnega roba zaslona. Posamezen delovni prostor v to postavitev spremenite s `Super + L`.
 
-Ponovni pritisk na `Super + L` spremeni delovni prostor v plavajočega, kjer se okna prosto prekrivajo in jih postavljaš sam, tretji pritisk pa ga vrne v dwindle. `Super + Alt + L` gre skozi njih v drugo smer. Okno, ki tako ali tako plava — tisto, ki si ga izločil s `Super + T`, ali aplikacija, ki se vedno odpre plavajoče — ostane plavajoče, ko se delovni prostor vrne v tlakovanje. Zgornja vrstica označuje delovni prostor, na katerem si, z njegovo postavitvijo: kvadrat za dwindle, krog za drsno in trikotnik za plavajočo. Klik na to oznako prav tako kroži med postavitvami.
+Z vnovičnim pritiskom na `Super + L` delovni prostor postane plavajoč, kjer se okna prosto prekrivajo in jih postavljate sami, tretji pritisk pa ga vrne v dwindle. `Super + Alt + L` gre skozi njih v drugo smer. Okno, ki tako ali tako plava — okno, ki ste ga izvlekli s `Super + T`, ali aplikacija, ki se vedno odpre plavajoče — ostane plavajoče, ko se delovni prostor vrne v ploščično razporejanje. Zgornja vrstica delovni prostor, na katerem ste, označi z njegovo postavitvijo: kvadrat za dwindle, krog za drsečo in trikotnik za plavajočo. Klik na to oznako prav tako kroži med postavitvami, prav tako pa tudi tipka za zaslon na prenosnikih, ki jo imajo.
 
  ![navigation-scrolling-layout](images/navigation-scrolling-layout.webp)
 
-Izbira velja za vsak delovni prostor posebej in ostane. Tako lahko delovni prostor 1 obdržiš na dwindle za brskanje in delovni prostor 2 na drsni za kodo, po ponovnem zagonu pa se bosta vrnila takšna.
+Izbira je na delovni prostor in ostane. Tako lahko delovni prostor 1 obdržite na dwindle za brskanje in delovni prostor 2 na drseči za kodo, in po ponovnem zagonu se bosta vrnila tako.
 
-Če želiš drsno postavitev uporabljati kot privzeto, lahko to nastaviš v `~/.config/hypr/looknfeel.lua`:
+Če želite drsečo postavitev uporabiti kot privzeto, lahko to nastavite v `~/.config/hypr/looknfeel.lua`:
 
 ```lua
 hl.config({
@@ -54,38 +54,38 @@ hl.config({
 
 ### Plavajoči delovni prostori
 
-Plavajoči delovni prostor deluje kot tradicionalno namizje: okna se prekrivajo, premikaš in velikost jim spreminjaš sam. Vsako okno dobi naslovno vrstico v barvah tvoje teme, z gumbi za minimiziranje, maksimiziranje in zapiranje. `Super + M` minimizira tudi fokusirano okno. Minimizirano okno čaka v doku; klikni njegovo aplikacijo, da ga pripelješ nazaj. Klikni okno, da ga pripelješ v ospredje. Velikost mu spreminjaj s katerega koli roba ali kota. Dvoklikni naslovno vrstico, da maksimiziraš okno in pri tem obdržiš zgornjo vrstico v pogledu, in znova, da dobiš nazaj njegovo staro velikost.
+Plavajoči delovni prostor deluje kot tradicionalno namizje: okna se prekrivajo, vi pa jih premikate in jim spreminjate velikost sami. Vsako okno dobi naslovno vrstico v barvah vaše teme, z gumbi za minimiziranje, maksimiziranje in zapiranje. `Super + M` minimizira tudi fokusirano okno. Minimizirano okno čaka v docku; kliknite njegovo aplikacijo, da ga prinesete nazaj. Kliknite okno, da ga prinesete v ospredje. Velikost mu spreminjajte z katerega koli roba ali kota. Dvokliknite naslovno vrstico, da maksimizirate okno, pri čemer ohranite zgornjo vrstico v pogledu, in znova, da dobite nazaj njegovo staro velikost. Chrome in drugi brskalniki, ki temeljijo na Chromiumu, Disks in Document Viewer preskočijo naslovno vrstico in namesto nje uporabijo svojo lastno glavo; `Super + Alt + F` jih maksimizira, `Super + M` pa jih minimizira.
 
-Plavajoči delovni prostor prikazuje tudi dok s tvojimi pripetimi aplikacijami, vsem, kar se izvaja, in mrežo vseh aplikacij za gumbom za aplikacije, ki ga odpreta tudi `Super + Alt + Space` in _Apps_ v meniju Omarchy. Z desno miškino tipko klikni aplikacijo na mreži ali pritisni `Delete`, da jo odstraniš. Klikni aplikacijo, da jo odpreš ali da pripelješ njeno okno v ospredje; klikni znova, da krožiš med njenimi okni. Srednji klik odpre novo okno. Povleci ikono vzdolž doka, da jo premakneš; če povlečeš aplikacijo, ki se izvaja, med druge, tam ostane. Z desno miškino tipko klikni, da aplikacijo obdržiš v doku, jo vzameš ven ali jo zapreš. Dok se umakne celozaslonskemu oknu. Z desno miškino tipko klikni gumb za aplikacije, da dok premakneš na drug rob ali da se skrije, dokler kazalec ne doseže njegovega roba. Položaj je tudi pod _Appearance > Dock > Dock Position_, `omarchy dock position left` in `omarchy dock autohide on` pa iz terminala nastavita oboje. Aplikacije, ki jih obdržiš v doku, so zbledele, dokler se ne izvajajo.
+Vsak delovni prostor ima dock, z vašimi pripetimi aplikacijami, vsem, kar se izvaja, in mrežo vseh aplikacij za gumbom za aplikacije, ki ga odpreta tudi `Super + Alt + Space` in _Apps_ v meniju Omarchy. Z desnim klikom na aplikacijo na mreži ali s pritiskom na `Delete` jo odstranite. Kliknite aplikacijo, da jo odprete ali da njeno okno prinesete v ospredje; kliknite znova, da krožite med njenimi okni. Files prinese nazaj okno samo z delovnega prostora, na katerem ste, sicer pa odpre novo, Terminal in Agent pa vedno zaženeta še eno, čeprav se minimizirano okno vrne najprej. Srednji klik odpre novo okno. Povlecite ikono vzdolž docka, da jo premaknete; če izvajajočo se aplikacijo povlečete med druge, tam ostane. Z desnim klikom aplikacijo obdržite v docku, jo vzamete ven ali jo zaprete. Dock ostane zunaj, medtem ko je delovni prostor prazen, in ko delovni prostor dobi okno, se skrije, dokler kazalec ne doseže njegovega roba. Celozaslonsko okno ga skrije v celoti. Povlecite gumb za aplikacije proti drugemu robu zaslona, da tja premaknete dock. Z desnim klikom nanj za _Position_, da izberete rob, _Layout_, da nastavite privzeto postavitev, kot to naredi _Appearance > Workspace Layout_, in _Visibility_, da dock obdržite vedno vklopljen, da ga prva aplikacija skrije ali da ostane vedno skrit. `omarchy dock visibility always` to nastavi iz terminala. Položaj je tudi pod _Appearance > Dock > Dock Position_, `omarchy dock position left` pa ga nastavi iz terminala. Aplikacije, ki jih obdržite v docku, so zbledele, medtem ko se ne izvajajo. Če želite dock obdržati samo za plavajoče delovne prostore, uporabite _Appearance > Dock > Dock Only on Floating_ ali `omarchy dock tiling off`.
 
-Novi delovni prostori in vsi, ki jim s `Super + L` nisi dal lastne postavitve, uporabljajo privzeto postavitev. Sprememba privzete postavitve ponastavi vsak delovni prostor brez oken nanjo, tisti z okni pa obdrži postavitev, ki jo ima. Okno, minimizirano v dok, še vedno šteje kot okno na delovnem prostoru, ki ga je zapustilo. Izberi jo pod _Appearance > Workspace Layout_: Tiling, Scrolling ali Floating. `omarchy-hyprland-workspace-layout-default scrolling` jo nastavi iz terminala.
+Novi delovni prostori in vsi, ki jim s `Super + L` niste dali lastne postavitve, uporabijo privzeto postavitev. Sprememba privzete ponastavi vsak delovni prostor brez oken nanjo, medtem ko tisti z okni na njem obdrži postavitev, ki jo ima. Okno, minimizirano v dock, še vedno šteje kot okno na delovnem prostoru, ki ga je zapustilo. Izberite jo pod _Appearance > Workspace Layout_: Tiling, Scrolling ali Floating. `omarchy hyprland workspace layout default scrolling` jo nastavi iz terminala.
 
 ### Združevanje oken v skupine
 
-Okna lahko združiš v skupino s `Super + G`. Ko si v skupini, bo vsako okno, ki ga zaženeš, medtem ko je ta aktivna, pripadalo skupini. Med temi združenimi okni se lahko pomikaš s `Super + Ctrl + Arrow Left/Right` ali s `Super + Alt + 1/2/3/4`, da greš neposredno na združena okna po vrsti.
+Okna je mogoče združiti s `Super + G`. Ko ste v skupini, bo vsako okno, ki ga zaženete, medtem ko je ta aktivna, pripadalo skupini. Med temi združenimi okni se lahko premikate s `Super + Ctrl + Arrow Left/Right` ali s `Super + Alt + 1/2/3/4`, da greste neposredno na združena okna po vrstnem redu.
 
-Okno lahko premakneš iz skupine s `Super + Alt + G` ali razstaviš celotno skupino tako, da znova pritisneš `Super + G`. Na koncu lahko okna zunaj skupine premakneš vanjo s `Super + Alt + Arrows`.
+Okno lahko premaknete iz skupine s `Super + Alt + G` ali razstavite celotno skupino z vnovičnim pritiskom na `Super + G`. Nazadnje lahko okna zunaj skupine premaknete vanjo s `Super + Alt + Arrows`.
 
-### Izločanje oken
+### Izvlečenje oken
 
-Okno lahko izločiš iz njegove dodelitve delovnemu prostoru s `Super + O`. To ga bo pripelo kot plavajoče okno, ki ti sledi na kateri koli delovni prostor, na katerega greš. Odlično za video predvajalnike in podobno.
+Okno lahko s `Super + O` izvlečete iz njegove dodelitve delovnemu prostoru. To ga bo pripelo kot plavajoče okno, ki vam sledi, na kateri koli delovni prostor greste. Odlično za video predvajalnike in podobno.
 
  ![navigation-popped-window](images/navigation-popped-window.webp)
 
 ### Delovni prostor scratchpad
 
-Obstaja poseben delovni prostor scratchpad v polni velikosti, ki prekriva kateri koli delovni prostor, na katerem si trenutno. Do tega, kar je na njem, dostopaš s `Super + S`, okna pa tja postaviš s `Super + Alt + S`.
+Obstaja poseben delovni prostor scratchpad v polni velikosti, ki prekriva kateri koli delovni prostor, na katerem ste trenutno. Do tega, kar je na njem, dostopate s `Super + S`, okna pa tja postavljate s `Super + Alt + S`.
 
-Dobro deluje za kontrole ali terminal, s katerim želiš hitro komunicirati, ne da bi zapustil trenutni delovni prostor.
+Dobro deluje za kontrole ali terminal, s katerim želite hitro komunicirati, ne da bi zapustili trenutni delovni prostor.
 
 ### Konzola Quake
 
-Na koncu je tu še konzola Quake v polovični višini, ki se spusti čez kateri koli delovni prostor, na katerem si trenutno. Preklopiš jo s `Super + Grave`, okno pa tja postaviš s `Super + Shift + Grave`.
+Nazadnje obstaja konzola Quake v polovični višini, ki se spusti čez kateri koli delovni prostor, na katerem ste trenutno. Preklopite jo s `Super + the key above Tab` (grave na postavitvah US), okno pa tja postavite s `Super + Shift + the key above Tab`.
 
-Odpre se s tvojim privzetim agentom, pripravljenim na delo. Dokler ima konzola eno samo okno, se spusti kot sredinsko poravnan panel, namesto da bi se raztegnila čez zaslon. Postavi nanjo drugo aplikacijo in vrne se na celotno širino, tako da imata obe prostor, da sedita ena ob drugi.
+Ko se prvič odpre, zažene vašega privzetega agenta ali pa vas prosi, da enega izberete, če ga še niste izbrali. Medtem ko konzola vsebuje eno samo okno, se spusti kot osredinjena plošča, namesto da bi obsegala zaslon. Postavite nanjo drugo aplikacijo in vrnila se bo na polno širino, tako da imata obe prostor, da sedita ena ob drugi.
 
-Da okno premakneš s scratchpada ali s konzole, ga pošlji neposredno na drug delovni prostor z nečim, kot je `Super + Shift + 1`.
+Če želite okno premakniti s scratchpada ali s konzole, ga pošljite neposredno na drug delovni prostor z nečim, kot je `Super + Shift + 1`.
 
 ### Treba se je malo navaditi!
 
-Traja malo časa, da se navadiš tako krmariti po svojem namizju, ko pa se, se bo težko vrniti k tradicionalni izkušnji namizja, ki ga poganja miška!
+Traja malo časa, da se navadite tako krmariti po svojem namizju, toda ko se boste, se bo težko vrniti k tradicionalni izkušnji namizja, ki ga poganja miška!

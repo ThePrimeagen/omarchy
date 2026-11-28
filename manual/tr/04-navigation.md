@@ -1,46 +1,46 @@
 # Gezinme
 
-Omarchy'de her şey klavye ile olur — _HER ŞEY!_ Sistem ilk başladığında, yalnızca fareyle kelimenin tam anlamıyla hiçbir şey yapamazsınız. Ama `Super + Space` tuşuna basarak Omarchy Menu'yü ortaya çıkarabilirsiniz ve buradan neredeyse her şeyi yapabilirsiniz.
+Omarchy'de her şey klavyeyle olur — _HER ŞEY!_ Sistem ilk açıldığında, yalnızca fareyle kelimenin tam anlamıyla hiçbir şey yapamazsınız. Ama `Super + Space` tuşlarına basarak Omarchy Menu'yü ortaya çıkarabilirsiniz ve buradan hemen hemen her şeyi yapabilirsiniz.
 
-Ama Omarchy menüsü, çoğu zaman sistemi çalıştırmanın ana yolu olarak bile tasarlanmamıştır. Bundan daha hızlı olabiliriz! En önemli uygulamaların tümü doğrudan ayrı kısayol tuşlarına bağlanmıştır. Terminali `Super + Return` ile ve bir tarayıcıyı `Super + Shift + Return` ile başlatırsınız. Birbiri ardına deneyin, Hyprland'in döşeme sihrini çalışırken göreceksiniz:
+Ama Omarchy menüsü, çoğu zaman sistemi kullanmanın ana yolu olarak bile tasarlanmadı. Bundan daha hızlı olabiliriz! En önemli uygulamaların tümü doğrudan tek tek kısayol tuşlarına bağlıdır. Terminali `Super + Return` ile, bir tarayıcıyı `Super + Shift + Return` ile başlatırsınız. Birini diğerinin ardından deneyin, Hyprland'in döşeme sihrini iş başında göreceksiniz:
 
  ![navigation-browser-terminal](images/navigation-browser-terminal.webp)
 
-Ardından bunları yan yana yerine üst üste dizmek için `Super + J` tuşuna basabilirsiniz:
+Ardından `Super + J` tuşlarına basarak bunları yan yana yerine üst üste yığabilirsiniz:
 
  ![navigation-stacked](images/navigation-stacked.webp)
 
-Onları yan yana konumlarına döndürmek için tekrar `Super + J` tuşuna basın. Ardından tarayıcıdayken pencereleri takas etmek için `Super + Shift + Arrow Right` tuşunu deneyin.
+Onları yan yana konumlarına döndürmek için `Super + J` tuşlarına tekrar basın. Ardından tarayıcıdayken pencereleri takas etmek için `Super + Shift + Arrow Right` tuşlarını deneyin.
 
-Şimdi Activity monitor'ü başlatmak için `Super + Shift + T` tuşunu deneyin. Bu, yüzen bir pencere olarak görünecektir. Onu `Super + T` kullanarak döşeyebilirsiniz (ve tekrar yüzen yapmak için buna tekrar basın). Şimdi dosya yöneticisini açmak için `Super + Shift + F` tuşuna basın. Düzgün bir dörtlü kurulumunuz olacaktır:
+Şimdi Activity izleyicisini başlatmak için `Super + Shift + T` tuşlarını deneyin. Bu, sürükleyebileceğiniz bir başlık çubuğu ve simge durumuna küçültme, ekranı kaplama ve kapatma düğmeleriyle yüzen bir pencere olarak görünür. Her yüzen pencere, nerede olursa olsun bir tane alır. `Super + T` kullanarak onu döşeyebilirsiniz (ve tekrar yüzen yapmak için o tuşa tekrar basın). Şimdi dosya yöneticisini açmak için `Super + Shift + F` tuşlarına basın. Düzenli bir dörtlü düzeniniz olacak:
 
  ![navigation-fourway-tiling](images/navigation-fourway-tiling.webp)
 
-Etkin olmasını istediğiniz pencere arasında `Super + Arrow` ile gezinirsiniz. Bu, odağı değiştirir ve imleci yeni uygulamanın merkezine taşır. Bir ekranın kenarında, o taraftaki monitöre devam eder.
+Etkin olmasını istediğiniz pencere arasında `Super + Arrow` ile gezinirsiniz. Bu, odağı değiştirir ve imleci yeni uygulamanın merkezine taşır. Bir ekranın kenarında, o taraftaki monitörde devam eder.
 
-`Super + Shift + 2` tuşuna basarsanız, o anda odaklanan uygulamayı ikinci çalışma alanına taşırsınız. `Super + Shift + 1` onu geri taşır. (Ve `Super + Shift + Alt + 2`, o anda odaklanan uygulamayı ona geçiş yapmadan ikinci çalışma alanına taşır).
+`Super + Shift + 2` tuşlarına basarsanız, o anda odaklanılan uygulamayı ikinci çalışma alanına taşırsınız. `Super + Shift + 1` onu geri taşır. (`Super + Shift + Alt + 2` ise o anda odaklanılan uygulamayı, ona geçmeden ikinci çalışma alanına taşır).
 
-Birden fazla monitörle, her monitörün kendine ait 1'den 10'a kadar çalışma alanları vardır. `Super + 2`, bulunduğunuz monitörün ikinci çalışma alanına gider ve her monitörün üst çubuğu kendi çalışma alanlarını ve gösterdiği çalışma alanını gösterir. `Super + Tab`, bulunduğunuz monitördeki çalışma alanları arasında geçiş yapar. `Super + Shift + Ctrl + Arrows`, üzerinde olduğunuz pencereyi o yöndeki monitöre, onun gösterdiği çalışma alanına taşır ve `Super + Shift + Alt + Arrows`, üzerinde olduğunuz çalışma alanını o yöndeki monitöre taşır; orada boşsa aynı numarayı alır. Bir monitör, fişini çektiğinizde çalışma alanlarını korur: bunlar başka bir ekranınkine katılır, onun zaten sahip olduklarının ardından numaralandırılır ve monitör geri döndüğünde eski numaralarına geri dönerler.
+Birden fazla monitörde, her monitörün kendine ait 1'den 10'a kadar çalışma alanları vardır. `Super + 2`, üzerinde olduğunuz monitörün ikinci çalışma alanına gider ve her monitörün üst çubuğu kendi çalışma alanlarını ve gösterdiğini gösterir. `Super + Tab`, üzerinde olduğunuz monitördeki çalışma alanları arasında döner. `Super + Shift + Ctrl + Arrows`, üzerinde olduğunuz pencereyi o yöndeki monitöre, onun gösterdiği çalışma alanına taşır ve `Super + Shift + Alt + Arrows`, üzerinde olduğunuz çalışma alanını o yöndeki monitöre taşır; orada boşsa aynı numarayı alır. Bir monitör, fişini çektiğinizde çalışma alanlarını korur: bunlar başka bir ekranınkine katılır, onun zaten sahip olduklarından sonra numaralandırılır ve monitör geri geldiğinde eski numaralarının altına geri döner.
 
-`Super` tuşunu basılı tutar ve fareyle bir pencereye tıklarsanız, onun oturduğu yeri yeniden düzenleyebilirsiniz. `Super` tuşunu basılı tutar ve farede sağ düğmeyi kullanırsanız, pencereyi serbestçe yeniden boyutlandırabilirsiniz.
+`Super` tuşunu basılı tutup fareyle bir pencereye tıklarsanız, pencerenin nerede durduğunu yeniden düzenleyebilirsiniz. `Super` tuşunu basılı tutup farenin sağ düğmesini kullanırsanız, pencereyi serbestçe yeniden boyutlandırabilirsiniz.
 
 Bir pencereyi `Super + W` veya `Super + Q` ile kapatırsınız (ve tüm pencereleri `Ctrl + Alt + Delete` ile kapatırsınız).
 
-Ayrıca `Super + F` ile tam ekrana geçebilir veya hatta `Super + Alt + F` ile yalnızca tam genişliğe (üst çubuğu koruyarak) ya da `Super + Ctrl + F` ile bir pencere içinde tam ekrana geçebilirsiniz (YouTube için iyidir!).
+Ayrıca `Super + F` ile tam ekrana geçebilir, hatta `Super + Alt + F` ile yalnızca tam genişliğe (üst çubuğu koruyarak) geçebilir veya `Super + Ctrl + F` ile bir pencere içinde tam ekran yapabilirsiniz (YouTube için iyi!).
 
-### Dwindle ile kaydırmalı düzen karşılaştırması
+### Dwindle vs kaydırmalı düzen
 
-Omarchy'nin varsayılan düzenine dwindle denir. Açtığınız tüm pencereleri tek bir çalışma alanında her zaman görünür tutar, bunun için onları küçültmesi gerekse bile.
+Omarchy'nin varsayılan düzenine dwindle denir. Bir çalışma alanında açtığınız tüm pencereleri, küçültmesi gerekse bile her zaman görünür tutar.
 
  ![navigation-dwindle-layout](images/navigation-dwindle-layout.webp)
 
-Ama bir çalışma alanını, pencerelerin ekranın görünür kenarının ötesinde yan yana sıralandığı kaydırmalı düzene dönüştürmeyi de seçebilirsiniz. Tek bir çalışma alanını `Super + L` ile bu düzene dönüştürürsünüz.
+Ama bir çalışma alanını, pencerelerin yan yana, ekranın görünür kenarının ötesinde sıralandığı kaydırmalı düzene dönüştürmeyi de seçebilirsiniz. Tek bir çalışma alanını `Super + L` ile bu düzene dönüştürürsünüz.
 
-`Super + L` tuşuna tekrar basmak çalışma alanını, pencerelerin serbestçe üst üste bindiği ve onları kendiniz yerleştirdiğiniz yüzen düzene dönüştürür ve üçüncü bir basış onu dwindle'a döndürür. `Super + Alt + L` bunlardan ters yönde geçer. Zaten yüzen bir pencere — `Super + T` ile çıkardığınız bir pencere veya her zaman yüzen olarak açılan bir uygulama — çalışma alanı döşemeye geri döndüğünde yüzen kalır. Üst çubuk, üzerinde olduğunuz çalışma alanını düzeniyle işaretler: dwindle için bir kare, kaydırmalı için bir daire ve yüzen için bir üçgen. O işarete tıklamak da düzeni döngüsel olarak değiştirir.
+`Super + L` tuşuna tekrar basmak çalışma alanını yüzen düzene çevirir; burada pencereler serbestçe çakışır ve onları kendiniz yerleştirirsiniz, üçüncü bir basış onu dwindle'a geri döndürür. `Super + Alt + L` bunlardan ters yönde geçer. Her durumda yüzen bir pencere — `Super + T` ile dışarı çıkardığınız veya her zaman yüzen açılan bir uygulama — çalışma alanı döşemeye geri döndüğünde yüzen kalmaya devam eder. Üst çubuk, üzerinde olduğunuz çalışma alanını düzeniyle işaretler: dwindle için bir kare, kaydırmalı için bir daire ve yüzen için bir üçgen. O işarete tıklamak da düzeni döngüye sokar, böyle bir tuşa sahip dizüstü bilgisayarlardaki ekran tuşu da öyle yapar.
 
  ![navigation-scrolling-layout](images/navigation-scrolling-layout.webp)
 
-Seçim çalışma alanı başınadır ve kalıcıdır. Böylece 1. çalışma alanını gezinmek için dwindle'da ve 2. çalışma alanını kod için kaydırmalıda tutabilirsiniz ve yeniden başlatmanın ardından bu şekilde geri gelirler.
+Seçim çalışma alanı başına yapılır ve kalıcıdır. Yani 1. çalışma alanını gezinmek için dwindle'da, 2. çalışma alanını kod için kaydırmalıda tutabilirsiniz ve yeniden başlatmanın ardından bu şekilde geri gelirler.
 
 Kaydırmalı düzeni varsayılan olarak kullanmak isterseniz, bunu `~/.config/hypr/looknfeel.lua` içinde ayarlayabilirsiniz:
 
@@ -54,38 +54,38 @@ hl.config({
 
 ### Yüzen çalışma alanları
 
-Yüzen bir çalışma alanı geleneksel bir masaüstü gibi çalışır: pencereler üst üste biner ve onları kendiniz taşıyıp boyutlandırırsınız. Her pencere, temanızın renklerinde, simge durumuna küçültme, ekranı kaplama ve kapatma düğmeleri olan bir başlık çubuğu alır. `Super + M` de odaklanan pencereyi simge durumuna küçültür. Simge durumuna küçültülmüş bir pencere dock'ta bekler; geri getirmek için uygulamasına tıklayın. Bir pencereyi öne getirmek için tıklayın. Onu herhangi bir kenardan veya köşeden yeniden boyutlandırın. Üst çubuğu görünür tutarken pencereyi ekranı kaplatmak için bir başlık çubuğuna çift tıklayın ve eski boyutunu geri almak için tekrar çift tıklayın.
+Yüzen bir çalışma alanı geleneksel bir masaüstü gibi çalışır: pencereler çakışır ve onları kendiniz taşıyıp boyutlandırırsınız. Her pencere, temanızın renklerinde, simge durumuna küçültme, ekranı kaplama ve kapatma düğmeleriyle bir başlık çubuğu alır. `Super + M` de odaklanılan pencereyi simge durumuna küçültür. Simge durumuna küçültülmüş bir pencere dock'ta bekler; geri getirmek için uygulamasına tıklayın. Bir pencereyi öne getirmek için tıklayın. Herhangi bir kenardan veya köşeden yeniden boyutlandırın. Üst çubuğu görünürde tutarken pencereyi ekranı kaplamak için bir başlık çubuğuna çift tıklayın, eski boyutunu geri almak için tekrar çift tıklayın. Chrome ve diğer Chromium tabanlı tarayıcılar, Disks ve Document Viewer başlık çubuğunu atlar ve bunun yerine kendi başlıklarını kullanır; `Super + Alt + F` onları ekranı kaplar ve `Super + M` onları simge durumuna küçültür.
 
-Yüzen bir çalışma alanı ayrıca, sabitlenmiş uygulamalarınız, çalışan her şey ve uygulamalar düğmesinin arkasındaki her uygulamanın bir ızgarası ile bir dock gösterir; bunu `Super + Alt + Space` ve Omarchy menüsündeki _Apps_ de açar. Onu kaldırmak için ızgaradaki bir uygulamaya sağ tıklayın veya `Delete` tuşuna basın. Açmak veya penceresini öne getirmek için bir uygulamaya tıklayın; pencereleri arasında geçiş yapmak için tekrar tıklayın. Orta tıklama yeni bir pencere açar. Taşımak için bir simgeyi dock boyunca sürükleyin; çalışan bir uygulamayı diğerlerinin arasına sürüklemek onu orada tutar. Bir uygulamayı dock'ta tutmak, onu çıkarmak veya ondan çıkmak için sağ tıklayın. Dock, tam ekran bir pencerenin yolundan çekilir. Dock'u başka bir kenara taşımak veya işaretçi onun kenarına ulaşana kadar gizlenmesini sağlamak için uygulamalar düğmesine sağ tıklayın. Konum ayrıca _Appearance > Dock > Dock Position_ altındadır ve `omarchy dock position left` ile `omarchy dock autohide on` her ikisini de bir terminalden ayarlar. Dock'ta tuttuğunuz uygulamalar çalışmadıkları sırada soluk görünür.
+Her çalışma alanının bir dock'u vardır; sabitlenmiş uygulamalarınız, çalışan her şey ve uygulamalar düğmesinin arkasında her uygulamanın bir ızgarası bulunur; `Super + Alt + Space` ve Omarchy menüsündeki _Apps_ da bunu açar. Kaldırmak için ızgaradaki bir uygulamaya sağ tıklayın veya `Delete` tuşuna basın. Açmak veya penceresini öne getirmek için bir uygulamaya tıklayın; pencereleri arasında geçiş yapmak için tekrar tıklayın. Files yalnızca üzerinde olduğunuz çalışma alanından bir pencereyi geri getirir, aksi halde yeni bir tane açar ve Terminal ve Agent her zaman bir tane daha başlatır, ancak simge durumuna küçültülmüş bir pencere önce geri gelir. Orta tıklama yeni bir pencere açar. Taşımak için bir simgeyi dock boyunca sürükleyin; çalışan bir uygulamayı diğerlerinin arasına sürüklemek onu orada tutar. Bir uygulamayı dock'ta tutmak, çıkarmak veya kapatmak için sağ tıklayın. Dock, bir çalışma alanı boşken dışarıda kalır ve çalışma alanında bir pencere olduğunda, işaretçi kenarına ulaşana kadar gizlenir. Tam ekran bir pencere onu tamamen gizler. Dock'u oraya taşımak için uygulamalar düğmesini ekranın başka bir kenarına doğru sürükleyin. Bir kenar seçmek için _Position_, varsayılan düzeni _Appearance > Workspace Layout_'ın yaptığı gibi ayarlamak için _Layout_ ve dock'u her zaman açık tutmak, ilk uygulamanın onu gizlemesini sağlamak veya her zaman gizli tutmak için _Visibility_ seçenekleri için ona sağ tıklayın. `omarchy dock visibility always` bunu bir terminalden ayarlar. Konum ayrıca _Appearance > Dock > Dock Position_ altındadır ve `omarchy dock position left` bunu bir terminalden ayarlar. Dock'ta tuttuğunuz uygulamalar çalışmadıklarında soluk görünür. Dock'u yüzen çalışma alanlarıyla sınırlı tutmak için _Appearance > Dock > Dock Only on Floating_ veya `omarchy dock tiling off` kullanın.
 
-Yeni çalışma alanları ve `Super + L` ile kendine ait bir düzen vermedikleriniz varsayılan düzeni kullanır. Varsayılanı değiştirmek, penceresi olmayan her çalışma alanını ona sıfırlar; penceresi olan ise sahip olduğu düzeni korur. Dock'a simge durumuna küçültülmüş bir pencere, ayrıldığı çalışma alanında hâlâ bir pencere olarak sayılır. Bunu _Appearance > Workspace Layout_ altında seçin: Tiling, Scrolling veya Floating. `omarchy-hyprland-workspace-layout-default scrolling` bunu bir terminalden ayarlar.
+Yeni çalışma alanları ve `Super + L` ile kendine ait bir düzen vermedikleriniz, varsayılan düzeni kullanır. Varsayılanı değiştirmek, penceresi olmayan her çalışma alanını ona sıfırlar; üzerinde pencereler olan ise sahip olduğu düzeni korur. Dock'a simge durumuna küçültülmüş bir pencere hâlâ ayrıldığı çalışma alanında bir pencere sayılır. Bunu _Appearance > Workspace Layout_ altında seçin: Tiling, Scrolling veya Floating. `omarchy hyprland workspace layout default scrolling` bunu bir terminalden ayarlar.
 
 ### Pencereleri gruplama
 
-Pencereler `Super + G` kullanılarak gruplandırılabilir. Bir gruba girdikten sonra, o etkin iken başlattığınız her pencere gruba ait olacaktır. Bu gruplandırılmış pencereler arasında `Super + Ctrl + Arrow Left/Right` kullanarak veya sırayla gruplandırılmış pencerelere doğrudan gitmek için `Super + Alt + 1/2/3/4` kullanarak hareket edebilirsiniz.
+Pencereler `Super + G` kullanılarak gruplandırılabilir. Bir grubun içindeyken, o etkinken başlattığınız her pencere gruba ait olur. Bu gruplandırılmış pencereler arasında `Super + Ctrl + Arrow Left/Right` kullanarak hareket edebilir veya sırayla gruplandırılmış pencerelere doğrudan gitmek için `Super + Alt + 1/2/3/4` kullanabilirsiniz.
 
-Bir pencereyi `Super + Alt + G` ile gruplandırmanın dışına taşıyabilir veya `Super + G` tuşuna tekrar basarak tüm grubun tamamını dağıtabilirsiniz. Son olarak, grubun dışındaki pencereleri `Super + Alt + Arrows` ile içine taşıyabilirsiniz.
+Bir pencereyi `Super + Alt + G` ile grubun dışına taşıyabilir veya `Super + G` tuşuna tekrar basarak tüm grubu dağıtabilirsiniz. Son olarak, grup dışındaki pencereleri `Super + Alt + Arrows` ile içine taşıyabilirsiniz.
 
-### Pencereleri çıkarma
+### Pencereleri dışarı çıkarma
 
-Bir pencereyi `Super + O` ile çalışma alanı tahsisinin dışına çıkarabilirsiniz. Bu, onu gittiğiniz her çalışma alanında sizi takip eden yüzen bir pencere olarak sabitler. Video oynatıcılar ve benzerleri için harikadır.
+Bir pencereyi `Super + O` ile çalışma alanı tahsisinden dışarı çıkarabilirsiniz. Bu, gittiğiniz her çalışma alanında sizi takip eden yüzen bir pencere olarak onu sabitler. Video oynatıcılar ve benzerleri için harika.
 
  ![navigation-popped-window](images/navigation-popped-window.webp)
 
 ### Scratchpad çalışma alanı
 
-Şu anda üzerinde olduğunuz çalışma alanının üzerinde katman olarak görünen özel, tam boyutlu bir scratchpad çalışma alanı vardır. Üzerindekilere `Super + S` kullanarak erişirsiniz ve oraya `Super + Alt + S` kullanarak pencereler yerleştirirsiniz.
+Üzerinde olduğunuz çalışma alanının üzerine binen özel, tam boyutlu bir scratchpad çalışma alanı vardır. Üzerindekilere `Super + S` kullanarak erişirsiniz ve pencereleri oraya `Super + Alt + S` kullanarak yerleştirirsiniz.
 
-Geçerli çalışma alanından ayrılmadan hızlıca etkileşim kurmak istediğiniz kontroller veya bir terminal için iyi çalışır.
+Mevcut çalışma alanından ayrılmadan hızlıca etkileşim kurmak istediğiniz kontroller veya bir terminal için iyi çalışır.
 
 ### Quake konsolu
 
-Son olarak, şu anda üzerinde olduğunuz çalışma alanının üzerine açılan yarım yükseklikte bir Quake konsolu vardır. Onu `Super + Grave` ile açıp kapatın ve `Super + Shift + Grave` kullanarak oraya bir pencere yerleştirin.
+Son olarak, üzerinde olduğunuz çalışma alanının üzerine açılan yarı yükseklikte bir Quake konsolu vardır. Onu `Super + the key above Tab` (ABD düzenlerinde grave) ile açıp kapatın ve `Super + Shift + the key above Tab` kullanarak oraya bir pencere yerleştirin.
 
-Varsayılan agent'ınız hazır olarak açılır. Konsol tek bir pencere tutarken, ekranı kaplamak yerine ortalanmış bir panel olarak açılır. Üzerine ikinci bir uygulama koyun, tam genişliğe geri döner, böylece ikisinin yan yana oturacak yeri olur.
+İlk açıldığında, varsayılan agent'ınızı başlatır veya henüz bir tane seçmediyseniz bir tane seçmenizi ister. Konsol tek bir pencere barındırırken, ekranı kaplamak yerine ortalanmış bir panel olarak açılır. Üzerine ikinci bir uygulama koyun, tam genişliğe geri döner, böylece ikisinin yan yana oturacak yeri olur.
 
 Bir pencereyi scratchpad'den veya konsoldan taşımak için, onu `Super + Shift + 1` gibi bir şeyle doğrudan başka bir çalışma alanına gönderin.
 
 ### Alışmak biraz zaman alıyor!
 
-Masaüstünüzde bu şekilde gezinmeye alışmak biraz zaman alır, ama alıştıktan sonra geleneksel, fareyle sürülen bir masaüstü deneyimine geri dönmek zor olacaktır!
+Masaüstünüzde bu şekilde gezinmeye alışmak biraz zaman alır, ama alıştığınızda geleneksel fareyle sürülen bir masaüstü deneyimine geri dönmek zor olacak!

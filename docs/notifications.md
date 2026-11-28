@@ -20,7 +20,7 @@ The JS modules also load in Node: `test/shell.d/notifications-test.sh` covers th
 
 ## Decks and the scene clock
 
-Each notification gets its own key (`n…`); the sender's id names a slot that `replaces_id` reuses, not an event. Cards group by source: per site for browser notifications (the leading `<a href>` Chromium adds is lifted off and becomes the source, but only from a browser and only for an http(s) href that passes the URL policy), per app name otherwise.
+Each notification gets its own key (`n…`); the sender's id names a slot that `replaces_id` reuses, not an event. A notification that repeats a live card word for word within two seconds takes over that card's slot the same way, and the copy it supersedes is closed at its sender: a web app open in several tabs sends one reminder once per tab. Same means the same app, source, headline, text and click command (`Store.isDuplicate`), offering the same buttons, the sender's own included; the picture is not compared, since Chromium hands each copy its own temporary file, and a card on its way out is left to go. Cards group by source: per site for browser notifications (the leading `<a href>` Chromium adds is lifted off and becomes the source, but only from a browser and only for an http(s) href that passes the URL policy), per app name otherwise.
 
 A collapsed deck draws its cards at the front card's height; hovering opens it. While the pointer is on an open deck, new cards are held back for at most 30 seconds. All positions, scales, opacities and heights come from one clock (`Service.at()`): a change snapshots the current state, recomputes the layout, and starts one move for every card. A leaving card keeps its model row until that move finishes.
 
@@ -39,7 +39,7 @@ A click tries, in order: the card's `omarchy-exec-argv` command; the sender's `d
 The shell keeps its state in `~/.local/state/omarchy/notifications/` (0700), three JSON files it reads with `FileView` once at startup and rewrites whole:
 
 - `live.json`: the rows on screen, oldest first, put back after a shell restart with a 20s grace (critical ones still wait). At most 100.
-- `history.json`: closed rows, newest first, each with `closed_ts` and `closed_reason`. Capped at 100 entries and 24 hours. Rows whose reason is `silenced` were held back by Do Not Disturb.
+- `history.json`: closed rows, newest first, each with `closed_ts` and `closed_reason`. Capped at 100 entries and 24 hours. Rows whose reason is `silenced` were held back by Do Not Disturb; `fullscreen` marks rows held back while the target display had a fullscreen window.
 - `quiet.json`: `{ dnd }`.
 
 A card with the `transient` hint is never written to either file, as the hint asks: it is not put back after a restart and leaves no history when it closes. Its sender sends it again when it still applies, as `omarchy-migrate-notify` does at every login.
@@ -59,6 +59,8 @@ Icons are resolved in the shell, the way the dock resolves its own, by each card
 3. The icon of a desktop entry matching the hint, source or app (`DesktopEntries.heuristicLookup`); for a site, only the browser's, since a fuzzy match on a domain label would put Google Contacts on `mail.google.com`.
 4. The glyph an Omarchy sender asked for, else the first letter of the source.
 
+When Qt's themed lookup misses a name, the card also checks the app library's file index, which refreshes when desktop entries change. This picks up newly installed app icons without restarting the shell, including names whose earlier lookup failed. The index contains app and device icons across installed themes and `/usr/share/pixmaps`; it is checked only when the active theme misses. Copying an icon file alone does not trigger a rescan. A missing name still falls through to the glyph or letter.
+
 An icon named `*-symbolic`, or a file under a `symbolic/` directory, is a one-colour mark and is tinted with the theme's text colour.
 
 A site's icon is never fetched: the site name comes from the notification body and a browser is recognised by its self-asserted app name, so fetching would let any sender make the host contact a server of its choosing.
@@ -67,9 +69,9 @@ Images are decoded in the shell process like every other image it draws. A sende
 
 ## Silencing
 
-Do Not Disturb is a boolean in `quiet.json`, toggled via `omarchy-shell notifications toggleDnd` / `setDnd` / `isDnd`; `omarchy-toggle-notification-silencing` wraps the toggle.
+Do Not Disturb is a boolean in `quiet.json`, toggled via `omarchy-shell notifications toggleDnd` / `setDnd` / `isDnd`; `omarchy-toggle-notification-silencing` wraps the toggle. A true fullscreen window (`fullscreen` mode bit 2, not maximized) on the target display also silences incoming notifications on that display, without changing `doNotDisturb`, keeping gameplay uninterrupted and preserving direct scanout.
 
-Three kinds of notification get through Do Not Disturb:
+Three kinds of notification get through Do Not Disturb and fullscreen silencing:
 
 - `app_name` = `omarchy-action`: Omarchy's own confirmation toasts for something the user just did.
 - urgency critical *and* `app_name` = `notify-send`: bare-CLI emergency alerts. Critical alone is not enough, because chat apps use it to force visibility under their own app name.
@@ -126,7 +128,7 @@ an action and just expect click-to-jump.
 `--exec` consumes the rest of the line as the click command:
 
 ```bash
-omarchy-notification-send "Download complete" "$title" --exec mpv -- "$file"
+omarchy-notification-send "Download complete" "$title" --exec omaview open "$file"
 ```
 
 The caller's shell has already split those words into discrete arguments, and a
@@ -137,10 +139,10 @@ script text. bash expands `"$@"` without re-tokenizing or re-evaluating it, so a
 value carrying data an attacker controls — a downloaded video's title, a
 received filename, a crashed process's name — is only ever a single argument and
 can never be reparsed as a command. The login shell keeps the PATH and session
-environment that GUI click targets (the screenshot editor, mpv, xdg-open) expect.
+environment that GUI click targets (the screenshot editor, Omaview, xdg-open) expect.
 
 The critical rule: **the splitting must happen at the call site, not inside the
-tool.** Passing a single quoted string (`--exec "mpv $title"`) and letting the
+tool.** Passing a single quoted string (`--exec "omaview open $title"`) and letting the
 tool whitespace-split it would hand argument boundaries to whoever controls the
 string's content — a title with a space could inject an extra option or program.
 So `--exec` refuses a lone quoted-string argument and points at the unquoted
@@ -173,7 +175,7 @@ as a `busctl` option; the summary/body themselves are never parsed as options.)
 
 ```bash
 omarchy-notification-send "Screen recording saved" "$name" \
-  --action "Play" mpv -- \
+  --action "Play" omaview open \
   --action "Show in folder" nautilus --select \
   --with "$filename"
 ```

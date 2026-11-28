@@ -1,45 +1,41 @@
-# O'z mavzungizni yaratish
+# O‘z mavzuingizni yaratish
 
-Siz o'z mavzularingizni `~/.config/omarchy/themes` ga qo'shishingiz mumkin. Shunchaki mavjudlaridan birini asos qilib nusxa oling (`/usr/share/omarchy/themes` ga qarang), so'ng ko'nglingiz tusaguncha o'zgartiring. Mavzungiz shu papka ichida bo'lar ekan, u mavzu tanlash menyusida ko'rsatiladi.
+O‘z mavzularingizni `~/.config/omarchy/themes` ga qo‘shishingiz mumkin. Shunchaki mavjudlaridan birini asos qilib nusxalab oling (`/usr/share/omarchy/themes` ga qarang), so‘ng ko‘nglingiz tusaganchalik o‘zgartiring. Mavzuingiz shu papka ichida bo‘lsa bas, u mavzu tanlash menyusiga kiritiladi.
 
-O'zgartirishingiz kerak bo'lgan asosiy fayl — `colors.toml`. U terminal (Foot/Alacritty/Ghostty/Kitty), btop, Chromium, Hyprland, Neovim, Helix, VSCode, Obsidian va butun Omarchy qobig'i (yuqori panel, menyu, bildirishnomalar, OSD va qulf ekrani) uchun konfiguratsiyalar yaratishda ishlatiladigan ranglar to'plamini belgilaydi.
+Tahrirlashingiz kerak bo‘lgan asosiy fayl — `colors.toml`. U terminal (Foot/Alacritty/Ghostty/Kitty), btop, Chromium, Hyprland, Neovim, Helix, VSCode, Obsidian, Qt ilovalari, klaviatura orqa yoritgichi, kiritish usuli, ekranni ulashish tanlovchisi, ilova piktogrammalari, bir nechta AI vositalari (Claude, Pi, Hermes, T3 Code, Herdr) va butun Omarchy qobig‘i (yuqori panel, menyu, bildirishnomalar, OSD va qulf ekrani) uchun konfiguratsiyalar yaratishda ishlatiladigan ranglar to‘plamini belgilaydi.
 
-Yangi mavzu yaratish uchun kiritilgan Aether ilovasidan ham foydalanishingiz mumkin — unda ranglar bilan o'ynash va fon rasmlarini qidirish uchun yoqimli GUI interfeysi bor. Uni `Super + Alt + Space` tugmalari orqali ilovalar panjarasidan ishga tushiring.
+Qo‘shib berilgan Aether ilovasidan ham foydalanib, ranglar bilan o‘ynash va fon rasmlarini qidirish uchun qulay GUI interfeysi orqali yangi mavzu yaratishingiz mumkin. Uni shunchaki `Super + Alt + Space` orqali ilovalar to‘ridan ishga tushiring.
 
-### O'rnatilgan mavzu nimalarni o'z ichiga olishi mumkin
+### O‘rnatilgan mavzu nimalarni o‘z ichiga olishi mumkin
 
-`~/.config/omarchy/themes` ichida o'zingiz yozgan mavzu xohlagan narsangizni o'z ichiga olishi mumkin — bu sizning mashinangiz va sizning faylingiz, Omarchy barchasini qo'llaydi.
+`~/.config/omarchy/themes` da o‘zingiz yozgan mavzu xohlagan narsangizni o‘z ichiga olishi mumkin — bu sizning mashinangiz va sizning faylingiz, Omarchy hammasini qo‘llaydi.
 
-`omarchy theme install` bilan birovning repozitoriyasidan o'rnatgan mavzungiz rangga oid hamma narsani saqlab qoladi, mashinangizda kod ishga tushiradigan bir hovuch fayllarni esa yo'qotadi: har qanday `.lua` fayli, terminal konfiguratsiyalari (`alacritty.toml`, `foot.ini`, `ghostty.conf`, `kitty.conf`) va `vscode.json`. Mavzuning `hyprland.lua` fayli — kompozitoringiz kirish paytida ishga tushiradigan Lua, terminal konfiguratsiyasi terminalingiz ishga tushiradigan dasturni nomlaydi, `vscode.json` esa o'rnatiladigan VSCode kengaytmasini nomlaydi. Birovning mavzusini o'rnatish ish stolingiz qanday ko'rinishini o'zgartirishi kerak, u nima ishga tushirishini emas.
+`omarchy theme install` bilan birovning repo sidan o‘rnatgan mavzuingiz rangga oid hamma narsani saqlab qoladi va mashinangizda kod ishga tushiradigan bir hovuch fayllarni yo‘qotadi: istalgan `.lua` fayli, terminal konfiguratsiyalari (`alacritty.toml`, `foot.ini`, `ghostty.conf`, `kitty.conf`) va `vscode.json`. Mavzuning `hyprland.lua` fayli — kompozitoringiz kirish paytida ishga tushiradigan Lua, terminal konfiguratsiyasi terminalingiz ishga tushiradigan dasturni nomlaydi, `vscode.json` esa o‘rnatiladigan VSCode kengaytmasini nomlaydi. Birovning mavzusini o‘rnatish ish stolingiz qanday ko‘rinishini o‘zgartirishi kerak, hech qachon u nima ishga tushirishini emas.
 
-Qolgan hamma narsa mavzu muallifi yozganidek aniq ishlaydi — `btop.theme`, `chromium.theme`, `helix.toml`, `icons.theme`, `shell.toml`, fon rasmlari va oldindan ko'rish tasvirlari saqlanib qoladi. Faqat tashlab yuborilgan narsalar mashinangizda `colors.toml` dan qayta yaratiladi.
+Qolgan hamma narsa mavzu muallifi yozganidek aynan ishlayveradi — `btop.theme`, `chromium.theme`, `helix.toml`, `shell.toml`, fon rasmlari va oldindan ko‘rishlar hammasi saqlanib qoladi. Faqat tashlab yuborilganlari mashinangizda `colors.toml` dan qayta yaratiladi.
 
-Omarchy bu ikkisini mavzuning ichida o'z git repozitoriyasi bor-yo'qligiga qarab ajratadi, `omarchy theme install` klonlaganida aynan shuni qoldiradi. Shunday qilib, o'zingiz yozgan mavzu sizniki bo'lib qoladi, internetdan tortib olganingiz esa faqat ranglar bo'lib qoladi.
+Omarchy ikkisini mavzuning ichida o‘zining git repo si bor-yo‘qligiga qarab farqlaydi, `omarchy theme install` klonlaganda aynan shuni qoldiradi. Shunday qilib, o‘zingiz yozgan mavzu sizniki bo‘lib qoladi, internetdan tortib olganingiz esa ranglar bo‘lib qoladi.
 
-### Yorug' rejim
+### Yorug‘ rejim
 
-Agar yorug' rejimli mavzu yaratayotgan bo'lsangiz, `colors.toml` faylining tepasiga `mode = "light"` deb yozing. Shunda u barcha ilovalar uchun avtomatik ravishda yorug' rejim bilan juftlashtiriladi. (Mavzungiz ildiziga `light.mode` nomli bo'sh fayl tashlashdan iborat eski usul ham hamon ishlaydi.)
+Agar yorug‘ rejim mavzusini yaratayotgan bo‘lsangiz, `colors.toml` faylingizning tepasiga `mode = "light"` deb qo‘ying. Shunda u barcha ilovalar uchun avtomatik ravishda yorug‘ rejim bilan juftlanadi. (Mavzuingiz ildiziga `light.mode` nomli bo‘sh fayl tashlashning eski usuli ham hanuz ishlaydi.)
 
-### Belgi ranglari
+### Yuklanish va kirish ekranlari
 
-Fayl menejeri belgilarini mavzungizga moslab bo'yashni istasangiz, foydalanmoqchi bo'lgan belgilar to'plami nomi yozilgan `icons.theme` nomli fayl qo'shing. Odatiy holatda variantlar quyidagilar: `Yaru Yaru-blue Yaru-dark Yaru-magenta Yaru-olive Yaru-prussiangreen Yaru-purple Yaru-red Yaru-sage Yaru-wartybrown Yaru-yellow`.
-
-### Qulfni ochish tasviri
-
-`unlock.png` va `preview-unlock.png` tasvirlari bilan ta'minlangan mavzular _Appearance > Unlock_ ostida ro'yxatga olinadi. `unlock.png` faylingiz imkon qadar shaffof png bo'lgani ma'qul. Oldindan ko'rish tasvirini esa `omarchy plymouth preview` yordamida yaratishingiz mumkin.
+Yuklanish paytida disk parolini so‘raydigan ekran va kirish ekrani Omarchy logotipini mavzuingizning `background` i ustiga uning `accent` rangida chizadi, parol maydoni uning `foreground` rangida, noto‘g‘ri parol uchun esa `red` bilan. Ular uchun qo‘shimcha hech narsa jo‘natish kerak emas: Omarchy endi mavzuning `unlock.png` yoki `preview-unlock.png` fayllaridan foydalanmaydi. Apple Silicon Mac larda disk paroli ekrani mavzu qanday bo‘lishidan qat’i nazar Omarchy ning standart ko‘rinishini saqlab qoladi.
 
 ### Omarchy qamrab olmaydigan ilovalarni mavzulashtirish
 
-Agar o'sha ro'yxatda bo'lmagan ilovadan foydalansangiz, Omarchy ga uni o'zingiz mavzulashtirishni o'rgatishingiz mumkin — shablon yordamida. `~/.config/omarchy/themed/` ichiga u yaratadigan konfiguratsiya nomi va ustiga `.tpl` kengaytmasi bilan nomlangan fayl tashlang, konfiguratsiyani esa `{{ background }}`, `{{ foreground }}`, `{{ accent }}`, `{{ red }}`, `{{ color0 }}` dan `{{ color15 }}` gacha va palitraning qolgan qismini to'ldiruvchilar sifatida yozing. Har safar mavzuni almashtirganingizda, fayl o'sha mavzuning ranglari bilan qayta yaratiladi.
+Agar o‘sha ro‘yxatda bo‘lmagan ilovadan foydalansangiz, shablon yordamida Omarchy ga uni mavzulashtirishni o‘zingiz o‘rgatishingiz mumkin. `~/.config/omarchy/themed/` ga u yaratadigan konfiguratsiya nomi va qo‘shimcha `.tpl` kengaytmasi bilan nomlangan fayl tashlang va konfiguratsiyani `{{ background }}`, `{{ foreground }}`, `{{ accent }}`, `{{ red }}`, `{{ color0 }}` dan `{{ color15 }}` gacha va palitraning qolgan qismini o‘rinbosarlar sifatida yozing. Har safar mavzuni almashtirganingizda, fayl o‘sha mavzuning ranglari bilan qayta yaratiladi.
 
-O'sha papkada nusxa olish uchun to'liq izohlangan `alacritty.toml.tpl.sample` bor — unda foydalanishingiz mumkin bo'lgan har bir o'zgaruvchi, shuningdek, ranglarini `#` siz yoki o'nlik RGB ko'rinishida xohlaydigan ilovalar uchun `_strip` va `_rgb` modifikatorlari sanab o'tilgan. Shablonlaringiz Omarchy nikidan ustun turadi, shuning uchun bundan o'rnatilgan ilova qanday mavzulashtirilishini bekor qilish uchun ham foydalanishingiz mumkin.
+O‘sha papkada nusxa olish uchun to‘liq izohlangan `alacritty.toml.tpl.sample` bor — unda foydalanishingiz mumkin bo‘lgan har bir o‘zgaruvchi, shuningdek ranglarini `#` siz yoki o‘nlik RGB sifatida istaydigan ilovalar uchun `_strip` va `_rgb` modifikatorlari ro‘yxati keltirilgan. Sizning shablonlaringiz Omarchy nikidan ustun turadi, shu bois bundan o‘rnatilgan ilovaning qanday mavzulanishini bekor qilish uchun ham foydalanishingiz mumkin.
 
-### Mavzungizni tarqatish
+### Mavzuingizni tarqatish
 
-Mavzungizni boshqalar ham foydalanishi uchun tarqatmoqchi bo'lsangiz, uni GitHub kabi ochiq git serveriga joylashingiz kerak. Shunda odamlar uni shu URL yordamida Omarchy menyusida _Install > Style > Theme_ orqali o'rnatishlari mumkin. `omarchy-[themename]-theme` nomlash tartibiga amal qilish tavsiya etiladi, chunki o'rnatilgandan so'ng mavzu tanlash menyusida mavzu shunchaki `[themename]` sifatida to'g'ri ko'rsatiladi.
+Agar mavzuingizni boshqalar ham foydalanishi uchun tarqatmoqchi bo‘lsangiz, uni GitHub kabi ommaviy git serveriga joylashingiz kerak. So‘ng odamlar uni o‘sha URL yordamida Omarchy menyusidagi _Install > Style > Theme_ orqali o‘rnatishi mumkin. `omarchy-[themename]-theme` nomlash tartibiga amal qilish tavsiya etiladi, chunki o‘rnatilgandan keyin mavzu tanlash menyusida mavzu to‘g‘ri tarzda, shunchaki `[themename]` ko‘rinishida chiqadi.
 
-O'sha qolib ketgan `[themename]` mavzuning katalog nomiga aylanadi, shuning uchun u Omarchy xavfsiz uzata oladigan nom bo'lishi kerak: u harf, raqam yoki tagchiziq bilan boshlanishi kerak, qolgani esa harflar, raqamlar, `.`, `_`, `+` va `-` ni o'z ichiga olishi mumkin. Bosh harflar siz uchun kichik harflarga aylantiriladi, lekin boshqa hamma narsa — bo'sh joy, qo'shtirnoq, inglizcha bo'lmagan belgi — katalog nomiga aylantirish o'rniga o'rnatish paytida rad etiladi. Shunday qilib, `omarchy-tokyo-night-theme`, `omarchy-flexoki_light-theme` va `omarchy-c++-theme` ning hammasi muammosiz o'rnatiladi.
+O‘sha qolgan `[themename]` mavzuning katalog nomiga aylanadi, shuning uchun u Omarchy xavfsiz ishlata oladigan nom bo‘lishi kerak: u harf, raqam yoki tagchiziq bilan boshlanishi kerak, qolgan qismida esa harflar, raqamlar, `.`, `_`, `+` va `-` bo‘lishi mumkin. Bosh harflar siz uchun kichik harflarga aylantiriladi, lekin boshqa hamma narsa — bo‘sh joy, qo‘shtirnoq, inglizcha bo‘lmagan belgi — katalog nomiga aylantirilmasdan, o‘rnatish vaqtidayoq rad etiladi. Shunday qilib, `omarchy-tokyo-night-theme`, `omarchy-flexoki_light-theme` va `omarchy-c++-theme` larning hammasi muammosiz o‘rnatiladi.
 
-Esda tuting: mavzu repozitoriyadan o'rnatilgach, u bilan birga keladigan har qanday `.lua`, terminal konfiguratsiyasi yoki `vscode.json` tashlab yuboriladi, shuning uchun mavzuni shular atrofida qurmang.
+Yodda tuting, u repo dan o‘rnatilgach, u bilan keladigan istalgan `.lua`, terminal konfiguratsiyasi yoki `vscode.json` tashlab yuboriladi, shuning uchun mavzuni shular atrofida qurmang.
 
-Mavzungizni [omarchy-site repozitoriyasiga](https://github.com/omacom-io/omarchy-site) pull request yuborish orqali [qo'shimcha mavzular sahifasiga](https://omarchy.org/themes/) qo'shtirishingiz mumkin.
+Mavzuingizni [omarchy-site repo](https://github.com/omacom-io/omarchy-site) ga pull request yuborish orqali [qo‘shimcha mavzular sahifasi](https://omarchy.org/themes/) ga qo‘shtirishingiz mumkin.

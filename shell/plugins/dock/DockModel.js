@@ -8,6 +8,30 @@ function normalizePosition(value) {
   return POSITIONS.indexOf(position) >= 0 ? position : "bottom"
 }
 
+// When the dock is out: always, until the workspace has a window, or only
+// while the pointer is at its edge. A config from before this setting said
+// autohide instead, which hid it always.
+var VISIBILITIES = ["always", "first-app", "hidden"]
+
+function normalizeVisibility(value, autohide) {
+  var visibility = String(value || "").trim().toLowerCase()
+  if (VISIBILITIES.indexOf(visibility) >= 0) return visibility
+  return autohide === true ? "hidden" : "first-app"
+}
+
+// The screen edge a point is closest to, for the dock dragged by its apps
+// button. The bar's edge is left out: the dock would sit on top of the bar.
+function nearestEdge(x, y, width, height, excluded) {
+  var distances = { left: x, right: width - x, top: y, bottom: height - y }
+  var best = ""
+  for (var i = 0; i < POSITIONS.length; i++) {
+    var edge = POSITIONS[i]
+    if (edge === excluded) continue
+    if (!best || distances[edge] < distances[best]) best = edge
+  }
+  return best
+}
+
 function isVertical(position) {
   var normalized = normalizePosition(position)
   return normalized === "left" || normalized === "right"
@@ -69,6 +93,25 @@ function claimingEntryId(appId, entries) {
     if (list[j].runInTerminal && program.slice(program.lastIndexOf("/") + 1) === command) return list[j].id
   }
   return ""
+}
+
+// The launcher's Terminal and Browser open the default terminal and browser,
+// whose windows carry that app's own id. A pinned Terminal or Browser claims
+// the windows of any app in its category, unless that app is pinned itself.
+var STAND_INS = [
+  { id: "omarchy-terminal", category: "TerminalEmulator" },
+  { id: "omarchy-browser", category: "WebBrowser" }
+]
+
+function standInKey(key, categories, pinned) {
+  var pins = pinned || []
+  if (pins.indexOf(key) >= 0) return key
+  for (var i = 0; i < STAND_INS.length; i++) {
+    var standIn = STAND_INS[i]
+    if (key !== standIn.id && pins.indexOf(standIn.id) >= 0 && (categories || []).indexOf(standIn.category) >= 0)
+      return standIn.id
+  }
+  return key
 }
 
 // Pinned apps come first, in pin order, whether or not they run. Running apps
@@ -171,20 +214,42 @@ function pickWindow(windows, workspaceId) {
 }
 
 
+// The window a click on the app brings forward, or -1 to launch it instead.
+// The mode is the app's X-Omarchy-Dock-Click: "new" launches, since each
+// window is wanted fresh, and "workspace" brings back a window only from the
+// workspace in front of the user, since one elsewhere was opened for other
+// work. Either way a minimized window comes back first, since the dock is
+// the only way back to it. Any other mode picks among all the app's windows.
+function pickClickWindow(mode, windows, workspaceId) {
+  var list = windows || []
+  if (mode !== "new" && mode !== "workspace") return pickWindow(list, workspaceId)
+
+  var candidates = []
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].minimized || (mode === "workspace" && list[i].workspaceId === workspaceId)) candidates.push(i)
+  }
+  var picked = pickWindow(candidates.map(function(index) { return list[index] }), workspaceId)
+  return picked < 0 ? -1 : candidates[picked]
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     normalizePosition: normalizePosition,
+    normalizeVisibility: normalizeVisibility,
     isVertical: isVertical,
+    nearestEdge: nearestEdge,
     normalizeId: normalizeId,
     pinnedIds: pinnedIds,
     isDockWindow: isDockWindow,
     isMinimizedWorkspace: isMinimizedWorkspace,
     claimingEntryId: claimingEntryId,
+    standInKey: standInKey,
     buildItems: buildItems,
     orderItems: orderItems,
     orderWithKeyAt: orderWithKeyAt,
     dropIndex: dropIndex,
     pinsInOrder: pinsInOrder,
-    pickWindow: pickWindow
+    pickWindow: pickWindow,
+    pickClickWindow: pickClickWindow
   }
 }

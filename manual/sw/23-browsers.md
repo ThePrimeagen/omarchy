@@ -1,39 +1,45 @@
 # Vivinjari
 
-Omarchy huja na [Chromium](https://www.chromium.org/) kama kivinjari chaguomsingi. Ni ujenzi wazi wa chanzo huria, wenye mandhari kulingana na mfumo wako wote, na ndicho kinachofunguliwa na `Super + Shift + Return` na ndicho kila [programu ya wavuti](25-web-apps.md) huendeshwa ndani yake.
+Omarchy huja na [Google Chrome](https://www.google.com/chrome/) kama kivinjari chaguo-msingi. Kimepewa mandhari yanayolingana na mfumo wako wote, na ndicho kinachofunguliwa na `Super + Shift + Return` (au `Super + Shift + B`), na `Super + Shift + Alt + B` kwa dirisha la faragha, na ndicho ambacho kila [programu ya wavuti](25-web-apps.md) hufanya kazi ndani yake. Hufunguka moja kwa moja kwenye dirisha la kivinjari: hakuna skrini ya kukaribisha au kidokezo cha kuingia, takwimu za matumizi na ripoti za kuanguka hazitumwi kwa Google, na vidokezo vya faragha ya matangazo vimezimwa. Bado unaweza kuingia katika akaunti yako ya Google kutoka kwenye kitufe cha wasifu wakati wowote unapotaka usawazishaji.
 
-Kama Chromium si ladha yako, hujakwama nacho. Chini ya _Sakinisha > Kivinjari_ katika menyu ya Omarchy utakuta Chrome, Edge, Brave, Brave Origin, Firefox, na [Zen](https://zen-browser.app/). Chagua kimoja na Omarchy inakisakinisha, inasanidi saraka yake ya sera, na kuweka mandhari yako ya sasa kwake.
+Ikiwa Chrome si ladha yako, hujakwama nacho. Chini ya _Sakinisha > Kivinjari_ katika menyu ya Omarchy utapata [Chromium](https://www.chromium.org/) (toleo safi la chanzo huria ambalo Chrome imetengenezwa kutoka kwake), Edge, Brave, Brave Origin, Firefox, [Zen](https://zen-browser.app/), na [Ladybird](https://ladybird.org/) (Edge kwenye mashine za x86 pekee). Chagua kimoja nayo Omarchy hukisakinisha, huweka saraka yake ya sera, na hukiwekea mandhari yako ya sasa.
 
-## Kukifanya kimoja kuwa chaguomsingi
+## Kukifanya kimoja kiwe chaguo-msingi
 
-Kusakinisha kivinjari hakikipandishi cheo. Mara kikiwa kwenye mashine, nenda kwenye _Sanidi > Chaguomsingi > Kivinjari_ na ukichague — menyu huorodhesha tu vivinjari ambavyo kwa kweli umevisakinisha, na huweka alama ya tiki kwenye chaguomsingi cha sasa.
+Kusakinisha kivinjari hakukifanyi kiwe chaguo-msingi. Ili kubadilisha, nenda kwenye _Sanidi > Chaguo-msingi > Kivinjari_ na uchague kimoja. Chaguo-msingi cha sasa kimewekwa alama ya tiki, na kuchagua kivinjari ambacho bado huna hukisakinisha kwanza.
 
-Kutoka terminali ni:
+Kutoka kwenye terminal ni:
 
 ```bash
 omarchy default browser firefox
 ```
 
-Endesha bila hoja na inakuambia chaguomsingi cha sasa. Hii inaweka kidhibiti cha XDG, hivyo si mikato ya Omarchy tu inayofuata — chochote kinachofungua kiungo, kutoka programu ya gumzo hadi amri ya terminali, huenda kwenye kivinjari ulichochagua.
+Iendeshe bila hoja yoyote nayo itakuambia chaguo-msingi cha sasa. Hii huweka kidhibiti cha XDG, kwa hiyo si vifunguo vya mkato vya Omarchy pekee vinavyofuata — kitu chochote kinachofungua kiungo, kuanzia programu ya mazungumzo hadi amri ya terminal, huenda kwenye kivinjari ulichochagua.
 
-## Nakili URL na Pakua Video
+## Copy URL na Download Video
 
-Vivinjari vya familia ya Chromium (Chromium yenyewe, Chrome, Edge, na Brave) huja na viendelezi viwili vya Omarchy vinavyotoka nje ya kivinjari na kuingia katika mfumo wako wote.
+Vivinjari vya familia ya Chromium (Chromium chenyewe, Chrome, Edge, Brave, na Brave Origin) huja na viendelezi vitatu vya Omarchy: viwili vinavyotoka nje ya kivinjari na kuingia kwenye mfumo wako wote, na kimoja kinachopanga WhatsApp.
 
-**Copy URL** huweka anwani ya kichupo cha sasa kwenye ubao wako wa kunakili kwa `Alt + Shift + L`. Hiyo ni haraka kuliko kubofya kwenye upau wa anwani na kunakili, na kwa sababu hupitia ubao wa kunakili wa mfumo badala ya kivinjari, unapata arifa ya Omarchy inayothibitisha na URL inapatikana mara moja katika [historia ya ubao wa kunakili](08-unified-clipboard-history.md) na kila programu nyingine. Pia kuna kitufe cha upau wa zana, kama unapendelea kubofya.
+**Copy URL** huweka anwani ya kichupo cha sasa kwenye ubao wako wa kunakili kwa `Alt + Shift + L`. Hiyo ni haraka zaidi kuliko kubofya kwenye upau wa anwani na kunakili, na kwa sababu hupitia ubao wa kunakili wa mfumo badala ya wa kivinjari, unapata arifa ya Omarchy inayothibitisha hilo na URL inapatikana mara moja katika [historia ya ubao wa kunakili](08-unified-clipboard-history.md) na kila programu nyingine. Kuna kitufe cha upau wa zana pia, ikiwa unapendelea kubofya.
 
-**Download Video** hunyakua video inayochezwa kwenye ukurasa unaoutazama kwa `Alt + Shift + D`. Hupeana URL kwa [yt-dlp](https://github.com/yt-dlp/yt-dlp), hivyo hufanya kazi kwenye zaidi ya YouTube tu, na upakuaji hutua katika `~/Videos`. Maendeleo huonekana katika onyesho lile lile la skrini ambalo sauti na mwangaza hutumia, likisasishwa mahali pake badala ya kurundika arifa. Weka `OMARCHY_YTDLP_DIR` kama ungependa faili ziende mahali pengine — tazama [Maswali Yanayoulizwa Mara kwa Mara](46-faq.md) kwa mahali pa kuweka vigeugeu vya mazingira.
+**Download Video** huchukua video inayocheza kwenye ukurasa unaoutazama kwa `Alt + Shift + D`. Huikabidhi URL kwa [yt-dlp](https://github.com/yt-dlp/yt-dlp), kwa hiyo hufanya kazi kwenye mengi zaidi ya YouTube, na upakuaji hutua katika `~/Videos`. Maendeleo huonekana katika onyesho lile lile la skrini ambalo sauti na mwangaza hutumia, likisasishwa palepale badala ya kurundika arifa. Weka `OMARCHY_YTDLP_DIR` ikiwa unapendelea faili ziende mahali pengine — angalia [FAQ](46-faq.md) kwa mahali pa kuweka vigezo vya mazingira.
 
-Viendelezi vyote viwili huzungumza na Omarchy kupitia mwenyeji mdogo wa ujumbe asili, ambao husakinishwa kwa ajili yako pamoja na kivinjari. Hicho ndicho kipande kinachoruhusu video ya ukurasa wa wavuti kuishia katika saraka yako ya nyumbani na URL kuishia katika meneja wako wa ubao wa kunakili, jambo ambalo kiendelezi cha kawaida hakiwezi kufanya chenyewe.
+Viendelezi vyote viwili huwasiliana na Omarchy kupitia kipokezi kidogo asilia cha ujumbe, ambacho husakinishwa kwa ajili yako pamoja na kivinjari. Hicho ndicho kipande kinachoruhusu video ya ukurasa wa wavuti kuishia katika saraka yako ya nyumbani na URL kuishia katika kidhibiti chako cha ubao wa kunakili, ambacho kiendelezi cha kawaida hakiwezi kufanya peke yake.
 
-Hivi ni vya familia ya Chromium tu. Firefox na Zen hazizipati.
+**WhatsApp Slim** hufanya WhatsApp Web ifuate mandhari ya mfumo wako na hukunja orodha yake ya mazungumzo dirisha linapokuwa jembamba.
+
+Hivi ni vya familia ya Chromium pekee. Firefox na Zen havipati.
 
 ## Firefox na Zen
 
-Firefox na Zen ni familia tofauti, hivyo hupata matibabu tofauti: Omarchy husakinisha faili ya sera kwa chaguomsingi zenye maana na kuzibadilisha kuwa hali asili ya Wayland, ambayo unataka kwa upanuzi wa sehemu na usogeaji laini wa kiguso.
+Firefox na Zen ni familia tofauti, kwa hiyo hupata mtindo tofauti: Omarchy husakinisha faili ya sera kwa chaguo-msingi zinazofaa na huziwasha katika hali asilia ya Wayland, ambayo unaitaka kwa upanuzi wa sehemu na usogeaji laini wa trackpad.
 
-Hawapati viendelezi vya Chromium hapo juu, na hawapewi mandhari na Omarchy, hivyo sehemu hizo za uzoefu ni zako kusanidi.
+Hazipati viendelezi vya Chromium vilivyo hapo juu, na hazipewi mandhari na Omarchy, kwa hiyo sehemu hizo za matumizi ni zako kuziweka.
 
-## Kuondoa kimoja tena
+## Ladybird
 
-Kitu chochote ulichosakinisha hapa kinaweza kuondolewa tena chini ya _Ondoa > Kivinjari_. Chromium haipo katika orodha hiyo — ni sehemu ya mfumo wa msingi.
+Ladybird ni kivinjari kilichoandikwa kuanzia mwanzo, chenye injini yake badala ya ya Chromium au Firefox. Bado kiko katika alpha, kwa hiyo tarajia tovuti ambazo bado hazifanyi kazi, na Omarchy hukisakinisha kama kilivyo: hakuna viendelezi, hakuna mandhari, hakuna sera. Hakina dirisha la faragha pia, kwa hiyo `Super + Shift + Alt + B` hukifungua kwa wasifu wa muda unaofutwa unapokifunga. [Programu za wavuti](25-web-apps.md) huendelea kufanya kazi katika Chrome au Chromium.
+
+## Kukiondoa tena
+
+Kivinjari chochote kati ya hivi, Chrome ikiwemo, kinaweza kuondolewa tena chini ya _Ondoa > Kivinjari_. Viungo basi huenda Chrome au Chromium ikiwa kingine bado kimesakinishwa.

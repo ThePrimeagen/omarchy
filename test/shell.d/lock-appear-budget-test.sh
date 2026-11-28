@@ -44,21 +44,25 @@ scratch_cpu_ticks() {
 # The lock service answers while the shell is still drawing its first frames
 # of the wallpaper, bar and dock. A GPU draws them in milliseconds; Mesa's
 # software renderer takes a second or two, and a lock timed meanwhile waits
-# for those frames. Wait until the shell uses at most one tick of CPU in
-# 200ms, for at most 10s, so only the lock is timed.
+# for those frames. A low CPU sample can also mean the shell is stalled.
+# Require both a quiet interval and a prompt IPC reply before timing the lock.
 wait_scratch_quiet() {
-  local last="" now
-  for _ in {0..50}; do
+  local last="" now deadline=$(( SECONDS + 10 ))
+  while (( SECONDS < deadline )); do
     if ! now=$(scratch_cpu_ticks); then
       sed -n '1,120p' "$SCRATCH_LOG" >&2
       fail "scratch shell keeps running while it settles"
-    elif [[ -n $last ]] && (( now - last <= 1 )); then
+    elif [[ -n $last ]] && (( now - last <= 1 )) &&
+      [[ $(OMARCHY_SHELL_IPC_TIMEOUT=0.2s scratch_ipc shell ping 2>/dev/null || true) == "ok" ]]; then
       return 0
     else
       last=$now
       sleep 0.2
     fi
   done
+
+  sed -n '1,120p' "$SCRATCH_LOG" >&2
+  fail "scratch shell settles before measuring lock preview"
 }
 
 # The view build and the first appearance happen once per shell start, so
@@ -101,6 +105,7 @@ done
 for _ in 1 2; do
   elapsed=$(appear_ms) || { sed -n '1,120p' "$SCRATCH_LOG" >&2; fail "lock preview appears and hides cleanly"; }
   if [[ -z $reopen_best ]] || (( elapsed < reopen_best )); then reopen_best=$elapsed; fi
+  (( reopen_best <= REOPEN_BUDGET_MS )) && break
 done
 
 # The preview must never have engaged the real session lock.
@@ -112,7 +117,7 @@ pass "lock preview never engages the session lock"
 # the lock answers once the plugin services are built after that, both QML
 # work on the same thread. Process starts do not scale like it: an Intel VM
 # starts them a third faster than an AMD one and builds the shell no faster.
-READY_BUDGET_MS=$(( answer_best * ${OMARCHY_LOCK_READY_BUDGET_PERCENT:-400} / 100 ))
+READY_BUDGET_MS=$(( answer_best * ${OMARCHY_LOCK_READY_BUDGET_PERCENT:-250} / 100 ))
 (( ready_best <= READY_BUDGET_MS )) || fail "lock view is built within ${READY_BUDGET_MS}ms of shell start" "Fastest of three starts answered after ${ready_best}ms; the shell itself answered after ${answer_best}ms."
 pass "lock view is built within ${READY_BUDGET_MS}ms of shell start (${ready_best}ms; the shell answered after ${answer_best}ms)"
 (( first_best <= BUDGET_MS )) || fail "lock screen first appears within ${BUDGET_MS}ms" "Fastest of three first appearances took ${first_best}ms."

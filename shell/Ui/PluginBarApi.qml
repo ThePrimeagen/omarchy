@@ -18,14 +18,13 @@ QtObject {
   property string fontFamily: ""
   property string position: "top"
   property bool vertical: false
+  property bool barHidden: false
+  property bool sessionLocked: false
   property int barSize: 0
   property bool transparent: false
   property bool foregroundAnimationEnabled: true
-  property bool centerSectionRevealHeld: false
   property bool traySectionDragActive: false
   property bool traySectionPopoutOpen: false
-  property bool _centerHoverRevealSuppressed: false
-  readonly property bool centerHoverRevealSuppressed: _centerHoverRevealSuppressed
   property var activePopout: null
   property var clickTargets: []
   property var layoutConfig: ({})
@@ -43,11 +42,6 @@ QtObject {
   property var _targetBelongsToWindow: null
   property var _moduleWidgets: null
   property var _run: null
-  property var _setCenterHoverRevealSuppressed: null
-
-  function setCenterHoverRevealSuppressed(value) {
-    if (_setCenterHoverRevealSuppressed) _setCenterHoverRevealSuppressed(!!value)
-  }
 
   function showTooltip(target, text) {
     if (_showTooltip) _showTooltip(target, String(text || ""))

@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell
 import Quickshell.Wayland
 import qs.Commons
 import qs.Commons as Commons
@@ -31,10 +30,11 @@ Item {
 
   readonly property int iconSize: Math.round(56 * Style.fontScale)
   readonly property int labelHeight: Math.ceil(labelMetrics.height) * 2
+  readonly property int versionHeight: Math.ceil(versionMetrics.height)
   readonly property int cellGutter: Style.spacing.sm
   readonly property int cellPadding: Style.spacing.lg
   readonly property int cellWidth: Math.round(iconSize * 2.2)
-  readonly property int cellHeight: cellPadding * 2 + iconSize + Style.spacing.md + labelHeight
+  readonly property int cellHeight: cellPadding * 2 + iconSize + Style.spacing.md + labelHeight + Style.spacing.xs + versionHeight
   readonly property int maxColumns: 7
   readonly property int visibleRows: 4
   readonly property int borderWidth: Math.max(1, Style.space(2))
@@ -53,7 +53,10 @@ Item {
 
   function open() {
     root.selectedIndex = 0
-    if (root.appLibrary) root.appLibrary.refreshIcons()
+    if (root.appLibrary) {
+      root.appLibrary.refreshIcons()
+      root.appLibrary.refreshVersions()
+    }
     // The cells from last time are reused when nothing changed, so the grid
     // opens with its icons already drawn.
     if (root.appsStale || root.filterText !== "" || root.apps.length === 0) {
@@ -106,7 +109,9 @@ Item {
   function confirmUninstall() {
     var entry = root.uninstallEntry
     root.uninstallEntry = null
-    root.close()
+    // The grid stays open: the app drops out of it once it is gone, and only
+    // an uninstall that needs a terminal closes it.
+    Qt.callLater(function() { keyCatcher.forceActiveFocus() })
     if (entry && root.appLibrary) root.appLibrary.remove(entry.id, root.appLibrary.entryName(entry))
   }
 
@@ -126,6 +131,14 @@ Item {
     root.apps = rows.map(function(row) { return row.entry })
     root.selectedIndex = Math.max(0, Math.min(root.selectedIndex, root.apps.length - 1))
     grid.positionViewAtBeginning()
+  }
+
+  // Apps came or went while the grid is open: keep the user where they were.
+  function refresh() {
+    var position = grid.contentY
+    root.rebuild()
+    grid.forceLayout()
+    grid.contentY = Math.max(0, Math.min(position, grid.contentHeight - grid.height))
   }
 
   function setFilter(text) {
@@ -154,6 +167,12 @@ Item {
     font.pixelSize: Style.font.body
   }
 
+  FontMetrics {
+    id: versionMetrics
+    font.family: Style.font.menuFamily
+    font.pixelSize: Style.font.caption
+  }
+
   // Apps installed or removed while the grid is closed are picked up when it
   // next opens.
   property bool appsStale: false
@@ -161,8 +180,11 @@ Item {
   Connections {
     target: root.appLibrary
     function onAppsChanged() {
-      if (root.opened) root.rebuild()
+      if (root.opened) root.refresh()
       else root.appsStale = true
+    }
+    function onRemovalNeedsTerminal() {
+      if (root.opened) root.close()
     }
   }
 
@@ -307,12 +329,23 @@ Item {
 
           GridView {
             id: grid
+            objectName: "appGrid"
             anchors.fill: parent
             model: root.apps
             clip: true
             cellWidth: root.cellWidth
             cellHeight: root.cellHeight
             boundsBehavior: Flickable.StopAtBounds
+
+            // Mouse wheels keep the grid's own scrolling.
+            WheelHandler {
+              acceptedDevices: PointerDevice.TouchPad
+              target: null
+              onWheel: function(event) {
+                var bottom = grid.originY + Math.max(0, grid.contentHeight - grid.height)
+                grid.contentY = Math.max(grid.originY, Math.min(bottom, grid.contentY - event.pixelDelta.y * Style.touchpadScrollFactor))
+              }
+            }
 
             delegate: Item {
               id: cell
@@ -370,6 +403,23 @@ Item {
                 elide: Text.ElideRight
               }
 
+              // The focused app reveals its version beneath its name.
+              Text {
+                anchors.top: label.bottom
+                anchors.topMargin: Style.spacing.xs * 2
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: label.width
+                visible: cell.selected
+                textFormat: Text.PlainText
+                text: root.appLibrary ? root.appLibrary.version(cell.modelData) : ""
+                color: Commons.Color.menu.text
+                opacity: 0.58
+                font.family: Style.font.menuFamily
+                font.pixelSize: Style.font.caption
+                horizontalAlignment: Text.AlignHCenter
+                elide: Text.ElideRight
+              }
+
               MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
@@ -377,7 +427,7 @@ Item {
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 // The grid would otherwise take a dragging press for a scroll.
                 preventStealing: true
-                onContainsMouseChanged: if (containsMouse && !root.dragging) root.selectedIndex = cell.index
+                onContainsMouseChanged: if (containsMouse && !root.dragging && !root.menuEntry) root.selectedIndex = cell.index
                 onPressed: function(event) {
                   cell.moved = false
                   cell.pressPoint = Qt.point(event.x, event.y)
@@ -393,11 +443,15 @@ Item {
                 onCanceled: if (root.dragging) root.close()
                 onClicked: function(event) {
                   if (cell.moved) return
+                  root.selectedIndex = cell.index
                   if (event.button === Qt.RightButton) {
                     root.openMenu(cell.modelData, cell.mapToItem(panel.contentItem, event.x, event.y))
                     return
                   }
-                  root.menuEntry = null
+                  if (root.menuEntry) {
+                    root.menuEntry = null
+                    return
+                  }
                   root.launch(cell.index)
                 }
               }
@@ -434,6 +488,7 @@ Item {
     // Right-click on an app: open it, or keep it in the dock or take it out.
     BorderSurface {
       id: menu
+      objectName: "appGridMenu"
 
       readonly property var entry: root.menuEntry
       readonly property bool pinned: !!entry && !!root.dock && root.dock.isPinned(String(entry.id || ""))
@@ -450,6 +505,12 @@ Item {
       color: Commons.Color.popups.background
       borderSpec: Border.surfaceSpec("popups", "border", Commons.Color.popups.border, Style.normalBorderWidth)
       padding: Style.spacing.sm
+
+      MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+      }
 
       Column {
         id: menuColumn

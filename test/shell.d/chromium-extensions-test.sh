@@ -43,6 +43,45 @@ for manifest in "$ROOT"/default/chromium/extensions/*/manifest.json; do
 done
 pass "each bundled Chromium extension pins its id and ships the files its manifest loads"
 
+# --- Google Chrome CRXs ---
+
+# Chrome ignores --load-extension, so policy installs each extension from a
+# signed CRX under its own id. A CRX left behind its source would give Chrome
+# users the old extension, and one whose version didn't move would never update.
+require_command bsdtar
+crx_dir=$ROOT/default/chromium/crx
+crx_policy=$ROOT/default/chromium/policies/chrome-extensions.json
+for extension_dir in "$ROOT"/default/chromium/extensions/*/; do
+  name=$(basename "$extension_dir")
+  crx=$crx_dir/$name.crx
+  [[ -f $crx ]] || fail "the $name extension ships a CRX for Chrome" "run omarchy-dev-pack-chrome-extensions"
+
+  expected=$test_tmp/crx-expected/$name
+  shipped=$test_tmp/crx-shipped/$name
+  mkdir -p "$(dirname "$expected")" "$shipped"
+  cp -rL "$extension_dir" "$expected"
+  jq 'del(.key)' "$extension_dir/manifest.json" >"$expected/manifest.json"
+  # A CRX is a signed header and then a zip, which bsdtar finds from the
+  # central directory at its end. Streamed through a pipe, libarchive 3.8.10
+  # fails on the zip instead.
+  bsdtar -xf "$crx" -C "$shipped"
+  diff -r "$expected" "$shipped" >/dev/null ||
+    fail "$name.crx matches its source" "run omarchy-dev-pack-chrome-extensions after bumping the version in $name/manifest.json"
+
+  app=$(grep -F "/$name.crx'" "$crx_dir/updates.xml") || fail "updates.xml offers $name.crx"
+  [[ $app =~ appid=\'([a-p]{32})\'.*codebase=\'file:///usr/share/omarchy/default/chromium/crx/$name\.crx\'\ version=\'([^\']+)\' ]] ||
+    fail "updates.xml offers $name.crx from the installed Omarchy tree" "$app"
+  id=${BASH_REMATCH[1]}
+  [[ ${BASH_REMATCH[2]} == "$(jq -r .version "$expected/manifest.json")" ]] ||
+    fail "updates.xml offers $name at its manifest version"
+  jq -e --arg id "$id" '.ExtensionSettings[$id] | .installation_mode == "force_installed" and .update_url == "file:///usr/share/omarchy/default/chromium/crx/updates.xml"' "$crx_policy" >/dev/null ||
+    fail "Chrome's policy installs $name from updates.xml"
+  extension_manifest[$id]=$extension_dir/manifest.json
+done
+[[ $(jq '.ExtensionSettings | length' "$crx_policy") == "$(ls "$ROOT"/default/chromium/extensions | wc -l)" ]] ||
+  fail "Chrome's policy installs only the bundled extensions"
+pass "each bundled extension ships as a current CRX that Chrome's policy installs"
+
 # --- Native messaging hosts ---
 
 # Each host admits exactly the bundled extensions whose scripts message it, and
@@ -100,6 +139,44 @@ for template in "$ROOT"/default/chromium/native-messaging-hosts/*.json; do
 done
 pass "a fresh install registers every native messaging host for Chromium and Brave Origin"
 
+# Switching to a browser repairs its copies of the bundled extensions: the
+# flags file gains the extensions it lacks without losing the user's own flags
+# and extensions, and its native hosts admit the current ids.
+home="$test_tmp/repair-home"
+flags_file=$home/.config/brave-origin-flags.conf
+mkdir -p "$home/.config"
+printf -- '--force-dark-mode\n--load-extension=/home/me/my-extension,/usr/share/omarchy/default/chromium/extensions/copy-url --ozone-platform=wayland' >"$flags_file"
+repair() {
+  HOME="$home" OMARCHY_PATH="$ROOT" PATH="$ROOT/bin:$PATH" "$ROOT/bin/omarchy-install-browser-extensions" "$@"
+}
+if repair --check brave-origin; then
+  fail "a browser missing bundled extensions is reported stale"
+fi
+repair brave-origin || fail "a browser's bundled extensions can be repaired without root"
+repair --check brave-origin || fail "a repaired browser's bundled extensions are reported current"
+grep -Fxq -- '--force-dark-mode' "$flags_file" || fail "the repair keeps the user's own flags"
+[[ $(grep -c -- '--load-extension=' "$flags_file") == 1 ]] || fail "the repair keeps a single --load-extension switch"
+[[ $(grep -o -- '--ozone-platform=[^[:space:]]*' "$flags_file") == "--ozone-platform=wayland" ]] ||
+  fail "the repair leaves other switches on the --load-extension line alone" "$(<"$flags_file")"
+loaded=$(grep -o -- '--load-extension=[^[:space:]]*' "$flags_file" | sed 's/^--load-extension=//' | tr ',' '\n')
+grep -Fxq /home/me/my-extension <<<"$loaded" || fail "the repair keeps the user's own extensions"
+while read -r extension; do
+  [[ $(grep -cFx -- "$extension" <<<"$loaded") == 1 ]] || fail "the repair loads $extension exactly once"
+done < <(sed -n 's/^--load-extension=//p' "$ROOT/config/chromium-flags.conf" | tr ',' '\n')
+
+# A switch inside a trailing comment loads nothing, so it is stale and the
+# repair adds a live switch rather than extending the comment.
+printf -- '--force-dark-mode # --load-extension=/old\n' >"$flags_file"
+if repair --check brave-origin; then
+  fail "a --load-extension switch inside a comment is reported stale"
+fi
+repair brave-origin || fail "a commented-out --load-extension switch can be repaired"
+[[ $(head -n1 "$flags_file") == "--force-dark-mode # --load-extension=/old" ]] ||
+  fail "the repair leaves the comment alone" "$(<"$flags_file")"
+[[ $(sed -n 2p "$flags_file") == "--load-extension=$(sed -n 's/^--load-extension=//p' "$ROOT/config/chromium-flags.conf")" ]] ||
+  fail "the repair adds a live --load-extension switch" "$(<"$flags_file")"
+pass "switching to a browser repairs the bundled extensions it lacks and keeps the user's own"
+
 # --- WhatsApp Slim ---
 
 # The content script switches WhatsApp Web to its system theme mode, which it
@@ -127,3 +204,38 @@ JS
 else
   skip "node is not installed; skipping the WhatsApp Slim content script check"
 fi
+
+# --- System title bar for profiles that already exist ---
+
+# A profile that never chose a frame is switched; one that chose, either way,
+# is left alone, and so is a browser that is running, since it would write its
+# own Preferences back over the change when it exits.
+title_bar_home="$test_tmp/title-bar-home"
+chrome="$title_bar_home/.config/google-chrome"
+brave="$title_bar_home/.config/BraveSoftware/Brave-Origin"
+mkdir -p "$chrome/Default" "$chrome/Profile 1" "$chrome/Profile 2" "$brave/Default"
+printf '{"browser":{"theme":{"color_scheme":2}}}\n' >"$chrome/Default/Preferences"
+printf '{"browser":{"custom_chrome_frame":true}}\n' >"$chrome/Profile 1/Preferences"
+printf '{"extensions":{}}\n' >"$chrome/Profile 2/Preferences"
+printf '{"browser":{}}\n' >"$brave/Default/Preferences"
+ln -s "host-12345" "$brave/SingletonLock"
+set_title_bar() { env -u XDG_CONFIG_HOME HOME="$title_bar_home" "$ROOT/bin/omarchy-install-chromium-system-title-bar"; }
+
+status=0
+running=$(set_title_bar) || status=$?
+(( status != 0 )) || fail "a running browser makes the command fail"
+[[ $running == "$brave" ]] || fail "the running browser's profile directory is named" "$running"
+jq -e '.browser.custom_chrome_frame == false and .browser.theme.color_scheme == 2' "$chrome/Default/Preferences" >/dev/null ||
+  fail "an undecided profile is switched and keeps its other settings" "$(cat "$chrome/Default/Preferences")"
+jq -e '.browser.custom_chrome_frame == true' "$chrome/Profile 1/Preferences" >/dev/null ||
+  fail "a profile that chose its own frame keeps it" "$(cat "$chrome/Profile 1/Preferences")"
+jq -e '.browser.custom_chrome_frame == false' "$chrome/Profile 2/Preferences" >/dev/null ||
+  fail "a profile with no browser settings yet is switched" "$(cat "$chrome/Profile 2/Preferences")"
+jq -e '.browser | has("custom_chrome_frame") | not' "$brave/Default/Preferences" >/dev/null ||
+  fail "a running browser's profile is left alone" "$(cat "$brave/Default/Preferences")"
+
+rm "$brave/SingletonLock"
+set_title_bar >/dev/null || fail "with every browser closed nothing is left to report"
+jq -e '.browser.custom_chrome_frame == false' "$brave/Default/Preferences" >/dev/null ||
+  fail "the browser is switched once it is closed" "$(cat "$brave/Default/Preferences")"
+pass "existing Chromium profiles that never chose a frame get the system title bar"
