@@ -205,12 +205,16 @@ typedPanel.effectiveCardTop = 489
 freezeCardTop(typedPanel, typedRoot)
 assertEqual(typedPanel.cardTop, -1, 'a search typed before the rows load keeps the card centered after they load')
 assertEqual(typedPanel.maxRowsHeight, -1, 'the filtered list never becomes the row-height limit')
+// setFilter freezes before it applies the key, so clearing sees the old filter.
+freezeCardTop(typedPanel, typedRoot)
+assertEqual(typedPanel.cardTop, -1, 'the key that clears an early search does not freeze the filtered list')
+assertEqual(typedPanel.maxRowsHeight, -1, 'the key that clears an early search sets no row-height limit')
 typedRoot.filterText = ''
 typedRoot.visibleRowsHeight = 510
 typedPanel.effectiveCardTop = 285
 freezeCardTop(typedPanel, typedRoot)
-assertEqual(typedPanel.cardTop, 285, 'clearing the early search freezes the top edge')
-assertEqual(typedPanel.maxRowsHeight, 510, 'the unfiltered list sets the row-height limit')
+assertEqual(typedPanel.cardTop, 285, 'the first key after the early search is cleared freezes the top edge')
+assertEqual(typedPanel.maxRowsHeight, 510, 'the first key after the early search is cleared sets the row-height limit')
 
 const unmappedPanel = { shown: true, height: 1, targetScreen: null, cardTop: -1, effectiveCardTop: 18, maxRowsHeight: -1 }
 freezeCardTop(unmappedPanel, { mode: 'menu', keybindingsLoaded: false, rowsLoaded: true, filterText: '', visibleRowsHeight: 0 })
