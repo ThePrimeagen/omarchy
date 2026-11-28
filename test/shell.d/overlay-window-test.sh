@@ -195,24 +195,24 @@ assertEqual(parkedPanel.cardTop, 285, 'the first key after the resize freezes th
 assertEqual(parkedPanel.maxRowsHeight, 510, 'the resized menu sets the row-height limit')
 
 // A search typed while the rows load must not become the row-height limit.
-const typedRoot = { mode: 'menu', keybindingsLoaded: false, rowsLoaded: false, filterText: '', visibleRowsHeight: 34 }
-const typedPanel = { shown: true, height: 1080, targetScreen: { height: 1080 }, cardTop: -1, effectiveCardTop: 523, maxRowsHeight: -1 }
-freezeCardTop(typedPanel, typedRoot)
+// The keys go through setFilter, which freezes before it applies each one.
+const setFilterBody = /function setFilter\(nextFilter\) \{([\s\S]*?)\n  \}/.exec(menuQml)[1]
+const setFilter = new Function('panel', 'root', 'nextFilter', setFilterBody)
+const typedRoot = { mode: 'menu', keybindingsLoaded: false, rowsLoaded: false, filterText: '', visibleRowsHeight: 34, dmenuActive: true, disarmPointer() {}, rebuildDisplay() {} }
+const typedPanel = { shown: true, height: 1080, targetScreen: { height: 1080 }, cardTop: -1, effectiveCardTop: 523, maxRowsHeight: -1, freezeCardTop() { freezeCardTop(typedPanel, typedRoot) } }
+setFilter(typedPanel, typedRoot, 'a')
 typedRoot.rowsLoaded = true
-typedRoot.filterText = 'a'
 typedRoot.visibleRowsHeight = 102
 typedPanel.effectiveCardTop = 489
-freezeCardTop(typedPanel, typedRoot)
+setFilter(typedPanel, typedRoot, 'ab')
 assertEqual(typedPanel.cardTop, -1, 'a search typed before the rows load keeps the card centered after they load')
 assertEqual(typedPanel.maxRowsHeight, -1, 'the filtered list never becomes the row-height limit')
-// setFilter freezes before it applies the key, so clearing sees the old filter.
-freezeCardTop(typedPanel, typedRoot)
+setFilter(typedPanel, typedRoot, '')
 assertEqual(typedPanel.cardTop, -1, 'the key that clears an early search does not freeze the filtered list')
 assertEqual(typedPanel.maxRowsHeight, -1, 'the key that clears an early search sets no row-height limit')
-typedRoot.filterText = ''
 typedRoot.visibleRowsHeight = 510
 typedPanel.effectiveCardTop = 285
-freezeCardTop(typedPanel, typedRoot)
+setFilter(typedPanel, typedRoot, 'a')
 assertEqual(typedPanel.cardTop, 285, 'the first key after the early search is cleared freezes the top edge')
 assertEqual(typedPanel.maxRowsHeight, 510, 'the first key after the early search is cleared sets the row-height limit')
 
