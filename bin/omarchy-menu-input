@@ -23,6 +23,10 @@ while (( $# > 0 )); do
         echo "omarchy-menu-input: --width requires a value" >&2
         exit 1
       fi
+      if [[ ! $1 =~ ^[0-9]+$ ]]; then
+        echo "omarchy-menu-input: --width requires a numeric value" >&2
+        exit 1
+      fi
       menu_width="$1"
       ;;
   esac

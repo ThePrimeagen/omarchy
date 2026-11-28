@@ -523,6 +523,36 @@ jq -e '
 ' "$select_tmp/input.json" >/dev/null || fail "omarchy-menu-input builds the expected JSON payload" "$(cat "$select_tmp/input.json")"
 pass "omarchy-menu-input builds the expected JSON payload"
 
+# Non-numeric dimension values fail immediately without summoning the menu shell.
+for bad_case in \
+  "input:--width:abc" \
+  "input:--width:-10" \
+  "input:--width:400.5" \
+  "input:--width:" \
+  "select:--width:abc" \
+  "select:--maxheight:abc" \
+  "select:--height:abc" \
+  "select:--width:-10" \
+  "select:--width:--multiple"; do
+  IFS=: read -r kind flag val <<<"$bad_case"
+  rm -f "$select_tmp/bad-summon.json" "$select_tmp/bad.err"
+  status=0
+  if [[ $kind == "input" ]]; then
+    PATH="$select_tmp/bin:$PATH" PAYLOAD_OUT="$select_tmp/bad-summon.json" FAKE_ANSWER="One" \
+      "$ROOT/bin/omarchy-menu-input" "Prompt" "$flag" "$val" >/dev/null 2>"$select_tmp/bad.err" || status=$?
+  else
+    PATH="$select_tmp/bin:$PATH" PAYLOAD_OUT="$select_tmp/bad-summon.json" FAKE_ANSWER="One" \
+      "$ROOT/bin/omarchy-menu-select" "Pick" "One" "Two" -- "$flag" "$val" >/dev/null 2>"$select_tmp/bad.err" || status=$?
+  fi
+  (( status == 1 )) ||
+    fail "omarchy-menu-$kind rejects non-numeric $flag '$val'" "exit $status: $(cat "$select_tmp/bad.err")"
+  grep -qF -- "omarchy-menu-$kind: $flag requires a numeric value" "$select_tmp/bad.err" ||
+    fail "omarchy-menu-$kind names numeric error for $flag '$val'" "$(cat "$select_tmp/bad.err")"
+  [[ ! -e $select_tmp/bad-summon.json ]] ||
+    fail "non-numeric $kind $flag '$val' must not summon omarchy-shell"
+done
+pass "omarchy-menu-input and omarchy-menu-select reject non-numeric dimensions"
+
 # The Snapshots provider lists systemd-boot's entries. On Limine its menu is
 # hidden, and a search must not run omarchy-snapshot list there: it asks sudo
 # for snapper's table, with no terminal to ask in.

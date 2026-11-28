@@ -74,6 +74,10 @@ while (( $# > 0 )); do
             echo "omarchy-menu-select: --width requires a value" >&2
             exit 1
           fi
+          if [[ ! $1 =~ ^[0-9]+$ ]]; then
+            echo "omarchy-menu-select: --width requires a numeric value" >&2
+            exit 1
+          fi
           menu_width="$1"
           ;;
         --height|--maxheight)
@@ -81,6 +85,10 @@ while (( $# > 0 )); do
           shift
           if (( $# == 0 )); then
             echo "omarchy-menu-select: $arg requires a value" >&2
+            exit 1
+          fi
+          if [[ ! $1 =~ ^[0-9]+$ ]]; then
+            echo "omarchy-menu-select: $arg requires a numeric value" >&2
             exit 1
           fi
           menu_maxheight="$1"
