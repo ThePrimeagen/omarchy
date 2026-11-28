@@ -148,7 +148,6 @@ ShellRoot {
 
     registry.firstPartyDir = "/first"
     registry.parseScanOutput(scan)
-    registry.firstPartyDir = ""
 
     root.assertDeepEqual(pluginIds(), [
       "local.bar",
@@ -476,6 +475,7 @@ ShellRoot {
     registry.parseScanOutput(scan.replace(localPanelBlock, ""))
     var manifestGone = registry.isEnabled("omarchy.grouped-panel")
     registry.parseScanOutput(scan)
+    registry.firstPartyDir = ""
 
     root.config = { version: 1, bar: { layout: { left: [], center: [], right: [] } }, plugins: [] }
     registry.setEnabled("local.grouped-panel", true)
