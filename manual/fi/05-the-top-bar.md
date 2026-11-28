@@ -1,42 +1,42 @@
 # Yläpalkki
 
-Näytön yläreunassa kulkeva kaistale on Omarchy-palkki. Se ei ole päälle liimattu tilapalkki, vaan osa Omarchy-kuorta, sitä yhtä pitkään käynnissä olevaa Quickshell-prosessia, joka piirtää myös valikon, ilmoitukset, OSD-ponnahdusikkunat ja lukitusnäytön. Siksi sen teema sopii täydellisesti kaikkeen muuhun ja siksi paneeli avautuu heti sen sijaan, että käynnistäisi uuden sovelluksen.
+Näytön yläreunassa kulkeva nauha on Omarchy-palkki. Se ei ole kylkeen pultattu tilapalkki, vaan osa Omarchy-kuorta, sitä yhtä pitkään käynnissä olevaa Quickshell-prosessia, joka piirtää myös valikon, ilmoitukset, OSD-ponnahdusikkunat ja lukitusnäytön. Siksi sen teema sopii täydellisesti yhteen kaiken muun kanssa ja siksi paneeli aukeaa välittömästi sen sijaan, että käynnistäisi uuden sovelluksen.
 
-Se on myös ainoa työpöydän osa, joka on aina näytöllä, joten kannattaa tietää, mitä kaikki ne pienet kuvakkeet tekevät.
+Se on myös ainoa työpöydän osa, joka on aina näytöllä, joten kannattaa tietää, mitä kaikki nuo pienet merkit tekevät.
 
 ## Mitä siinä on oletuksena
 
-Palkissa on kolme osiota. Vasemmalla ovat Omarchy-logo (valikon käynnistin) ja työtilojen ilmaisimet. Keskellä ovat tilailmaisimet, kello, Elsewhen (maailmankello), sää ja Omarchy-päivitysmerkki. Oikealla: ilmaisinalue, näppäimistöasettelu (kun käytössä on useampi kuin yksi asettelu tai syöttötapa), agentit, bluetooth, verkko, ääni, näyttö ja virta.
+Palkissa on kolme osaa. Vasemmalla ovat Omarchy-logo (valikon käynnistin) ja työtilaindikaattorit. Keskellä saat tilaindikaattorit, kellon, Elsewhenin (maailmankello), sään ja Omarchy-päivitysmerkin. Oikealla: järjestelmälokero, näppäimistöasettelu (kun useampi kuin yksi asettelu tai syöttötapa on määritetty), agentit, bluetooth, verkko, ääni, näyttö ja virta.
 
 Muutama niistä näkyy vain, kun niillä on jotain sanottavaa. Näppäimistöasettelu näkyy vain, jos olet määrittänyt useamman kuin yhden asettelun tai syöttötavan. Päivitysmerkki näkyy vain, kun Omarchy-päivitys odottaa.
 
 ## Klikkailu ympäriinsä
 
-Lähes jokainen pienoissovellus tekee jotain vasemmalla, oikealla ja keskimmäisellä napsautuksella, ja useampi reagoi myös vierittämiseen. Tämä on se osa, joka ihmisiltä jää huomaamatta — oikean ja keskimmäisen painikkeen taakse piiloutuu paljon hyvää tavaraa.
+Lähes jokainen pienoisohjelma tekee jotain vasemmalla, oikealla ja keskimmäisellä napsautuksella, ja useat reagoivat vieritykseen. Tämä on se osa, joka ihmisiltä jää huomaamatta — oikea ja keskimmäinen painike ovat paikkoja, joihin paljon hyvää tavaraa piiloutuu.
 
-| Pienoissovellus | Vasen | Oikea | Keskipainike / vieritys |
+| Pienoisohjelma | Vasen | Oikea | Keski / vieritys |
 | --- | --- | --- | --- |
 | Valikko | Omarchy-valikko | Uusi pääte | — |
-| Työtilat | Keskitä kyseinen työtila tälle näytölle | — | Vieritä: seuraava/edellinen työtila |
-| Kello | Kalenterin ponnahdusikkuna | Vaihda tunnisteen muotoa | Keskipainike: aikavyöhykkeen valitsin |
-| Maailmankello | Maailmankellon paneeli | Päivitä | Keskipainike: päivitä |
-| Sää | Ennusteen ponnahdusikkuna | Täysi sää ilmoituksena | Keskipainike: päivitä |
-| Ääni | Äänipaneeli | Mykistä | Keskipainike: paneeli · vieritä: äänenvoimakkuus |
-| Mikrofoni | Mykistä mikrofoni | — | Keskipainike: äänipaneeli · vieritä: sisääntulon voimakkuus |
+| Työtilat | Tarkenna kyseiseen työtilaan tällä näytöllä | — | Vieritys: seuraava/edellinen työtila |
+| Kello | Kalenteri-ponnahdusikkuna | Vaihda tunnisteen muotoa | Keski: aikavyöhykkeen valitsin |
+| Maailmankello | Maailmankellopaneeli | Päivitä | Keski: päivitä |
+| Sää | Ennuste-ponnahdusikkuna | Täysi sää ilmoituksena | Keski: päivitä |
+| Ääni | Äänipaneeli | Mykistä | Keski: paneeli · vieritys: äänenvoimakkuus |
+| Mikrofoni | Mykistä mikrofoni | — | Keski: äänipaneeli · vieritys: sisääntulon voimakkuus |
 | Verkko | Verkkopaneeli | — | — |
 | Bluetooth | Bluetooth-paneeli | Kytke radio päälle/pois | — |
-| Näyttö | Näyttöpaneeli | — | Vieritä: kirkkaus |
-| Virta | Virtapaneeli | Näytä/piilota akun prosentti | — |
-| Media | Toista/keskeytä | Kansikuvan ponnahdusikkuna | Keskipainike: seuraava · vieritä: edellinen/seuraava |
-| Agentit | Agenttipaneeli | Käynnistä agenttisi | Keskipainike: päivitä käyttö |
-| Ilmaisinalue | Vie osoitin päälle paljastaaksesi laatikon | Napsauta nuolta hiiren oikealla hallitaksesi | — |
+| Näyttö | Näyttöpaneeli | — | Vieritys: kirkkaus |
+| Virta | Virtapaneeli | Vaihda akun prosenttiosuus päälle/pois | — |
+| Media | Toista/keskeytä | Kansikuvan ponnahdusikkuna | Keski: seuraava · vieritys: edellinen/seuraava |
+| Agentit | Agenttipaneeli | Käynnistä agenttisi | Keski: päivitä käyttö |
+| Lokero | Vie hiiri päälle paljastaaksesi laatikon | Napsauta chevronia oikealla hallitaksesi | — |
 | Omarchy-päivitys | Suorita päivitys | — | — |
 
-Kaikki tuossa taulukossa oleva ei ole palkissasi heti käytössä. Median pienoissovellus (MPRIS nyt soi, vierivällä kappaleella ja artistilla) ja mikrofonin pienoissovellus ovat molemmat sisäänrakennettuja mutta oletuksena pois päältä — lisää ne, jos haluat ne, kuten alla kuvataan.
+Kaikki tuossa taulukossa oleva ei ole palkissasi heti käytössä. Mediapienoisohjelma (MPRIS nyt soi, vierivällä kappaleella ja esittäjällä) ja mikrofonipienoisohjelma ovat molemmat sisäänrakennettuja mutta oletuksena pois päältä — lisää ne, jos haluat ne, kuten alla kuvataan.
 
 ## Paneelit
 
-Palkin kuvakkeen napsauttaminen avaa paneelin, joka on kunnollinen ponnahdusikkuna liukusäätimineen, luetteloineen ja näppäimistönavigointeineen työkaluvihjeen sijaan. Jokaisella on myös pikanäppäin, joten sinun ei koskaan tarvitse tähdätä 16 pikselin kuvakkeeseen:
+Palkin kuvakkeen napsauttaminen avaa paneelin, joka on kunnollinen ponnahdusikkuna liukusäätimineen, luetteloineen ja näppäimistönavigointeineen vinkkikehyksen sijaan. Jokaisella on myös pikanäppäin, joten sinun ei koskaan tarvitse tähdätä 16 pikselin merkkiin:
 
 | Pikanäppäin | Paneeli |
 | --- | --- |
@@ -48,51 +48,51 @@ Palkin kuvakkeen napsauttaminen avaa paneelin, joka on kunnollinen ponnahdusikku
 | `Super + Ctrl + Alt + D` | Kalenteri |
 | `Super + Ctrl + Alt + E` | Maailmankello |
 | `Super + Ctrl + X` | Agentit |
-| `Super + Ctrl + 1-9` | Vaihda oikean osion n. paneeli |
+| `Super + Ctrl + 1-9` | Vaihda oikean osan n:s paneeli päälle/pois |
 
-Paneelit eivät ole pelkkiä lukemia. Niissä itse asia tehdään:
+Paneelit eivät ole lukemia. Niissä itse asiassa teet asian:
 
-- **Ääni** sisältää pää-äänenvoimakkuuden liukusäätimen, ulostulolaitteen valitsimen ja sovelluskohtaisen mikserin, joten voit hiljentää sen yhden selaimen välilehden koskematta kaikkeen muuhun.
-- **Verkko** etsii Wi-Fi-verkkoja, näyttää signaalin voimakkuuden, muodostaa yhteyden ja antaa valita DNS-palveluntarjoajan.
-- **Bluetooth** luettelee laitteesi yhdistä/katkaise-toiminnoilla ja akkutasolla.
-- **Virta** näyttää akun tilastot, vaihtaa virtaprofiileja (se muistaa erillisen valinnan akulle ja verkkovirralle) ja tulostaa jonkin verran järjestelmätietoja.
-- **Näyttö** sisältää kirkkauden liukusäätimen, tekstin koon, näyttöjen skaalauksen esiasetukset ja — kun sinulla on useampi kuin yksi näyttö — näyttökohtaiset säätimet. Katso [näytöt](33-monitors.md) saadaksesi syvemmän tarinan.
+- **Ääni** sisältää pää-äänenvoimakkuuden liukusäätimen, ulostulolaitteen valitsimen ja sovelluskohtaisen mikserin, joten voit hiljentää sen yhden selainvälilehden koskematta kaikkeen muuhun.
+- **Verkko** skannaa Wi-Fi-verkkoja, näyttää signaalin voimakkuuden, muodostaa yhteyden ja antaa sinun valita DNS-palveluntarjoajan.
+- **Bluetooth** luettelee laitteesi yhdistä/katkaise-toiminnoilla ja akkutasoilla.
+- **Virta** näyttää akkutilastot, vaihtaa virtaprofiileja (se muistaa erillisen valinnan akulle ja AC:lle) ja tulostaa jonkin verran järjestelmätietoja.
+- **Näyttö** sisältää kirkkauden liukusäätimen, tekstin koon, näytön skaalauksen esiasetukset ja — kun sinulla on useampi kuin yksi näyttö — näyttökohtaiset säätimet. Katso [näytöt](33-monitors.md) syvempää tarinaa varten.
 - **Kello** avaa kuukausiruudukon ISO-viikkonumeroilla ja kuukauden vaihdolla.
-- **Maailmankello** pitää rivin jokaista kaupunkia kohden, sen sään ja sen, miten sen päivä sujuu. Haku löytää kaupunkeja sekä aikavyöhykkeitä, joten Fort Lauderdale on Fort Lauderdale eikä New York. Jos ylhäällä oleva rivi mainitsee väärän kaupungin, napsauta sitä ja kerro, missä olet; valitse jokin muulla aikavyöhykkeellä ja järjestelmän kello siirtyy myös sinne, mikä on kätevää matkustaessasi. Vie osoitin kaupungin päälle ja napsauta henkilö-painiketta kertoaksesi, kuka siellä asuu — pelkät nimet, tai `@` GitHub-tunnukset tuodaksesi heidän kasvonsa mukana.
+- **Maailmankello** pitää rivin kaupunkia kohden, sen säällä ja sillä, miten sen päivä sujuu. Haku löytää kaupunkeja sekä aikavyöhykkeitä, joten Fort Lauderdale on Fort Lauderdale eikä New York. Jos yläreunan rivi nimeää väärän kaupungin, napsauta sitä ja kerro, missä olet; valitse jokin toisella aikavyöhykkeellä ja järjestelmän kello siirtyy sinne myös, mikä on kätevää matkustaessasi. Vie hiiri kaupungin päälle ja napsauta henkilö-painiketta kertoaksesi, kuka siellä asuu — pelkkiä nimiä, tai `@` GitHub-tunnuksia tuodaksesi heidän kasvonsa mukana.
 
-Jokainen paneeli tottelee näppäimistöä sekä hiirtä: nuolet liikkuvat, Return aktivoi, Tab siirtyy viereiseen paneeliin ja Escape sulkee.
+Jokainen paneeli ottaa vastaan myös näppäimistön hiiren lisäksi: nuolet liikkuvat, Return aktivoi, Tab siirtyy viereiseen paneeliin ja Escape sulkee.
 
-`Super + Ctrl + 1-9` laskee paneelit vasemmalta oikealle oikeassa osiossa jättäen ilmaisinalueen väliin, koska sillä ei ole omaa paneelia. Numero vastaa siis kuvaketta, jota osoittaisit.
+`Super + Ctrl + 1-9` laskee paneelit vasemmalta oikealle oikeassa osassa, ohittaen lokeron, koska sillä ei ole omaa paneelia. Joten numero vastaa kuvaketta, jota osoittaisit.
 
 ### Tailscale ja Dropbox
 
-Kaksi muuta pienoissovellusta ilmestyy palkkiin vasta, kun asennat vastaavan palvelun kohdasta **Install → Service**, ja molemmat kannattaa tuntea, koska ne tekevät muutakin kuin raportoivat tilaa.
+Kaksi pienoisohjelmaa lisää näkyy palkissa vasta, kun asennat vastaavan palvelun kohdasta **Asenna → Palvelu**, ja molemmat kannattaa tuntea, koska ne tekevät muutakin kuin raportoida tilasta.
 
-**Tailscale**-paneeli yhdistää ja katkaisee tailnetin, vaihtaa tilien välillä ja valitsee poistumissolmun (omat koneesi ja Mullvandin alueet näkyvät molemmat siinä luettelossa). Se selaa myös koneitasi — ja yhden valittuna `s` lähettää siihen tiedostoja Taildropin kautta, mikä on nopein tapa siirtää tiedosto puhelimeesi tai toiselle kannettavalle. `c` kopioi koneen IP:n, `n` sen nimen ja `d` sen täyden DNS-nimen. Jokaisella konerivillä on myös lähetyspainike, jos mieluummin napsautat. Sama asia päätteestä on `omarchy tailscale send <machine> [file...]`.
+**Tailscale**-paneeli yhdistää ja katkaisee tailnetin, vaihtaa tilien välillä ja valitsee poistumissolmun (omat koneesi ja Mullvad-alueet näkyvät molemmat siinä luettelossa). Se selaa myös koneitasi — ja kun yksi on valittu, `s` lähettää tiedostoja sille Taildropin kautta, mikä on nopein tapa siirtää tiedosto puhelimeesi tai toiselle kannettavalle. `c` kopioi koneen IP:n, `n` sen nimen ja `d` sen täyden DNS-nimen. Jokaisella konerivillä on myös lähetyspainike, jos mieluummin napsautat. Sama asia päätteestä on `omarchy tailscale send <machine> [file...]`.
 
 **Dropbox**-paneeli hoitaa kirjautumisen, näyttää, kuinka paljon tallennustilaa olet käyttänyt, ja luettelee äskettäin synkronoidut tiedostot.
 
-Jommankumman palvelun poistaminen vie sen pienoissovelluksen takaisin pois palkista.
+Kumman tahansa palvelun poistaminen vie sen pienoisohjelman takaisin pois palkista.
 
-## Ilmaisimet
+## Indikaattorit
 
-Keskellä oleva pieni rypäs on ilmaisinten pienoissovellus. Nämä ovat tilakuvakkeita päälle kytkemillesi tiloille: älä häiritse, yövalo, jonoon asetettu [muistutus](09-reminders.md), aktiivinen näytön tallennus ja pysy hereillä, sekä varoitukset, kun salasanaton sudo on päällä tai joku on yhdistetty etäistuntoon. Ne syttyvät, kun tila on aktiivinen, ja muuten pysyvät poissa tieltä — vie osoitin aivan niiden viereen, missä ei-aktiiviset olisivat, kurkistaaksesi niitä. Ilmaisimen napsauttaminen kytkee kyseisen tilan päälle tai pois. Yksi lisää on pelkkä tila: etäistunto palaa punaisena, kun joku on yhdistetty tähän koneeseen gliffin kautta.
+Keskellä oleva pieni rypäs on indikaattoripienoisohjelma. Nämä ovat tilamerkkejä käyttöön ottamillesi tiloille: älä häiritse, yövalo, jonoon asetettu [muistutus](09-reminders.md), aktiivinen näytön tallennus ja pysy hereillä, sekä varoitukset, kun salasanaton sudo on päällä tai joku on yhdistetty etäistuntoon. Ne syttyvät, kun tila on aktiivinen, ja muuten pysyvät poissa tieltä — vie hiiri juuri niiden viereen, kohtaan, jossa inaktiiviset olisivat, kurkistaaksesi niitä. Indikaattorin napsauttaminen vaihtaa kyseisen tilan päälle/pois. Yksi lisää on vain tila: etäistunto syttyy punaisena, kun joku on yhdistetty tähän koneeseen gliffin kautta.
 
-Jos haluat niiden mieluummin olevan aina näkyvissä, aseta pienoissovellukselle `alwaysShow` arvoon `true`. Ja jos välität vain joistakin niistä, luettele haluamasi kohdassa `items`: `["Dnd", "Reminder", "NightLight"]`. Sinulla voi olla useampi kuin yksi ilmaisinten pienoissovellus, joten eri osiot voivat näyttää eri osajoukkoja.
+Jos haluat niiden olevan mieluummin aina näkyvissä, aseta pienoisohjelmassa `alwaysShow` arvoon `true`. Ja jos välität vain joistakin niistä, luettele haluamasi kohdassa `items`: `["Dnd", "Reminder", "NightLight"]`. Sinulla voi olla useampi kuin yksi indikaattoripienoisohjelma, joten eri osat voivat näyttää eri osajoukkoja.
 
 ## Palkin järjesteleminen uudelleen
 
-Palkki määrittää itsensä. Sinun ei tarvitse avata määritystiedostoa siirtääksesi asioita.
+Palkki määrittää itse itsensä. Sinun ei tarvitse avata määritystiedostoa siirtääksesi asioita.
 
-Tartu palkin tyhjään kohtaan keskustan ympäriltä ja vedä sitä kohti toista näytön reunaa, ja palkki siirtyy sinne — vasen, oikea, ylä- tai alareuna käyvät kaikki, ja jokainen pienoissovellus mukautuu (pystysuuntaiset palkit palaavat kompakteihin vain-kuvake-muotoihin). Klikkaus-ja-pito käynnistää saman vedon. Kaksoisnapsauta hiiren vasemmalla samaa tyhjää tilaa vaihtaaksesi palkin taustan kirkkaasta lasimaiseen ja läpinäkymättömään. Ja vedä mitä tahansa pienoissovellusta järjestääksesi sen uudelleen tai heittääksesi sen toiseen osioon; muut pienoissovellukset liukuvat erilleen tehdäkseen tilaa sille, mihin se laskeutuu.
+Tartu tyhjään kohtaan palkissa keskustan ympärillä ja vedä se kohti toista näytön reunaa, ja palkki siirtyy sinne — vasen, oikea, ylä- tai alareuna toimivat kaikki, ja jokainen pienoisohjelma mukautuu (pystypalkit palaavat kompakteihin vain kuvakkeita sisältäviin muotoihin). Napsautus ja pitäminen aloittaa saman vedon. Kaksoisnapsauta vasemmalla samaa tyhjää tilaa vaihtaaksesi palkin taustan kirkkaasta lasimaiseen ja läpinäkymättömään. Ja vedä mitä tahansa pienoisohjelmaa järjestääksesi sen uudelleen tai heittääksesi sen toiseen osaan; muut pienoisohjelmat liukuvat erilleen tehdäkseen tilaa kohtaan, johon se laskeutuu.
 
-Palkin keskiosa on laatikko: mikä tahansa siinä pysyy keskitettyinä yhtenä ryhmänä, ja sen kummallakin puolella olevat pienoissovellukset roikkuvat sen reunoista. Kun vedät pienoissovellusta, laatikko näkyy ääriviivana, tai viivana palkin poikki, kun se on tyhjä, ja voit pudottaa sen sisään tai sen viereen. Kun pudotus osuisi laatikkoon, laatikko kasvaa ottaakseen pienoissovelluksen sisäänsä.
+Palkin keskikohta on laatikko: mikä tahansa siinä pysyy keskitettynä yhtenä ryhmänä, ja sen molemmin puolin olevat pienoisohjelmat roikkuvat sen reunoista. Kun vedät pienoisohjelmaa, laatikko näkyy ääriviivana tai viivana palkin poikki, kun se on tyhjä, ja voit pudottaa sen sisään tai sen viereen. Kun pudotus osuisi laatikkoon, laatikko kasvaa ottaakseen pienoisohjelman sisäänsä.
 
-Pienoissovelluksen, jonka haluat olevan lähellä mutta ei aina näkyvissä, voi laittaa ilmaisinalueen laatikkoon: vedä se ilmaisinalueen päälle, ja laatikko avautuu ottaakseen sen. Se istuu siellä sovelluskuvakkeiden jälkeen, näkyy aina, kun laatikko näkyy, ja pitää laatikkonsa avoinna, kun sen paneeli on ylhäällä. Vedä se takaisin ulos palkille laittaaksesi sen takaisin.
+Pienoisohjelma, jonka haluat olevan lähellä mutta ei aina näkyvissä, voi mennä lokeron laatikkoon: vedä se lokeron päälle, ja laatikko aukeaa ottaakseen sen vastaan. Se istuu siellä sovelluskuvakkeiden jälkeen, näkyy aina, kun laatikko näkyy, ja pitää laatikkonsa auki, kun sen paneeli on ylhäällä. Vedä se takaisin ulos palkille laittaaksesi sen takaisin.
 
-Jos mieluummin valitset valikosta, **Appearance → Menu Bar** sisältää sijainnin, ja **Bar Background** valitsee, miten palkki piirretään: **Opaque Bar**, **Glassy Bar** (läpinäkyvä, sen takana oleva sumennettuna) tai **Clear Bar**.
+Jos valitset mieluummin valikosta, kohdassa **Ulkoasu → Valikkopalkki** on sijainti, ja **Palkin tausta** valitsee, kuinka palkki piirretään: **Läpinäkymätön palkki**, **Lasimainen palkki** (läpinäkyvä, takana oleva sumentuneena) tai **Kirkas palkki**.
 
-Samoilla asioilla on komennot, mikä on se, mitä haluat [dotfiles](31-dotfiles.md)-asennusta varten:
+Samoille asioille on komennot, mikä on se, mitä haluat [dotfiles](31-dotfiles.md)-asetusta varten:
 
 ```bash
 omarchy bar position bottom
@@ -103,7 +103,7 @@ omarchy bar set omarchy.clock format "HH:mm"
 omarchy bar defaults          # back to the shipped layout
 ```
 
-Pienoissovelluksen lisäämiseen tai poistamiseen kokonaan käytä lisäosakomentoja. `omarchy plugin list` tulostaa jokaisen pienoissovelluksen, jonka kuori tuntee, sen tunnisteen kanssa, ja sitten:
+Pienoisohjelman lisäämiseen tai poistamiseen kokonaan käytä lisäosakomentoja. `omarchy plugin list` tulostaa jokaisen pienoisohjelman, jonka kuori tuntee, sen tunnisteen kanssa, ja sitten:
 
 ```bash
 omarchy plugin enable omarchy.media --section centerEnd
@@ -112,7 +112,7 @@ omarchy plugin disable omarchy.weather
 
 ## Palkin piilottaminen
 
-`Super + Shift + Space` kytkee palkin pois päältä ja takaisin päälle tappamatta kuorta — paneelit ja pikanäppäimet toimivat edelleen, saat vain pikselit takaisin. Se on myös valikossa kohdassa **Appearance → Menu Bar → Hide Bar**.
+`Super + Shift + Space` vaihtaa palkin pois päältä ja takaisin päälle tappamatta kuorta — paneelit ja pikanäppäimet toimivat edelleen, saat vain pikselit takaisin. Se on myös valikossa kohdassa **Ulkoasu → Valikkopalkki → Piilota palkki**.
 
 ## Määritystiedosto
 
@@ -123,7 +123,7 @@ Kaikki se on tallennettu tiedostoon `~/.config/omarchy/shell.json`, avaimen `bar
   "version": 1,
   "bar": {
     "position": "top",
-    "background": "opaque",
+    "background": "none",
     "layout": {
       "left": [{ "id": "omarchy.menu" }, { "id": "omarchy.workspaces" }],
       "centerBegin": [{ "id": "omarchy.indicators" }],
@@ -135,10 +135,10 @@ Kaikki se on tallennettu tiedostoon `~/.config/omarchy/shell.json`, avaimen `bar
 }
 ```
 
-Jokainen pienoissovellus on yksi merkintä yhdessä viidestä asettelutaulukosta, ja sen asetukset ovat suoraan kyseisessä merkinnässä — erillistä asetustiedostoa ei ole eikä `config`-aliobjektia. Kellon `format`, `formatAlt` (mihin oikean napsautuksen vaihto vaihtaa) ja `verticalFormat` elävät kaikki juuri siinä kohdassa `{ "id": "omarchy.clock" }`.
+Jokainen pienoisohjelma on yksi merkintä yhdessä viidestä asettelutaulukosta, ja sen asetukset ovat suoraan kyseisessä merkinnässä — erillistä asetustiedostoa ei ole eikä `config`-aliobjektia ole. Kellon `format`, `formatAlt` (mihin oikea napsautus vaihtaa) ja `verticalFormat` sijaitsevat kaikki juuri siinä kohdassa `{ "id": "omarchy.clock" }`.
 
-`center` on laatikko palkin keskellä: kaikki siinä on keskitetty näytölle yhtenä ryhmänä. `centerBegin` ja `centerEnd` roikkuvat laatikon kummallakin puolella, mikä on se, miten kello pysyy tasan keskellä, vaikka sää ja päivitysmerkki tulevat ja menevät. Laita useampi kuin yksi pienoissovellus kohtaan `center` ja ne keskitetään yhdessä; jätä se tyhjäksi ja `centerBegin` ja `centerEnd` kohtaavat palkin keskellä.
+`center` on laatikko palkin keskellä: kaikki siinä on keskitetty näytölle yhtenä ryhmänä. `centerBegin` ja `centerEnd` roikkuvat laatikon kummallakin puolella, minkä ansiosta kello pysyy täsmälleen keskellä, vaikka sää ja päivitysmerkki tulevat ja menevät. Laita useampi kuin yksi pienoisohjelma kohtaan `center`, ja ne keskitetään yhdessä; jätä se tyhjäksi, ja `centerBegin` ja `centerEnd` kohtaavat palkin keskellä.
 
-Yksi sääntö kannattaa sisäistää: **kun sinulla on oma `shell.json`, se on kanoninen**. Kunnes mukautat mitään, kuori lukee Omarchyn oletustiedoston. Heti kun vedät pienoissovellusta, suoritat `omarchy bar` tai muokkaat tiedostoa itse, omistat sen — syvää yhdistämistä ei ole, joten tulevien Omarchy-julkaisujen uudet oletuspienoissovellukset eivät ilmesty palkillesi automaattisesti. `omarchy bar defaults` palauttaa toimitetun asettelun aina, kun haluat puhtaan pöydän.
+Yksi sääntö kannattaa sisäistää: **kun sinulla on oma `shell.json`, se on kanoninen**. Kunnes mukautat mitään, kuori lukee Omarchyn oletustiedoston. Sillä hetkellä, kun vedät pienoisohjelmaa, suoritat `omarchy bar` -komennon tai muokkaat tiedostoa itse, omistat sen — syvää yhdistämistä ei ole, joten tulevien Omarchy-julkaisujen uudet oletuspienoisohjelmat eivät ilmesty palkillesi automaattisesti. `omarchy bar defaults` palauttaa toimitetun asettelun aina, kun haluat puhtaan pöydän.
 
-Sama tiedosto sisältää myös joutoajan ajoituksesi ylätasolla, `bar`-avaimen ulkopuolella: `idle.screensaver` ja `idle.lock`, molemmat sekunteina siitä, kun siirryit joutotilaan. Oletusnäytönsäästäjä käynnistyy siis 150 sekunnissa ja lukko 300 sekunnissa.
+Samassa tiedostossa ovat myös tyhjäkäyntiaikasi ylätasolla, avaimen `bar` ulkopuolella: `idle.screensaver` ja `idle.lock`, molemmat sekunteina siitä, kun menit tyhjäkäyntitilaan. Joten oletusnäytönsäästäjä käynnistyy 150 sekunnissa ja lukko 300 sekunnissa.
