@@ -486,7 +486,8 @@ local function titlebars()
         bar_text_size = 12,
         bar_text_weight = "normal",
         bar_text_align = "left",
-        bar_app_icon = true,
+        -- During an upgrade the loaded plugin can predate this option.
+        bar_app_icon = hl.get_config("plugin.hyprbars.bar_app_icon") ~= nil or nil,
         bar_buttons_alignment = "right",
         bar_part_of_window = true,
         bar_precedence_over_border = true,
