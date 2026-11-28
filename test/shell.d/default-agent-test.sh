@@ -751,7 +751,7 @@ grep -F "omarchy agent prompt" "$test_tmp/positional-output" >/dev/null ||
 if omarchy agent prompt '' >"$test_tmp/empty-prompt-output" 2>&1; then
   fail "omarchy agent prompt rejects an empty prompt"
 fi
-[[ $(<"$test_tmp/empty-prompt-output") == "Usage: omarchy agent prompt [--inline] [--pick] [--local-model <recipe>] [--agent <id>] [--provider <id>] <prompt...>" ]] ||
+[[ $(<"$test_tmp/empty-prompt-output") == "Usage: omarchy agent prompt [--inline] [--pick] [--local-model <recipe>] [--agent <id>] [--provider <id>] [--session <id>|--continue] <prompt...>" ]] ||
   fail "omarchy agent prompt answers an empty prompt with its usage" "$(<"$test_tmp/empty-prompt-output")"
 [[ ! -s $launch_log ]] || fail "omarchy agent prompt starts nothing for an empty prompt"
 
@@ -766,6 +766,14 @@ grep -Fq 'To pass a prompt: omarchy agent prompt --agent "codex" "Review this pr
 omarchy agent prompt --agent codex "Review this project"
 assert_launched codex "routes a flagged prompt to the requested agent instead of the default" \
   env -u CODEX_HOME OMARCHY_AGENT_CODEX_HOME= codex --approve-for-me -- "Review this project"
+
+omarchy agent --session abc Review this project >"$test_tmp/session-positional-output" 2>&1 || true
+grep -Fq 'To pass a prompt: omarchy agent prompt --session "abc" "Review this project"' "$test_tmp/session-positional-output" ||
+  fail "omarchy agent keeps --session in its prompt suggestion" "$(<"$test_tmp/session-positional-output")"
+omarchy agent prompt --session abc "Review this project"
+assert_launched opencode "resumes the session with the prompt" opencode --auto --session abc --prompt "Review this project"
+omarchy agent prompt --continue "Review this project"
+assert_launched opencode "continues the last session with the prompt" opencode --auto --continue --prompt "Review this project"
 
 : >"$launch_log"
 omarchy agent prompt -- '--agent'
