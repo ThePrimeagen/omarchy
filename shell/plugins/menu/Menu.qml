@@ -1476,6 +1476,10 @@ Item {
     function freezeCardTop() {
       if (!root.rowsLoaded) return
       if (root.mode === "keybindings" && !root.keybindingsLoaded) return
+      // A key can land before the rows load or before a parked surface is
+      // resized from 1x1; a search typed then leaves a filtered list.
+      if (root.filterText) return
+      if (!targetScreen || height !== targetScreen.height) return
       if (shown && cardTop < 0) {
         cardTop = effectiveCardTop
         maxRowsHeight = root.visibleRowsHeight

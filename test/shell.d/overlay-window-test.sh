@@ -169,8 +169,8 @@ assert(menuPanel.shown, 'resetting the layout keeps the menu open')
 // freeze the card around the empty list's single row.
 const freezeBody = /function freezeCardTop\(\) \{([\s\S]*?)\n    \}/.exec(menuQml)[1]
 const freezeCardTop = new Function('panel', 'root', `with (panel) { ${freezeBody} }`)
-const menuRoot = { mode: 'menu', keybindingsLoaded: false, rowsLoaded: false, visibleRowsHeight: 34 }
-const loadingPanel = { shown: true, cardTop: -1, effectiveCardTop: 523, maxRowsHeight: -1 }
+const menuRoot = { mode: 'menu', keybindingsLoaded: false, rowsLoaded: false, filterText: '', visibleRowsHeight: 34 }
+const loadingPanel = { shown: true, height: 1080, targetScreen: { height: 1080 }, cardTop: -1, effectiveCardTop: 523, maxRowsHeight: -1 }
 freezeCardTop(loadingPanel, menuRoot)
 assertEqual(loadingPanel.cardTop, -1, 'a search typed before the rows load leaves the card centered')
 assertEqual(loadingPanel.maxRowsHeight, -1, 'the empty list never becomes the row-height limit')
@@ -180,6 +180,42 @@ loadingPanel.effectiveCardTop = 285
 freezeCardTop(loadingPanel, menuRoot)
 assertEqual(loadingPanel.cardTop, 285, 'the first search after the rows load freezes the top edge')
 assertEqual(loadingPanel.maxRowsHeight, 510, 'the loaded menu sets the row-height limit')
+
+// A parked menu takes the keyboard before the compositor resizes it from 1x1.
+const loadedRoot = { mode: 'menu', keybindingsLoaded: false, rowsLoaded: true, filterText: '', visibleRowsHeight: 0 }
+const parkedPanel = { shown: true, height: 1, targetScreen: { height: 1080 }, cardTop: -1, effectiveCardTop: 18, maxRowsHeight: -1 }
+freezeCardTop(parkedPanel, loadedRoot)
+assertEqual(parkedPanel.cardTop, -1, 'a key typed before a parked menu is resized leaves the card centered')
+assertEqual(parkedPanel.maxRowsHeight, -1, 'a one-pixel surface never sets the row-height limit')
+parkedPanel.height = 1080
+parkedPanel.effectiveCardTop = 285
+loadedRoot.visibleRowsHeight = 510
+freezeCardTop(parkedPanel, loadedRoot)
+assertEqual(parkedPanel.cardTop, 285, 'the first key after the resize freezes the top edge')
+assertEqual(parkedPanel.maxRowsHeight, 510, 'the resized menu sets the row-height limit')
+
+// A search typed while the rows load must not become the row-height limit.
+const typedRoot = { mode: 'menu', keybindingsLoaded: false, rowsLoaded: false, filterText: '', visibleRowsHeight: 34 }
+const typedPanel = { shown: true, height: 1080, targetScreen: { height: 1080 }, cardTop: -1, effectiveCardTop: 523, maxRowsHeight: -1 }
+freezeCardTop(typedPanel, typedRoot)
+typedRoot.rowsLoaded = true
+typedRoot.filterText = 'a'
+typedRoot.visibleRowsHeight = 102
+typedPanel.effectiveCardTop = 489
+freezeCardTop(typedPanel, typedRoot)
+assertEqual(typedPanel.cardTop, -1, 'a search typed before the rows load keeps the card centered after they load')
+assertEqual(typedPanel.maxRowsHeight, -1, 'the filtered list never becomes the row-height limit')
+typedRoot.filterText = ''
+typedRoot.visibleRowsHeight = 510
+typedPanel.effectiveCardTop = 285
+freezeCardTop(typedPanel, typedRoot)
+assertEqual(typedPanel.cardTop, 285, 'clearing the early search freezes the top edge')
+assertEqual(typedPanel.maxRowsHeight, 510, 'the unfiltered list sets the row-height limit')
+
+const unmappedPanel = { shown: true, height: 1, targetScreen: null, cardTop: -1, effectiveCardTop: 18, maxRowsHeight: -1 }
+freezeCardTop(unmappedPanel, { mode: 'menu', keybindingsLoaded: false, rowsLoaded: true, filterText: '', visibleRowsHeight: 0 })
+assertEqual(unmappedPanel.cardTop, -1, 'a menu without a screen leaves the card centered')
+assertEqual(unmappedPanel.maxRowsHeight, -1, 'a menu without a screen sets no row-height limit')
 
 // Fullscreen overlays open without an additional compositor animation.
 const shellRules = read('default/hypr/apps/omarchy-shell.lua')
