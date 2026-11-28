@@ -519,6 +519,18 @@ platform_root_copy() {
     fail "$(basename -- "$script") reads the platform root from the fixture"
 }
 
+# Sets REPLY to monotonic milliseconds from /proc/uptime (CLOCK_BOOTTIME,
+# always an ASCII dot regardless of locale). Immune to NTP wall-clock steps
+# in freshly booted CI VMs, with zero subshell forks.
+read_monotonic_ms() {
+  local up
+  if read -r up _ 2>/dev/null </proc/uptime && [[ $up =~ ^[0-9]+\.[0-9]{2}$ ]]; then
+    REPLY=$((10#${up/./} * 10))
+  else
+    fail "read monotonic clock from /proc/uptime" "${up:-empty}"
+  fi
+}
+
 # How long this machine takes to start processes, as a percentage of the
 # laptop the timing budgets were measured on (100 there, never less): the
 # fastest of three runs of 100 fork/execs of true, against the 25ms they take

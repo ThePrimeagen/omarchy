@@ -6,7 +6,8 @@ source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
 sleep_lock="$ROOT/bin/omarchy-system-sleep-lock"
 tmpdir=$(mktemp -d)
-trap 'rm -rf "$tmpdir"' EXIT
+clock_dir=""
+trap 'rm -rf "$tmpdir" ${clock_dir:+"$clock_dir"}' EXIT
 
 # Each scenario gets its own mock PATH and call log, then runs the sleep lock
 # with a short budget so a stalled shell cannot slow the suite down.
@@ -70,13 +71,15 @@ run_sleep_lock() {
   local args=()
   [[ -n ${1:-} ]] && args=("$1")
 
-  start_us=${EPOCHREALTIME//[!0-9]/}
+  read_monotonic_ms
+  start_ms=$REPLY
   set +e
   CALL_LOG="$call_log" STATE_DIR="$state_dir" PATH="$mock_bin:$PATH" \
     "$sleep_lock" "${args[@]}" 2>"$journal_log"
   exit_status=$?
   set -e
-  elapsed_us=$((10#${EPOCHREALTIME//[!0-9]/} - 10#$start_us))
+  read_monotonic_ms
+  elapsed_ms=$((REPLY - start_ms))
 
   mapfile -t calls <"$call_log"
 }
@@ -116,13 +119,61 @@ pass "sleep lock checks security after clamshell reconciliation"
 pass "sleep lock bounds a stalled clamshell sync"
 
 # A shell that never secures the session must give up inside the budget rather
-# than hold logind's delay inhibitor open.
+# than hold logind's delay inhibitor open, even if the wall clock steps forward
+# mid-wait (as systemd-timesyncd does in a freshly booted VM).
 setup_scenario never_secure
+clock_step_flag="$scenario_dir/step"
+clock_step_so=""
+if command -v cc >/dev/null 2>&1; then
+  # glibc splits LD_PRELOAD on spaces and colons; prefer $tmpdir unless it contains one.
+  clock_step_build=""
+  if [[ $tmpdir == *[[:space:]:]* ]]; then
+    if clock_dir=$(mktemp -d /tmp/omarchy-clock-step.XXXXXX 2>/dev/null); then
+      clock_step_build="$clock_dir"
+    fi
+  else
+    clock_step_build="$tmpdir"
+  fi
+  if [[ -n $clock_step_build ]]; then
+    cat >"$clock_step_build/clock-step.c" <<'C'
+#define _GNU_SOURCE
+#include <dlfcn.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <unistd.h>
+
+int gettimeofday(struct timeval *tv, void *tz) {
+  static int (*real_gtod)(struct timeval *, void *) = NULL;
+  const char *flag = getenv("CLOCK_STEP_FLAG");
+  if (!real_gtod) real_gtod = dlsym(RTLD_NEXT, "gettimeofday");
+  int r = real_gtod(tv, tz);
+  if (r == 0 && tv && flag && access(flag, F_OK) == 0) tv->tv_sec += 10;
+  return r;
+}
+C
+    if cc -shared -fPIC -O2 "$clock_step_build/clock-step.c" -o "$clock_step_build/clock-step.so" -ldl 2>/dev/null &&
+      [[ -z $(LD_PRELOAD="$clock_step_build/clock-step.so" /usr/bin/true 2>&1) ]]; then
+      clock_step_so="$clock_step_build/clock-step.so"
+    fi
+  fi
+  [[ -n $clock_step_so ]] || skip "wall-clock jump shim could not be built or preloaded"
+else
+  skip "cc not installed; skipping wall-clock jump injection"
+fi
+
 cat >"$mock_bin/omarchy-shell" <<'SH'
 #!/bin/bash
 
 printf 'shell %s\n' "$*" >>"$CALL_LOG"
 if [[ $* == "lock lock" ]]; then
+  if [[ -n ${CLOCK_STEP_FLAG:-} && ! -e $CLOCK_STEP_FLAG ]]; then
+    before=${EPOCHREALTIME//[!0-9]/}
+    : >"$CLOCK_STEP_FLAG"
+    after=${EPOCHREALTIME//[!0-9]/}
+    if (( 10#$after - 10#$before >= 5000000 )); then
+      printf 'stepped\n' >"$CLOCK_STEP_FLAG"
+    fi
+  fi
   printf 'ok\n'
 elif [[ $* == "lock status" ]]; then
   printf '{"secure":false}\n'
@@ -131,7 +182,15 @@ SH
 chmod +x "$mock_bin/omarchy-shell"
 mock_clamshell
 
-run_sleep_lock 600
+if [[ -n $clock_step_so ]]; then
+  CLOCK_STEP_FLAG="$clock_step_flag" \
+    LD_PRELOAD="$clock_step_so${LD_PRELOAD:+:$LD_PRELOAD}" \
+    run_sleep_lock 600
+  [[ -s $clock_step_flag ]] ||
+    fail "wall-clock jump shim stepped EPOCHREALTIME"
+else
+  run_sleep_lock 600
+fi
 
 (( exit_status != 0 )) ||
   fail "sleep lock reports failure when the session never secures"
@@ -142,9 +201,10 @@ pass "sleep lock reports failure when the session never secures"
 # second derived budgets hold back for logind: past that, logind suspends
 # mid-lock. Bounding by that reserve rather than by the interval leaves room for
 # process startup on a loaded machine, and still catches a wait that ignores
-# its deadline.
-(( elapsed_us <= 1600000 )) ||
-  fail "sleep lock gives up within its budget" "elapsed: ${elapsed_us}us"
+# its deadline. Also require at least half the budget so a forward wall-clock
+# jump cannot cut the wait short.
+(( elapsed_ms >= 300 && elapsed_ms <= 1600 )) ||
+  fail "sleep lock gives up within its budget" "elapsed: ${elapsed_ms}ms"
 pass "sleep lock gives up within its budget"
 
 polls=0
