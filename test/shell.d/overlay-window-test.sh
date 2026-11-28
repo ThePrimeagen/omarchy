@@ -216,6 +216,15 @@ setFilter(typedPanel, typedRoot, 'a')
 assertEqual(typedPanel.cardTop, 285, 'the first key after the early search is cleared freezes the top edge')
 assertEqual(typedPanel.maxRowsHeight, 510, 'the first key after the early search is cleared sets the row-height limit')
 
+// Until the rows load there is nothing to call empty, so the menu says nothing.
+const emptyExpression = /visible: (displayModel\.count === 0 [^\n]*)/.exec(menuQml)[1]
+const emptyShown = new Function('displayModel', 'root', 'keybindingsProc', `return ${emptyExpression}`)
+const noRows = { count: 0 }
+const idle = { running: false }
+assert(!emptyShown(noRows, { mode: 'menu', rowsLoaded: false }, idle), 'a menu drawn before its rows load does not say it is empty')
+assert(emptyShown(noRows, { mode: 'menu', rowsLoaded: true }, idle), 'a loaded menu with no rows says it is empty')
+assert(emptyShown(noRows, { mode: 'select', rowsLoaded: false }, idle), 'an empty picker says it is empty whether or not the menu rows loaded')
+
 const unmappedPanel = { shown: true, height: 1, targetScreen: null, cardTop: -1, effectiveCardTop: 18, maxRowsHeight: -1 }
 freezeCardTop(unmappedPanel, { mode: 'menu', keybindingsLoaded: false, rowsLoaded: true, filterText: '', visibleRowsHeight: 0 })
 assertEqual(unmappedPanel.cardTop, -1, 'a menu without a screen leaves the card centered')

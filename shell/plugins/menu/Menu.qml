@@ -1912,7 +1912,7 @@ Item {
           Column {
             anchors.centerIn: parent
             spacing: Style.space(8)
-            visible: displayModel.count === 0 && root.mode !== "input" && !(root.mode === "keybindings" && keybindingsProc.running && !root.keybindingsLoaded)
+            visible: displayModel.count === 0 && root.mode !== "input" && !(root.mode === "menu" && !root.rowsLoaded) && !(root.mode === "keybindings" && keybindingsProc.running && !root.keybindingsLoaded)
 
             Text {
               text: "󰈉"
