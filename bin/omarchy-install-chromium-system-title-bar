@@ -34,15 +34,26 @@ browser_dirs=(
 
 running=()
 
+# A browser attached to a profile directory holds a SingletonLock in it: a
+# symlink to <host>-<pid>, which dangles by design. One left by a browser that
+# died without cleaning up names a process that is gone, so it is only held
+# while that process lives. A lock from another host, on a shared home, counts
+# as held.
+browser_running() {
+  local holder
+  holder=$(readlink "$1/SingletonLock") || return 1
+  if [[ $holder == "$HOSTNAME-"* ]]; then
+    kill -0 "${holder##*-}" 2>/dev/null
+  fi
+}
+
 for dir in "${browser_dirs[@]}"; do
   for preferences in "$dir"/*/Preferences; do
     # A profile that chose, a file that is not valid JSON, and the unmatched
     # glob of a browser that is not installed all fail this and are passed over.
     jq -e '(.browser // {}) | has("custom_chrome_frame") | not' "$preferences" >/dev/null 2>&1 || continue
 
-    # A browser attached to a profile directory holds a SingletonLock in it,
-    # which can be a dangling symlink, and a socket beside it.
-    if [[ -L $dir/SingletonLock || -e $dir/SingletonLock || -S $dir/SingletonSocket ]]; then
+    if browser_running "$dir"; then
       running+=("$dir")
       break
     fi

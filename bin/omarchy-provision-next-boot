@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# omarchy:summary=Run Omarchy commands queued for the next login, or queue one
+# omarchy:args=[add <omarchy-command>]
+# omarchy:hidden=true
+
+# Some updates can only finish once the session is gone: a running browser
+# writes its own settings back over a change when it exits, so that change has
+# to land before the browser is open again. A migration queues the command that
+# finishes it here and asks for a reboot; Hyprland's start runs this, like
+# first-run, before anything the user opens. With nothing queued it does
+# nothing.
+#
+# Each queued command runs once. It leaves the queue when it succeeds and stays
+# for the next login when it fails, which is how a command that still finds its
+# app running (one started with the session) tries again. Only Omarchy commands
+# can be queued, by name and without arguments, so the queue never holds shell,
+# and each runs from $OMARCHY_PATH/bin.
+
+set -euo pipefail
+
+queue_dir="$HOME/.local/state/omarchy/next-boot"
+
+valid_command() {
+  [[ $1 =~ ^omarchy-[a-z0-9-]+$ && $1 != "omarchy-provision-next-boot" ]]
+}
+
+if [[ ${1:-} == "add" ]]; then
+  if (( $# != 2 )) || ! valid_command "$2"; then
+    echo "Usage: omarchy-provision-next-boot add <omarchy-command>" >&2
+    exit 1
+  fi
+  mkdir -p "$queue_dir"
+  touch "$queue_dir/$2"
+elif (( $# )); then
+  echo "Usage: omarchy-provision-next-boot [add <omarchy-command>]" >&2
+  exit 1
+else
+  for entry in "$queue_dir"/*; do
+    [[ -f $entry ]] || continue
+    command=${entry##*/}
+    # A command a later release removed has nothing left to finish.
+    if ! valid_command "$command" || [[ ! -x $OMARCHY_PATH/bin/$command ]]; then
+      rm -f "$entry"
+    elif "$OMARCHY_PATH/bin/$command" >/dev/null; then
+      rm -f "$entry"
+    else
+      echo "$command did not finish; it runs again at the next login" >&2
+    fi
+  done
+fi

@@ -5,6 +5,7 @@ hl.on("hyprland.start", function()
 
   hl.exec_cmd("omarchy-launch-shell")
   hl.exec_cmd("omarchy-provision-first-run")
+  hl.exec_cmd("omarchy-provision-next-boot")
   hl.exec_cmd("omarchy-powerprofiles-init")
   hl.exec_cmd("omarchy-hyprland-software-rendering")
   hl.exec_cmd(o.launch("omarchy-hyprland-monitor-watch"))

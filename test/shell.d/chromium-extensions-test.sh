@@ -234,6 +234,15 @@ jq -e '.browser.custom_chrome_frame == false' "$chrome/Profile 2/Preferences" >/
 jq -e '.browser | has("custom_chrome_frame") | not' "$brave/Default/Preferences" >/dev/null ||
   fail "a running browser's profile is left alone" "$(cat "$brave/Default/Preferences")"
 
+ln -sfn "$HOSTNAME-$$" "$brave/SingletonLock"
+set_title_bar >/dev/null && fail "a lock held by a live process on this host counts as running"
+true & dead_pid=$!
+wait "$dead_pid"
+ln -sfn "$HOSTNAME-$dead_pid" "$brave/SingletonLock"
+set_title_bar >/dev/null || fail "a lock left by a browser that died is not running"
+jq -e '.browser.custom_chrome_frame == false' "$brave/Default/Preferences" >/dev/null ||
+  fail "a browser that died without cleaning up is switched" "$(cat "$brave/Default/Preferences")"
+printf '{"browser":{}}\n' >"$brave/Default/Preferences"
 rm "$brave/SingletonLock"
 set_title_bar >/dev/null || fail "with every browser closed nothing is left to report"
 jq -e '.browser.custom_chrome_frame == false' "$brave/Default/Preferences" >/dev/null ||
