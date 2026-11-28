@@ -341,10 +341,17 @@ HOME="$TMPDIR/home" OMARCHY_PATH="$ROOT" omarchy-bar transparent true >/dev/null
 HOME="$TMPDIR/home" OMARCHY_PATH="$ROOT" omarchy-bar transparent toggle >/dev/null
 [[ $(bar_background) == "opaque" ]] || fail "toggling transparency off makes the bar opaque"
 # A shell.json from before background says transparent, which reads as none
-# and is dropped once a background is set.
+# when true and opaque when false, and is dropped once a background is set.
+# Omitting both falls back to none.
 jq '.bar.transparent = true | del(.bar.background)' "$TMPDIR/home/.config/omarchy/shell.json" >"$TMPDIR/legacy.json" &&
   mv "$TMPDIR/legacy.json" "$TMPDIR/home/.config/omarchy/shell.json"
 [[ $(bar_background) == "none" ]] || fail "an older transparent bar reads as no background"
+jq '.bar.transparent = false | del(.bar.background)' "$TMPDIR/home/.config/omarchy/shell.json" >"$TMPDIR/legacy.json" &&
+  mv "$TMPDIR/legacy.json" "$TMPDIR/home/.config/omarchy/shell.json"
+[[ $(bar_background) == "opaque" ]] || fail "an older opaque bar reads as opaque"
+jq 'del(.bar.background, .bar.transparent)' "$TMPDIR/home/.config/omarchy/shell.json" >"$TMPDIR/legacy.json" &&
+  mv "$TMPDIR/legacy.json" "$TMPDIR/home/.config/omarchy/shell.json"
+[[ $(bar_background) == "none" ]] || fail "a bar without a background key defaults to none"
 bar_background glassy >/dev/null
 jq -e '.bar.background == "glassy" and (.bar | has("transparent") | not)' "$TMPDIR/home/.config/omarchy/shell.json" >/dev/null ||
   fail "setting a background drops the older transparent flag"

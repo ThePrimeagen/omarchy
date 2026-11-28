@@ -261,11 +261,12 @@ assert(
     })
   }
   assertDeepEqual(checked(undefined), ['clear'], 'menu checks Clear Bar on the default config')
-  assertDeepEqual(checked({}), ['opaque'], 'menu checks Opaque Bar while an existing config has no background key')
+  assertDeepEqual(checked({}), ['clear'], 'menu checks Clear Bar while no background is set')
   assertDeepEqual(checked({ background: 'opaque' }), ['opaque'], 'menu checks Opaque Bar while the bar is opaque')
   assertDeepEqual(checked({ background: 'glassy' }), ['glassy'], 'menu checks Glassy Bar while the bar is glassy')
   assertDeepEqual(checked({ background: 'none' }), ['clear'], 'menu checks Clear Bar while the bar has no background')
   assertDeepEqual(checked({ transparent: true }), ['clear'], 'menu checks Clear Bar for a bar made transparent before backgrounds')
+  assertDeepEqual(checked({ transparent: false }), ['opaque'], 'menu checks Opaque Bar for a bar explicitly opaque before backgrounds')
   fs.rmSync(home, { recursive: true, force: true })
 }
 
