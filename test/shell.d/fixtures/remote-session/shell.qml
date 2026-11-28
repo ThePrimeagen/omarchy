@@ -11,6 +11,7 @@ ShellRoot {
   id: root
 
   property string resultPath: Quickshell.env("OMARCHY_QML_TEST_RESULT")
+  property string stubBin: Quickshell.env("OMARCHY_QML_TEST_STUB_BIN") || "gliff-server"
   property string stubPidFile: Quickshell.env("OMARCHY_QML_TEST_STUB_PID")
   property var failures: []
   property var service: null
@@ -126,7 +127,7 @@ ShellRoot {
 
     waitFor(function() { return service.stateLoaded === true }, 3000, "service probes on startup", function() {
       root.assertTrue(service.active === false, "service starts idle without a gliff server")
-      Quickshell.execDetached(["bash", "-c", "SSH_CONNECTION='10.0.0.5 51234 10.0.0.1 22' gliff-server --stdio & echo $! > " + root.shellQuote(root.stubPidFile)])
+      Quickshell.execDetached(["bash", "-c", "SSH_CONNECTION='10.0.0.5 51234 10.0.0.1 22' " + root.shellQuote(root.stubBin) + " --stdio & echo $! > " + root.shellQuote(root.stubPidFile)])
       // Each capture raises a screencast event; the first one after the stub
       // is up is what should flip the service, with no refresh() by hand.
       waitFor(function() { return service.active === true }, 4000, "a screencast event makes the service report the session while gliff-server runs", function() {
