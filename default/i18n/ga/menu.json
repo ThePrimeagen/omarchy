@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Duga"
   },
-  "appearance.dock.autohide": {
-    "label": "Uathfholaigh duga"
-  },
-  "appearance.dock.always-on": {
-    "label": "Duga i gcónaí air"
-  },
   "appearance.dock.position": {
     "label": "Suíomh duga"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Logáil Isteach Gan Pasfhocal"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Duga ar tíleáil"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Duga ar snámh amháin"
+  },
+  "appearance.dock.visibility": {
+    "label": "Infheictheacht an Duga"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Infheicthe i gcónaí"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Folaíonn an chéad aip"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "I gcónaí i bhfolach"
+  },
+  "install.gaming.tools": {
+    "label": "Uirlisí Cluichí",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Uirlisí Cluichí",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

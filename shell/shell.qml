@@ -25,6 +25,7 @@ ShellRoot {
   property BrightnessKeys brightnessKeys: BrightnessKeys { host: shell }
   property BackgroundIntro bootIntro: BackgroundIntro { host: shell }
   property BackgroundSwitch backgroundSwitch: BackgroundSwitch { intro: shell.bootIntro }
+  property ShutdownCover shutdownCover: ShutdownCover { }
 
   property string home: Quickshell.env("HOME")
 
@@ -67,6 +68,8 @@ ShellRoot {
   property bool pluginReloading: false
   property bool pluginReloadPending: false
   property bool localPluginNeedsReload: false
+  property bool sessionLocked: false
+  property string _sessionLockPublisherId: ""
 
   Timer {
     id: localPluginReloadTimer
@@ -691,6 +694,8 @@ ShellRoot {
       }
     })
     if (!api) return null
+    if (barCapabilities)
+      api.sessionLocked = Qt.binding(function() { return shell.sessionLocked })
 
     var next = ({})
     for (var id in _pluginShellApis) next[id] = _pluginShellApis[id]
@@ -997,6 +1002,25 @@ ShellRoot {
       if ("barWidgetRegistry" in inst) inst.barWidgetRegistry = shell.pluginBarWidgetRegistryFor(manifest)
       if ("pluginRegistry" in inst) inst.pluginRegistry = shell.pluginRegistryFor(manifest)
       if (authenticationService) {
+        var lockMetadata = manifest && Util.isPlainObject(manifest.omarchy) ? manifest.omarchy : null
+        var isLock = key === "omarchy.lock" || (!!lockMetadata && String(lockMetadata.clonedFrom || "") === "omarchy.lock")
+        if (isLock) {
+          var publishLock = function(locked) {
+            if (shell.pluginRegistry.resolveEnabledId("omarchy.lock") === key) {
+              shell._sessionLockPublisherId = key
+              shell.sessionLocked = !!locked
+            }
+          }
+          if ("publishSessionLocked" in inst) inst.publishSessionLocked = publishLock
+          else {
+            var syncLegacy = function() { publishLock(!!inst.locked || !!inst.strandedLock) }
+            if (inst.lockedChanged && typeof inst.lockedChanged.connect === "function")
+              inst.lockedChanged.connect(syncLegacy)
+            if (inst.strandedLockChanged && typeof inst.strandedLockChanged.connect === "function")
+              inst.strandedLockChanged.connect(syncLegacy)
+            syncLegacy()
+          }
+        }
         // Never publish lock/polkit through ShellRoot._services. The private JS
         // import retains their lifetime without adding a traversable property
         // or QObject parent back to the host shell.
@@ -1098,6 +1122,10 @@ ShellRoot {
       if (stillAuthenticationService && pluginRegistry.isEnabled(authenticationId)
           && shell.isAuthenticationService(authenticationManifest, authenticationId)) continue
       AuthServiceStore.destroy(authenticationId)
+      if (authenticationId === shell._sessionLockPublisherId) {
+        shell._sessionLockPublisherId = ""
+        shell.sessionLocked = false
+      }
     }
   }
 
@@ -1800,6 +1828,7 @@ ShellRoot {
     onFileChanged: reload()
   }
 
+  // qmllint disable unresolved-type required
   Variants {
     model: shell.parseShortcuts(shortcutsFile.text())
 
@@ -1812,6 +1841,7 @@ ShellRoot {
       onPressed: shell.runShortcut(modelData)
     }
   }
+  // qmllint enable unresolved-type required
 
   // ------------------------------------------------------------ IPC socket
   //
@@ -1942,6 +1972,14 @@ ShellRoot {
 
     function themeIntroCoverStatus(token: string): string {
       return shell.bootIntro.themeCoverStatus(token)
+    }
+
+    function showShutdownCover(): string {
+      return shell.shutdownCover.show()
+    }
+
+    function hideShutdownCover(): void {
+      shell.shutdownCover.hide()
     }
 
     function ping(): string {

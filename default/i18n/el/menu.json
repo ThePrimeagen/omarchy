@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Αυτόματη απόκρυψη dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "Πάντα ορατό dock"
-  },
   "appearance.dock.position": {
     "label": "Θέση dock"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Σύνδεση χωρίς κωδικό"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock στην πλακιδωτή"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock μόνο στην αιωρούμενη"
+  },
+  "appearance.dock.visibility": {
+    "label": "Ορατότητα Dock"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Πάντα ορατό"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Κρύβεται με την πρώτη εφαρμογή"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Πάντα κρυφό"
+  },
+  "install.gaming.tools": {
+    "label": "Εργαλεία παιχνιδιών",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Εργαλεία παιχνιδιών",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

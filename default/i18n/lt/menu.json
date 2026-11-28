@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dokas"
   },
-  "appearance.dock.autohide": {
-    "label": "Slėpti Dock automatiškai"
-  },
-  "appearance.dock.always-on": {
-    "label": "Visada rodyti Dock"
-  },
   "appearance.dock.position": {
     "label": "Dock padėtis"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Prisijungimas be slaptažodžio"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock plyteliniame"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock tik plaukiojančiame"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock matomumas"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Visada matomas"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Pirmoji programa slepia"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Visada paslėptas"
+  },
+  "install.gaming.tools": {
+    "label": "Žaidimų įrankiai",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Žaidimų įrankiai",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

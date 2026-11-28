@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dok"
   },
-  "appearance.dock.autohide": {
-    "label": "Dok Auto-sembunyi"
-  },
-  "appearance.dock.always-on": {
-    "label": "Dok Sentiasa Papar"
-  },
   "appearance.dock.position": {
     "label": "Kedudukan Dok"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Log Masuk Tanpa Kata Laluan"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock pada Jubin"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock Sahaja pada Terapung"
+  },
+  "appearance.dock.visibility": {
+    "label": "Keterlihatan Dock"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Sentiasa Terlihat"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Apl Pertama Menyembunyikan"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Sentiasa Tersembunyi"
+  },
+  "install.gaming.tools": {
+    "label": "Alat Permainan",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Alat Permainan",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

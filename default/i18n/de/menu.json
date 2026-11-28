@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Dock auto-ausblenden"
-  },
-  "appearance.dock.always-on": {
-    "label": "Dock immer sichtbar"
-  },
   "appearance.dock.position": {
     "label": "Dock-Position"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Passwortlose Anmeldung"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock im Kachelmodus"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock nur im Schwebemodus"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock-Sichtbarkeit"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Immer sichtbar"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Erste App blendet aus"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Immer ausgeblendet"
+  },
+  "install.gaming.tools": {
+    "label": "Gaming-Tools",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Gaming-Tools",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

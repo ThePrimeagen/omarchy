@@ -12,11 +12,12 @@ o.shell_quote = shell_quote
 
 -- Chromium-based browsers. Rule classes match the whole name, so their web apps
 -- (chrome-<host>_<path>-<profile>) aren't included.
-o.chromium_browsers = "((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[mM]icrosoft-edge|Vivaldi-stable|helium)"
+o.chromium_browsers = "((google-)?[cC]hrom(e|ium)|[bB]rave-(browser|origin)|[mM]icrosoft-edge|Vivaldi-stable|helium)"
 
 -- Apps that draw their own header with a close button: those browsers and GNOME
--- apps with a header bar. Floating workspaces give them no titlebar. Web apps
--- keep theirs, having no tab strip to drag the window by.
+-- apps with a header bar. Floating workspaces give them no titlebar, except a
+-- browser set to use the system title bar, which then has no frame of its own.
+-- Web apps keep theirs, having no tab strip to drag the window by.
 --
 -- Their maximize button stays off (GNOME's default button layout) and their
 -- maximize requests stay suppressed: Hyprland reports every app as maximized and
@@ -409,4 +410,14 @@ end
 -- lets Appearance > Windows > Window Opacity turn these windows opaque or glassy.
 function o.transparent_window(match, opacity)
   o.window(match, { opacity = opacity or "0.985 0.96", tag = "+transparent-window" })
+end
+
+-- Dynamic tags carry their name; rule-applied tags carry a trailing "*".
+function o.has_tag(window, name)
+  for _, tag in ipairs(window.tags or {}) do
+    if tag == name or tag == name .. "*" then
+      return true
+    end
+  end
+  return false
 end

@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dok"
   },
-  "appearance.dock.autohide": {
-    "label": "Samodejno skrij dok"
-  },
-  "appearance.dock.always-on": {
-    "label": "Vedno viden dok"
-  },
   "appearance.dock.position": {
     "label": "Položaj doka"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Prijava brez gesla"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock v ploščičnem načinu"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock samo v lebdečem načinu"
+  },
+  "appearance.dock.visibility": {
+    "label": "Vidnost Docka"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Vedno vidna"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Skrije prva aplikacija"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Vedno skrita"
+  },
+  "install.gaming.tools": {
+    "label": "Igralna orodja",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Igralna orodja",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

@@ -42,6 +42,7 @@ Item {
   // killing the entire shell. Hidden panels stay mapped but park off-screen
   // without an exclusion zone; updated by the FileView watcher further down.
   property bool barHidden: false
+  readonly property bool sessionLocked: !!(root.shell && root.shell.sessionLocked)
   property string home: Quickshell.env("HOME")
   property string stateHome: home + "/.local/state"
   property string omarchyConfigDir: home + "/.config/omarchy"
@@ -54,6 +55,12 @@ Item {
   property bool requestedTransparent: false
   property bool useTransparentForeground: false
   property bool transparent: false
+  // The shell has just started. A bar going clear at runtime keeps its
+  // background until its text color is known, but at startup there is no bar
+  // on screen to keep: holding the background there shows a solid bar for the
+  // second the color takes, then drops it. So a starting bar goes clear at
+  // once, in the theme's text color until its own arrives.
+  property bool starting: true
   // A see-through bar that Hyprland blurs behind (the bar-glassy toggle), so
   // its theme background stays faintly. A transparent bar wins over it.
   property bool glassy: false
@@ -226,6 +233,8 @@ Item {
     api.fontFamily = Qt.binding(function() { return root.fontFamily })
     api.position = Qt.binding(function() { return root.position })
     api.vertical = Qt.binding(function() { return root.vertical })
+    api.barHidden = Qt.binding(function() { return root.barHidden })
+    api.sessionLocked = Qt.binding(function() { return root.sessionLocked })
     api.barSize = Qt.binding(function() { return root.barSize })
     api.transparent = Qt.binding(function() { return root.transparent })
     api.foregroundAnimationEnabled = Qt.binding(function() { return root.foregroundAnimationEnabled })
@@ -1445,6 +1454,7 @@ Item {
       restoreForegroundAnimation()
       return
     }
+    if (starting) transparent = true
     scheduleTransparentForegroundRefresh()
   }
 
@@ -1480,6 +1490,14 @@ Item {
   onThemeForegroundChanged: scheduleTransparentForegroundRefresh()
   onThemeContrastForegroundChanged: scheduleTransparentForegroundRefresh()
 
+  // The saved config lands a moment after the built-in one, and the text
+  // color a second later; past that, the bar is one the user has seen.
+  Timer {
+    interval: 3000
+    running: true
+    onTriggered: root.starting = false
+  }
+
   Timer {
     id: transparentForegroundTimer
     interval: 120
@@ -1494,6 +1512,7 @@ Item {
         var value = String(line || "").trim()
         if (!/^#[0-9A-Fa-f]{6}$/.test(value)) return
 
+        root.starting = false
         root.foregroundAnimationEnabled = false
         root.transparentForeground = value
         if (root.requestedTransparent) {
@@ -1692,12 +1711,14 @@ Item {
 
     // Parked by its whole thickness, so none of it stays on screen however
     // thick a notch floor makes it.
+    // qmllint disable unresolved-type
     margins {
       top: root.barHidden && barWindow.surfaceEdge === "top" ? -barWindow.surfaceThickness : 0
       bottom: root.barHidden && barWindow.surfaceEdge === "bottom" ? -barWindow.surfaceThickness : 0
       left: root.barHidden && barWindow.surfaceEdge === "left" ? -barWindow.surfaceThickness : 0
       right: root.barHidden && barWindow.surfaceEdge === "right" ? -barWindow.surfaceThickness : 0
     }
+    // qmllint enable unresolved-type
 
     anchors {
       top: barWindow.surfaceEdge === "top" || barWindow.surfaceVertical
@@ -1920,7 +1941,6 @@ Item {
       })
 
       anchor {
-        id: tooltipAnchor
         window: barWindow
         adjustment: PopupAdjustment.Slide
         edges: Edges.Top | Edges.Left
@@ -1948,8 +1968,10 @@ Item {
           }
 
           var point = barWindow.contentItem.mapFromItem(target, localX, localY)
-          tooltipAnchor.rect.x = Math.round(point.x)
-          tooltipAnchor.rect.y = Math.round(point.y)
+          // qmllint disable unresolved-type
+          tooltipWindow.anchor.rect.x = Math.round(point.x)
+          tooltipWindow.anchor.rect.y = Math.round(point.y)
+          // qmllint enable unresolved-type
         }
       }
 
@@ -2751,6 +2773,8 @@ Item {
     property string fixedEdge: "center"
     // Whether that slot is in the tray's drawer.
     property bool inTraySection: false
+    // Whether a fullscreen window covers this widget's bar surface.
+    readonly property bool underFullscreen: !!owner && !!owner.window && !!owner.window.underFullscreen
     readonly property string moduleName: root.entryId(entry)
     readonly property var moduleSettings: root.entrySettings(entry)
     readonly property string customType: root.customModuleType(entry)
@@ -2858,6 +2882,7 @@ Item {
     onModuleSettingsChanged: injectProps()
     onFixedEdgeChanged: injectProps()
     onInTraySectionChanged: injectProps()
+    onUnderFullscreenChanged: injectProps()
 
     function injectProps() {
       var target = activeItem
@@ -2870,6 +2895,8 @@ Item {
         ? root : root.pluginBarApiFor(pluginApiId, moduleName, registered)
       if ("moduleName" in target) target.moduleName = moduleName
       if ("settings" in target) target.settings = moduleSettings
+      if ("underFullscreen" in target && ((registered && firstParty) || target.acceptsUnderFullscreen === true))
+        target.underFullscreen = underFullscreen
     }
 
     Component {
@@ -3112,7 +3139,7 @@ Item {
       propagateComposedEvents: true
       // Only the hovered slot needs the hit test; without the guard every
       // slot on every monitor re-ran it on each click target change.
-      cursorShape: moduleHover.hovered && root.moduleClickTargetAt(slot, mouseX, mouseY) ? Qt.PointingHandCursor : Qt.ArrowCursor
+      cursorShape: moduleHover.hovered && root.moduleClickTargetAt(slot, moduleHover.point.position.x, moduleHover.point.position.y) ? Qt.PointingHandCursor : Qt.ArrowCursor
       // Do not assign drag.target here: the section's layout places
       // ModuleSlot, and moving slot.x/slot.y by hand fights it. The ghost
       // follows the pointer instead.

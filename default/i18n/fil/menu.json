@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Awtomatikong Itago ang Dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "Laging Kita ang Dock"
-  },
   "appearance.dock.position": {
     "label": "Posisyon ng Dock"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Login na Walang Password"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock sa Tiling"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock Lang sa Floating"
+  },
+  "appearance.dock.visibility": {
+    "label": "Pagiging Nakikita ng Dock"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Laging Nakikita"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Nagtatago sa Unang App"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Laging Nakatago"
+  },
+  "install.gaming.tools": {
+    "label": "Kagamitang Panglaro",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Kagamitang Panglaro",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

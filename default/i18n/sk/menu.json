@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Skrývať dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "Vždy viditeľný dock"
-  },
   "appearance.dock.position": {
     "label": "Poloha docku"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Prihlásenie bez hesla"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock v dlaždicovom režime"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock len v plávajúcom režime"
+  },
+  "appearance.dock.visibility": {
+    "label": "Viditeľnosť Docku"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Vždy viditeľný"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Skryje sa pri prvej aplikácii"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Vždy skrytý"
+  },
+  "install.gaming.tools": {
+    "label": "Herné nástroje",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Herné nástroje",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

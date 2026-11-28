@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Автоприховування Dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "Завжди видимий Dock"
-  },
   "appearance.dock.position": {
     "label": "Положення Dock"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Вхід без пароля"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock у плитковому режимі"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock лише у плаваючому режимі"
+  },
+  "appearance.dock.visibility": {
+    "label": "Видимість Dock"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Завжди видно"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Ховається при першому застосунку"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Завжди приховано"
+  },
+  "install.gaming.tools": {
+    "label": "Ігрові інструменти",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Ігрові інструменти",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

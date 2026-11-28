@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "הסתרת Dock אוטומטית"
-  },
-  "appearance.dock.always-on": {
-    "label": "Dock תמיד מוצג"
-  },
   "appearance.dock.position": {
     "label": "מיקום Dock"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "כניסה ללא סיסמה"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock במצב ריצוף"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock רק במצב צף"
+  },
+  "appearance.dock.visibility": {
+    "label": "נראות Dock"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "תמיד גלוי"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "הסתרה באפליקציה ראשונה"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "תמיד מוסתר"
+  },
+  "install.gaming.tools": {
+    "label": "כלי משחקים",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "כלי משחקים",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

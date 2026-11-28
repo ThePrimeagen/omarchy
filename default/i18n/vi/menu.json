@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Tự ẩn Dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "Dock luôn hiện"
-  },
   "appearance.dock.position": {
     "label": "Vị trí Dock"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Đăng nhập không mật khẩu"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock khi xếp lát"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock chỉ khi nổi"
+  },
+  "appearance.dock.visibility": {
+    "label": "Hiển thị Dock"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Luôn hiện"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Ẩn khi có ứng dụng đầu tiên"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Luôn ẩn"
+  },
+  "install.gaming.tools": {
+    "label": "Công cụ game",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Công cụ game",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

@@ -265,49 +265,6 @@ assert(
   fs.rmSync(home, { recursive: true, force: true })
 }
 
-// The dock only appears on floating workspaces, so its settings only show
-// there. Ask bash, against a stubbed layout for the active workspace.
-{
-  const os = require('os')
-  const { execFileSync } = require('child_process')
-  const stub = fs.mkdtempSync(path.join(os.tmpdir(), 'menu-dock-layout-'))
-  const shown = layout => {
-    fs.writeFileSync(path.join(stub, 'omarchy-hyprland-workspace-layout-current'), `#!/bin/bash\necho ${layout}\n`, { mode: 0o755 })
-    try {
-      execFileSync('bash', ['-c', defaultById['appearance.dock'].when], { env: { ...process.env, PATH: `${stub}:${process.env.PATH}` } })
-      return true
-    } catch (e) {
-      return false
-    }
-  }
-  assert(shown('floating'), 'menu shows Appearance > Dock on a floating workspace')
-  assert(!shown('dwindle') && !shown('scrolling'), 'menu hides Appearance > Dock on a tiled workspace')
-  fs.rmSync(stub, { recursive: true, force: true })
-}
-
-// Auto-hide Dock shows while the dock stays up, and Always-on Dock while it
-// hides. Ask bash, against a shell.json in each state, which rows it shows.
-{
-  const os = require('os')
-  const { execFileSync } = require('child_process')
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'menu-dock-autohide-'))
-  fs.mkdirSync(path.join(home, '.config/omarchy'), { recursive: true })
-  const shown = dock => {
-    fs.writeFileSync(path.join(home, '.config/omarchy/shell.json'), JSON.stringify({ version: 1, dock }))
-    return ['autohide', 'always-on'].filter(row => {
-      try {
-        execFileSync('bash', ['-c', defaultById[`appearance.dock.${row}`].when], { env: { ...process.env, HOME: home, OMARCHY_PATH: root, PATH: `${root}/bin:${process.env.PATH}` } })
-        return true
-      } catch (e) {
-        return false
-      }
-    })
-  }
-  assertDeepEqual(shown({}), ['autohide'], 'menu offers Auto-hide Dock while the dock stays up')
-  assertDeepEqual(shown({ autohide: true }), ['always-on'], 'menu offers Always-on Dock while the dock hides')
-  fs.rmSync(home, { recursive: true, force: true })
-}
-
 // Exactly the dock's current position is checked, and a shell.json without
 // one has the dock at the bottom.
 {

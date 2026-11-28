@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Amaga el Dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "Dock sempre visible"
-  },
   "appearance.dock.position": {
     "label": "Posició del Dock"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Inici de sessió sense contrasenya"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock en mosaic"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock només en flotant"
+  },
+  "appearance.dock.visibility": {
+    "label": "Visibilitat del Dock"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Sempre visible"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "S'amaga amb la primera aplicació"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Sempre amagat"
+  },
+  "install.gaming.tools": {
+    "label": "Eines de joc",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Eines de joc",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

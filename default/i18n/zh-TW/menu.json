@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "自動隱藏 Dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "Dock 常駐"
-  },
   "appearance.dock.position": {
     "label": "Dock 位置"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "免密碼登入"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "平鋪時顯示 Dock"
+  },
+  "appearance.dock.floating-only": {
+    "label": "僅在浮動時顯示 Dock"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock 顯示方式"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "永遠顯示"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "開啟首個應用程式時隱藏"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "永遠隱藏"
+  },
+  "install.gaming.tools": {
+    "label": "遊戲工具",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "遊戲工具",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

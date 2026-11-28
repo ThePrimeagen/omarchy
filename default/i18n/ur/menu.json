@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "ڈاک"
   },
-  "appearance.dock.autohide": {
-    "label": "خودکار چھپتا Dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "ہمیشہ ظاہر Dock"
-  },
   "appearance.dock.position": {
     "label": "Dock کی جگہ"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "بغیر پاس ورڈ لاگ ان"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock ٹائلنگ پر"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock صرف فلوٹنگ پر"
+  },
+  "appearance.dock.visibility": {
+    "label": "ڈاک کی نمائش"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "ہمیشہ دکھائیں"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "پہلی ایپ چھپائے"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "ہمیشہ چھپائیں"
+  },
+  "install.gaming.tools": {
+    "label": "گیمنگ ٹولز",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "گیمنگ ٹولز",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

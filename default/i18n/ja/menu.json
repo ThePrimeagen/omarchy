@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "ドック"
   },
-  "appearance.dock.autohide": {
-    "label": "ドックを自動で隠す"
-  },
-  "appearance.dock.always-on": {
-    "label": "ドックを常に表示"
-  },
   "appearance.dock.position": {
     "label": "ドックの位置"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "パスワードなしログイン"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "タイリング時の Dock"
+  },
+  "appearance.dock.floating-only": {
+    "label": "フローティングのみ Dock"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock の表示"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "常に表示"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "最初のアプリで隠す"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "常に非表示"
+  },
+  "install.gaming.tools": {
+    "label": "ゲーミングツール",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "ゲーミングツール",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

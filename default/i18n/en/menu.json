@@ -249,11 +249,11 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Auto-hide Dock"
+  "appearance.dock.tiling": {
+    "label": "Dock on Tiling"
   },
-  "appearance.dock.always-on": {
-    "label": "Always-on Dock"
+  "appearance.dock.floating-only": {
+    "label": "Dock Only on Floating"
   },
   "appearance.dock.position": {
     "label": "Dock Position"
@@ -269,6 +269,18 @@
   },
   "appearance.dock.position.right": {
     "label": "Right Dock"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock Visibility"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Always On"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "First App Hides"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Always Hidden"
   },
   "appearance.workspace-layout": {
     "label": "Workspace Layout",
@@ -530,6 +542,9 @@
   "setup.default.browser.zen": {
     "label": "Zen"
   },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
   "setup.default.dictation": {
     "label": "Dictation",
     "title": "Default Dictation"
@@ -752,6 +767,9 @@
   "install.browser.zen": {
     "label": "Zen"
   },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
   "install.service.1password": {
     "label": "1Password"
   },
@@ -968,6 +986,10 @@
   "install.gaming.retro-launcher": {
     "label": "RetroArch Game Launcher"
   },
+  "install.gaming.tools": {
+    "label": "Gaming Tools",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
   "install.development.rails": {
     "label": "Ruby on Rails"
   },
@@ -1130,6 +1152,9 @@
   "remove.browser.zen": {
     "label": "Zen"
   },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
   "remove.service.1password": {
     "label": "1Password"
   },
@@ -1291,6 +1316,10 @@
   },
   "remove.gaming.vibes": {
     "label": "Game Vibes Game"
+  },
+  "remove.gaming.tools": {
+    "label": "Gaming Tools",
+    "description": "MangoHud, Gamescope, GameMode"
   },
   "remove.development.rails": {
     "label": "Ruby on Rails"

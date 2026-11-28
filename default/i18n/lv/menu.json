@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "Doks"
   },
-  "appearance.dock.autohide": {
-    "label": "Paslēpt doku automātiski"
-  },
-  "appearance.dock.always-on": {
-    "label": "Vienmēr redzams doks"
-  },
   "appearance.dock.position": {
     "label": "Doka vieta"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "Pieteikšanās bez paroles"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Doks mozaīkas režīmā"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Doks tikai peldošajā režīmā"
+  },
+  "appearance.dock.visibility": {
+    "label": "Doka redzamība"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Vienmēr redzams"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "Pirmā lietotne slēpj"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Vienmēr slēpts"
+  },
+  "install.gaming.tools": {
+    "label": "Spēļu rīki",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "Spēļu rīki",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

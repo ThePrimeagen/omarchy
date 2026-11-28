@@ -17,6 +17,14 @@ assertEqual(dock.normalizePosition(' Top '), 'top', 'dock reads a position loose
 assertEqual(dock.normalizePosition('diagonal'), 'bottom', 'dock falls back to the bottom')
 assertEqual(dock.normalizePosition(undefined), 'bottom', 'dock sits at the bottom by default')
 assert(dock.isVertical('right') && !dock.isVertical('top'), 'dock runs vertically on the left and right')
+assertEqual(dock.normalizeVisibility(undefined), 'first-app', 'dock hides once its workspace has a window by default')
+assertEqual(dock.normalizeVisibility('always'), 'always', 'dock accepts a valid visibility')
+assertEqual(dock.normalizeVisibility('sometimes'), 'first-app', 'dock falls back from an unknown visibility')
+assertEqual(dock.normalizeVisibility(undefined, true), 'hidden', 'a config that auto-hid the dock keeps it hidden')
+assertEqual(dock.normalizeVisibility('always', true), 'always', 'a visibility wins over the old auto-hide')
+assertEqual(dock.nearestEdge(100, 500, 1600, 1000, 'top'), 'left', 'a dock dragged near the left edge moves there')
+assertEqual(dock.nearestEdge(800, 40, 1600, 1000, 'top'), 'left', "a dock dragged to the bar's edge goes to the next closest one")
+assertEqual(dock.nearestEdge(800, 40, 1600, 1000, ''), 'top', 'without a bar every edge is open to the dock')
 
 assertDeepEqual(
   dock.pinnedIds({ pinned: ['chromium', 'org.gnome.Nautilus.desktop', 'chromium', ''] }, { pinned: ['spotify'] }),
@@ -170,6 +178,17 @@ if omarchy_dock position diagonal 2>/dev/null; then
 fi
 pass "dock position is set and read through omarchy-dock"
 
+[[ $(omarchy_dock visibility) == "first-app" ]] || fail "dock visibility defaults to first-app"
+omarchy_dock visibility always >/dev/null
+jq -e '.dock.visibility == "always"' "$home/.config/omarchy/shell.json" >/dev/null ||
+  fail "dock visibility is saved" "$(cat "$home/.config/omarchy/shell.json")"
+[[ $(omarchy_dock visibility) == "always" ]] || fail "dock visibility reads back"
+if omarchy_dock visibility sometimes 2>/dev/null; then
+  fail "dock visibility rejects anything but always, first-app, and hidden"
+fi
+omarchy_dock visibility first-app >/dev/null
+pass "dock visibility is set and read through omarchy-dock"
+
 default_pins=$(jq -r '.dock.pinned[]' "$ROOT/config/omarchy/shell.json" | paste -sd " ")
 [[ -n $default_pins && $(omarchy_dock pinned | paste -sd " ") == "$default_pins" ]] || fail "dock pins start from the defaults"
 omarchy_dock unpin spotify >/dev/null
@@ -189,17 +208,6 @@ omarchy_dock pinned signal chromium.desktop signal >/dev/null
   fail "dock pin order is set in one go" "$(cat "$home/.config/omarchy/shell.json")"
 pass "dock pin order is set through omarchy-dock pinned"
 
-[[ $(omarchy_dock autohide) == "off" ]] || fail "dock auto-hide starts off"
-omarchy_dock autohide toggle >/dev/null
-jq -e '.dock.autohide == true' "$home/.config/omarchy/shell.json" >/dev/null || fail "dock auto-hide toggles on"
-[[ $(omarchy_dock autohide) == "on" ]] || fail "dock auto-hide reads back"
-omarchy_dock autohide off >/dev/null
-jq -e '.dock.autohide == false' "$home/.config/omarchy/shell.json" >/dev/null || fail "dock auto-hide turns off"
-if omarchy_dock autohide sometimes 2>/dev/null; then
-  fail "dock auto-hide takes only on, off, or toggle"
-fi
-pass "dock auto-hide is set through omarchy-dock autohide"
-
 # Minimizing moves a window to the dock's hidden workspace without following
 # it, then focuses the workspace it left, so the next window opens there and
 # not beside the minimized one.
@@ -214,7 +222,7 @@ STUB
 chmod +x "$mock_bin/hyprctl"
 printf '#!/bin/bash\n[[ $1 == 9 ]] && echo dwindle || echo floating\n' >"$mock_bin/omarchy-hyprland-workspace-layout-current"
 chmod +x "$mock_bin/omarchy-hyprland-workspace-layout-current"
-minimize() { PATH="$mock_bin:$ROOT/bin:$PATH" omarchy-hyprland-window-minimize "$@"; }
+minimize() { HOME="$home" PATH="$mock_bin:$ROOT/bin:$PATH" omarchy-hyprland-window-minimize "$@"; }
 
 minimize 0xabc
 grep -qxF 'hl.dsp.window.tag({ tag = "+omarchy-minimized-from-3", window = "address:0xabc" })' "$TMPDIR/hyprctl.log" ||
@@ -245,8 +253,8 @@ grep -qxF 'hl.dsp.window.tag({ tag = "+omarchy-minimized-from-7", window = "addr
   fail "minimize remembers the workspace it leaves this time" "$(cat "$TMPDIR/hyprctl.log")"
 pass "minimize remembers only the workspace the window is leaving"
 
-# A tiled workspace has no dock to bring a window back from, so nothing there
-# is minimized.
+# A tiled workspace has an auto-hidden dock unless it is turned off, and with
+# it off there is nowhere to bring a window back from, so nothing is minimized.
 cat >"$mock_bin/hyprctl" <<STUB
 #!/bin/bash
 case "\$1" in
@@ -256,5 +264,16 @@ esac
 STUB
 : >"$TMPDIR/hyprctl.log"
 minimize
-[[ ! -s $TMPDIR/hyprctl.log ]] || fail "minimize leaves windows on a tiled workspace alone" "$(cat "$TMPDIR/hyprctl.log")"
-pass "minimize leaves windows on a tiled workspace alone"
+grep -qxF 'hl.dsp.window.move({ workspace = "special:minimized", follow = false, window = "address:0x999" })' "$TMPDIR/hyprctl.log" ||
+  fail "minimize sends a window on a tiled workspace to its dock" "$(cat "$TMPDIR/hyprctl.log")"
+omarchy_dock tiling off >/dev/null
+: >"$TMPDIR/hyprctl.log"
+minimize
+[[ ! -s $TMPDIR/hyprctl.log ]] || fail "minimize leaves windows alone on a tiled workspace without a dock" "$(cat "$TMPDIR/hyprctl.log")"
+omarchy_dock tiling on >/dev/null
+pass "minimize works on a tiled workspace only while it has a dock"
+
+require_quickshell "app grid context menu test"
+qml_fixture_scratch
+trap 'qml_fixture_cleanup; rm -rf "$TMPDIR"' EXIT
+run_qml_fixture dock-menu "clicking another app dismisses the open context menu without launching" Ui Commons

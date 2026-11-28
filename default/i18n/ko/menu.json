@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "독"
   },
-  "appearance.dock.autohide": {
-    "label": "독 자동 숨기기"
-  },
-  "appearance.dock.always-on": {
-    "label": "독 항상 표시"
-  },
   "appearance.dock.position": {
     "label": "독 위치"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "비밀번호 없는 로그인"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "타일링에서 Dock"
+  },
+  "appearance.dock.floating-only": {
+    "label": "플로팅에서만 Dock"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock 표시"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "항상 표시"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "첫 앱 실행 시 숨김"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "항상 숨김"
+  },
+  "install.gaming.tools": {
+    "label": "게임 도구",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "게임 도구",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }

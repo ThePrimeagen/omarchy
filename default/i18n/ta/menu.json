@@ -212,12 +212,6 @@
   "appearance.dock": {
     "label": "டாக்"
   },
-  "appearance.dock.autohide": {
-    "label": "தானாக மறையும் Dock"
-  },
-  "appearance.dock.always-on": {
-    "label": "எப்போதும் தெரியும் Dock"
-  },
   "appearance.dock.position": {
     "label": "Dock நிலை"
   },
@@ -1438,5 +1432,40 @@
   },
   "setup.security.passwordless-login": {
     "label": "கடவுச்சொல்லற்ற உள்நுழைவு"
+  },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
+  "appearance.dock.tiling": {
+    "label": "Dock அடுக்கில்"
+  },
+  "appearance.dock.floating-only": {
+    "label": "Dock மிதவையில் மட்டும்"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock தெரிவுநிலை"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "எப்போதும் தெரியும்"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "முதல் செயலி மறைக்கும்"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "எப்போதும் மறைந்திருக்கும்"
+  },
+  "install.gaming.tools": {
+    "label": "விளையாட்டு கருவிகள்",
+    "description": "MangoHud, Gamescope, GameMode"
+  },
+  "remove.gaming.tools": {
+    "label": "விளையாட்டு கருவிகள்",
+    "description": "MangoHud, Gamescope, GameMode"
   }
 }
