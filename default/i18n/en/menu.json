@@ -57,6 +57,12 @@
   "system.shutdown": {
     "label": "Shutdown"
   },
+  "system.snapshots": {
+    "label": "Snapshots"
+  },
+  "system.snapshots.restore": {
+    "label": "Restore This Snapshot"
+  },
   "learn.keybindings": {
     "label": "Keybindings"
   },
@@ -65,18 +71,6 @@
   },
   "learn.hyprland": {
     "label": "Hyprland"
-  },
-  "learn.arch": {
-    "label": "Arch"
-  },
-  "learn.neovim": {
-    "label": "Neovim"
-  },
-  "learn.bash": {
-    "label": "Bash"
-  },
-  "learn.tmux-keybindings": {
-    "label": "Tmux"
   },
   "learn.herdr-keybindings": {
     "label": "Herdr"
@@ -255,11 +249,11 @@
   "appearance.dock": {
     "label": "Dock"
   },
-  "appearance.dock.autohide": {
-    "label": "Auto-hide Dock"
+  "appearance.dock.tiling": {
+    "label": "Dock on Tiling"
   },
-  "appearance.dock.always-on": {
-    "label": "Always-on Dock"
+  "appearance.dock.floating-only": {
+    "label": "Dock Only on Floating"
   },
   "appearance.dock.position": {
     "label": "Dock Position"
@@ -275,6 +269,18 @@
   },
   "appearance.dock.position.right": {
     "label": "Right Dock"
+  },
+  "appearance.dock.visibility": {
+    "label": "Dock Visibility"
+  },
+  "appearance.dock.visibility.always": {
+    "label": "Always On"
+  },
+  "appearance.dock.visibility.first-app": {
+    "label": "First App Hides"
+  },
+  "appearance.dock.visibility.hidden": {
+    "label": "Always Hidden"
   },
   "appearance.workspace-layout": {
     "label": "Workspace Layout",
@@ -294,9 +300,6 @@
   },
   "appearance.animations-off": {
     "label": "Animations Off"
-  },
-  "appearance.unlock": {
-    "label": "Unlock"
   },
   "trigger.toggle": {
     "label": "Toggle"
@@ -392,16 +395,18 @@
     "label": "Laptop Display Off"
   },
   "trigger.hardware.mirror-display-on": {
-    "label": "Display Mirroring On"
+    "label": "Mirror Display On"
   },
   "trigger.hardware.mirror-display-off": {
-    "label": "Display Mirroring Off"
+    "label": "Mirror Display Off"
   },
   "trigger.hardware.hybrid-gpu-on": {
-    "label": "Switch to Hybrid GPU"
+    "label": "Switch to dGPU",
+    "description": "Enable hybrid dedicated GPU"
   },
   "trigger.hardware.hybrid-gpu-off": {
-    "label": "Switch to Integrated GPU"
+    "label": "Switch to iGPU",
+    "description": "Use integrated GPU only"
   },
   "trigger.hardware.touchpad-on": {
     "label": "Enable Touchpad"
@@ -537,6 +542,9 @@
   "setup.default.browser.zen": {
     "label": "Zen"
   },
+  "setup.default.browser.ladybird": {
+    "label": "Ladybird"
+  },
   "setup.default.dictation": {
     "label": "Dictation",
     "title": "Default Dictation"
@@ -638,6 +646,9 @@
   },
   "setup.security.passwordless-sudo": {
     "label": "Passwordless Sudo"
+  },
+  "setup.security.passwordless-login": {
+    "label": "Passwordless Login"
   },
   "setup.git": {
     "label": "Git"
@@ -756,6 +767,9 @@
   "install.browser.zen": {
     "label": "Zen"
   },
+  "install.browser.ladybird": {
+    "label": "Ladybird"
+  },
   "install.service.1password": {
     "label": "1Password"
   },
@@ -859,8 +873,7 @@
     "label": "Cloudflare"
   },
   "install.cli.github": {
-    "label": "GitHub",
-    "description": "gh and ghui"
+    "label": "GitHub"
   },
   "install.cli.hey": {
     "label": "HEY"
@@ -972,6 +985,10 @@
   },
   "install.gaming.retro-launcher": {
     "label": "RetroArch Game Launcher"
+  },
+  "install.gaming.tools": {
+    "label": "Gaming Tools",
+    "description": "MangoHud, Gamescope, GameMode"
   },
   "install.development.rails": {
     "label": "Ruby on Rails"
@@ -1135,6 +1152,9 @@
   "remove.browser.zen": {
     "label": "Zen"
   },
+  "remove.browser.ladybird": {
+    "label": "Ladybird"
+  },
   "remove.service.1password": {
     "label": "1Password"
   },
@@ -1187,8 +1207,7 @@
     "label": "Cloudflare"
   },
   "remove.cli.github": {
-    "label": "GitHub",
-    "description": "gh and ghui"
+    "label": "GitHub"
   },
   "remove.cli.hey": {
     "label": "HEY"
@@ -1297,6 +1316,10 @@
   },
   "remove.gaming.vibes": {
     "label": "Game Vibes Game"
+  },
+  "remove.gaming.tools": {
+    "label": "Gaming Tools",
+    "description": "MangoHud, Gamescope, GameMode"
   },
   "remove.development.rails": {
     "label": "Ruby on Rails"
@@ -1426,9 +1449,6 @@
   },
   "update.config.hyprsunset": {
     "label": "Hyprsunset"
-  },
-  "update.config.plymouth": {
-    "label": "Plymouth"
   },
   "update.config.tmux": {
     "label": "Tmux"

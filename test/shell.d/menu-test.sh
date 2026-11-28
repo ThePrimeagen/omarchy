@@ -248,7 +248,9 @@ assert(
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'menu-bar-background-'))
   fs.mkdirSync(path.join(home, '.config/omarchy'), { recursive: true })
   const checked = bar => {
-    fs.writeFileSync(path.join(home, '.config/omarchy/shell.json'), JSON.stringify({ bar }))
+    const configPath = path.join(home, '.config/omarchy/shell.json')
+    if (bar === undefined) fs.rmSync(configPath, { force: true })
+    else fs.writeFileSync(configPath, JSON.stringify({ bar }))
     return ['opaque', 'glassy', 'clear'].filter(look => {
       try {
         execFileSync('bash', ['-c', defaultById[`appearance.top-bar.background.${look}`].checked], { env: { ...process.env, HOME: home, OMARCHY_PATH: root, PATH: `${root}/bin:${process.env.PATH}` } })
@@ -258,53 +260,13 @@ assert(
       }
     })
   }
-  assertDeepEqual(checked({}), ['opaque'], 'menu checks Opaque Bar while the bar is opaque')
+  assertDeepEqual(checked(undefined), ['clear'], 'menu checks Clear Bar on the default config')
+  assertDeepEqual(checked({}), ['clear'], 'menu checks Clear Bar while no background is set')
+  assertDeepEqual(checked({ background: 'opaque' }), ['opaque'], 'menu checks Opaque Bar while the bar is opaque')
   assertDeepEqual(checked({ background: 'glassy' }), ['glassy'], 'menu checks Glassy Bar while the bar is glassy')
   assertDeepEqual(checked({ background: 'none' }), ['clear'], 'menu checks Clear Bar while the bar has no background')
   assertDeepEqual(checked({ transparent: true }), ['clear'], 'menu checks Clear Bar for a bar made transparent before backgrounds')
-  fs.rmSync(home, { recursive: true, force: true })
-}
-
-// The dock only appears on floating workspaces, so its settings only show
-// there. Ask bash, against a stubbed layout for the active workspace.
-{
-  const os = require('os')
-  const { execFileSync } = require('child_process')
-  const stub = fs.mkdtempSync(path.join(os.tmpdir(), 'menu-dock-layout-'))
-  const shown = layout => {
-    fs.writeFileSync(path.join(stub, 'omarchy-hyprland-workspace-layout-current'), `#!/bin/bash\necho ${layout}\n`, { mode: 0o755 })
-    try {
-      execFileSync('bash', ['-c', defaultById['appearance.dock'].when], { env: { ...process.env, PATH: `${stub}:${process.env.PATH}` } })
-      return true
-    } catch (e) {
-      return false
-    }
-  }
-  assert(shown('floating'), 'menu shows Appearance > Dock on a floating workspace')
-  assert(!shown('dwindle') && !shown('scrolling'), 'menu hides Appearance > Dock on a tiled workspace')
-  fs.rmSync(stub, { recursive: true, force: true })
-}
-
-// Auto-hide Dock shows while the dock stays up, and Always-on Dock while it
-// hides. Ask bash, against a shell.json in each state, which rows it shows.
-{
-  const os = require('os')
-  const { execFileSync } = require('child_process')
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'menu-dock-autohide-'))
-  fs.mkdirSync(path.join(home, '.config/omarchy'), { recursive: true })
-  const shown = dock => {
-    fs.writeFileSync(path.join(home, '.config/omarchy/shell.json'), JSON.stringify({ version: 1, dock }))
-    return ['autohide', 'always-on'].filter(row => {
-      try {
-        execFileSync('bash', ['-c', defaultById[`appearance.dock.${row}`].when], { env: { ...process.env, HOME: home, OMARCHY_PATH: root, PATH: `${root}/bin:${process.env.PATH}` } })
-        return true
-      } catch (e) {
-        return false
-      }
-    })
-  }
-  assertDeepEqual(shown({}), ['autohide'], 'menu offers Auto-hide Dock while the dock stays up')
-  assertDeepEqual(shown({ autohide: true }), ['always-on'], 'menu offers Always-on Dock while the dock hides')
+  assertDeepEqual(checked({ transparent: false }), ['opaque'], 'menu checks Opaque Bar for a bar explicitly opaque before backgrounds')
   fs.rmSync(home, { recursive: true, force: true })
 }
 
@@ -522,3 +484,20 @@ jq -e '
   and .width == 400
 ' "$select_tmp/input.json" >/dev/null || fail "omarchy-menu-input builds the expected JSON payload" "$(cat "$select_tmp/input.json")"
 pass "omarchy-menu-input builds the expected JSON payload"
+
+# The Snapshots provider lists systemd-boot's entries. On Limine its menu is
+# hidden, and a search must not run omarchy-snapshot list there: it asks sudo
+# for snapper's table, with no terminal to ask in.
+snapshots_script=$(node -e '
+  const src = require("fs").readFileSync(process.argv[1], "utf8")
+  process.stdout.write(JSON.parse(src.match(/"snapshots": \{\s*script: ("(?:[^"\\]|\\.)*")/)[1]))
+' "$ROOT/shell/plugins/menu/Menu.qml")
+mkdir -p "$select_tmp/snapshots"
+printf '#!/bin/bash\necho "$BOOT_BACKEND"\n' >"$select_tmp/snapshots/omarchy-boot-backend"
+printf '#!/bin/bash\necho "omarchy-snapshot $*" >>"$CALLS"\nprintf "12\\tSnapshot 12 (update)\\n"\n' >"$select_tmp/snapshots/omarchy-snapshot"
+chmod +x "$select_tmp/snapshots/"*
+rows=$(BOOT_BACKEND=limine CALLS="$select_tmp/snapshot-calls" PATH="$select_tmp/snapshots:$PATH" bash -c "$snapshots_script")
+[[ -z $rows && ! -e $select_tmp/snapshot-calls ]] || fail "on Limine the Snapshots provider runs nothing" "$rows"
+rows=$(BOOT_BACKEND=systemd-boot CALLS="$select_tmp/snapshot-calls" PATH="$select_tmp/snapshots:$PATH" bash -c "$snapshots_script")
+[[ $rows == $'Snapshot 12 (update)\t12\t' ]] || fail "on systemd-boot the Snapshots provider lists the entries" "$rows"
+pass "the Snapshots provider lists systemd-boot's entries and asks nothing of Limine"

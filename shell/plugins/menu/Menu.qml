@@ -147,7 +147,10 @@ Item {
   property int dividerHeight: Style.space(17)
   property bool searchDivider: false
   property int layoutSerial: 0
-  property int cardWidth: Math.min(root.dmenuActive ? Style.space(root.dmenuWidth) : ((root.activeMenu === "trigger.capture.screenrecord" || root.activeMenu === "appearance.font" || root.activeMenu === "update.kernel") ? Style.space(520) : Style.space(300)), panel.width - Style.gapsOut * 2)
+  // Menus whose rows carry long labels (font names, kernel packages, snapshot
+  // titles) get the wide card.
+  readonly property var wideMenus: ({ "trigger.capture.screenrecord": true, "appearance.font": true, "update.kernel": true, "system.snapshots": true })
+  property int cardWidth: Math.min(root.dmenuActive ? Style.space(root.dmenuWidth) : (root.wideMenus[root.activeMenu] === true ? Style.space(520) : Style.space(300)), panel.width - Style.gapsOut * 2)
   property int visibleRowsHeight: root.dmenuActive ? dmenuRowListHeight(layoutSerial, filterText) : rowListHeight(layoutSerial, filterText, searchDivider)
   property int cardHeight: root.dmenuActive
     ? Math.min(contentMargin * 2 + headerHeight + (mode === "input" ? 0 : contentSpacing + visibleRowsHeight), panel.height - Style.gapsOut * 2)
@@ -369,6 +372,16 @@ Item {
       volatile: true,
       actionFor: function(value) { return "omarchy-kernel set " + Util.shellQuote(value) }
     },
+    // systemd-boot's snapshot entries, newest first, as omarchy-boot-sync
+    // published them. Picking one boots it once; it can be restored from there.
+    // On Limine, omarchy-snapshot list asks sudo for snapper's table, which a
+    // menu has no terminal for.
+    "snapshots": {
+      script: "[[ $(omarchy-boot-backend) == systemd-boot ]] || exit 0; omarchy-snapshot list 2>/dev/null | while IFS=$'\\t' read -r n title; do [[ -z $n ]] && continue; printf '%s\\t%s\\t\\n' \"$title\" \"$n\"; done",
+      icon: "\udb80\udc6f",
+      volatile: true,
+      actionFor: function(value) { return "omarchy-launch-floating-terminal-with-presentation omarchy-snapshot boot " + Util.shellQuote(value) }
+    },
     // Rows carry a fourth field (the English name) so searching "danish"
     // finds the row labeled with its native name; mergeProviderRows turns
     // it into an alias.
@@ -543,6 +556,8 @@ Item {
       var entry = root.item(root.itemOrder[i])
       if (!entry || !entry.provider || root.providersLoaded[entry.id]) continue
       if (active !== "root" && entry.id !== active && !root.isDescendantOf(entry.id, active)) continue
+      // A submenu its guard hides has no rows to search.
+      if (!root.isVisible(entry)) continue
 
       root.loadProviderForMenu(entry.id)
     }
@@ -1489,7 +1504,15 @@ Item {
       borderSpec: root.borderSpec
       padding: root.contentMargin
 
-      MouseArea { anchors.fill: parent; onClicked: {} }
+      MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.BackButton
+        onClicked: function(mouse) {
+          if (!root.deleteConfirmOpen && (mouse.button === Qt.RightButton || mouse.button === Qt.BackButton)) {
+            root.goBack()
+          }
+        }
+      }
 
       Item {
         id: keyCatcher
@@ -1580,9 +1603,25 @@ Item {
           radius: root.cornerRadius
           color: "transparent"
 
+          PanelActionButton {
+            id: backButton
+            visible: root.activeMenu !== "root"
+            enabled: !root.deleteConfirmOpen
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            iconText: Commons.I18n.rightToLeft ? "→" : "←"
+            tooltipText: Commons.I18n.t("common.back")
+            foreground: Util.alpha(root.foreground, 0.55)
+            hoverColor: root.selectedText
+            fontFamily: root.fontFamily
+            fontSize: Style.font.heading
+            onClicked: root.goBack()
+          }
+
           FilterInput {
             id: filterInput
-            anchors.left: parent.left
+            anchors.left: backButton.visible ? backButton.right : parent.left
+            anchors.leftMargin: backButton.visible ? Style.spacing.sm : 0
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             keyHandler: keyCatcher
@@ -1624,12 +1663,7 @@ Item {
             WheelHandler {
               acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
               target: null
-              onWheel: function(event) {
-                var delta = event.pixelDelta.y * Style.touchpadScrollFactor || event.angleDelta.y / 120 * root.rowHeightForDetail("") * 3
-                var bottom = resultList.originY + Math.max(0, resultList.contentHeight - resultList.height)
-                resultList.contentY = Math.max(resultList.originY, Math.min(bottom, resultList.contentY - delta))
-                event.accepted = true
-              }
+              onWheel: function(event) { Util.wheelScroll(resultList, event, root.rowHeightForDetail("") * 3) }
             }
 
             section.property: "section"
@@ -1729,11 +1763,13 @@ Item {
                 y: contentColumn.y + labelText.y + (labelText.height - height) / 2
               }
 
+              HoverHandler { id: rowHover }
+
               Column {
                 id: contentColumn
                 anchors.left: row.hasIcon ? iconText.right : parent.left
                 anchors.leftMargin: row.hasIcon ? Style.space(6) : root.rowReservedBorderLeft + Style.space(18)
-                anchors.right: trail.left
+                anchors.right: row.isApp ? uninstallButton.left : trail.left
                 anchors.rightMargin: Style.space(6)
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: Style.space(3)
@@ -1814,6 +1850,20 @@ Item {
                   root.selectedIndex = row.index
                   root.activateIndex(row.index, mouseArea.mapToItem(null, mouse.x, mouse.y))
                 }
+              }
+
+              PanelActionButton {
+                id: uninstallButton
+                visible: row.isApp && !row.disabled && row.hasCursor && rowHover.hovered && !root.deleteConfirmOpen
+                anchors.right: parent.right
+                anchors.rightMargin: root.rowReservedBorderRight + Style.space(8)
+                anchors.verticalCenter: parent.verticalCenter
+                iconText: "󰆴"
+                tooltipText: Commons.I18n.t("common.uninstall")
+                foreground: Util.alpha(root.selectedText, 0.55)
+                hoverColor: Commons.Color.urgent
+                fontFamily: root.fontFamily
+                onClicked: root.requestDeleteSelected()
               }
             }
           }

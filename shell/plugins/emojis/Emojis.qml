@@ -19,6 +19,7 @@ Item {
   property int selectedIndex: 0
   property bool cursorActive: false
   property var emojis: []
+  property bool emojisLoaded: false
   property var filteredEmojis: []
 
   // Shares the [menu] surface tokens — themes that style the menu also
@@ -69,10 +70,12 @@ Item {
 
   function loadEmojis(raw) {
     root.emojis = EmojiSearch.parseEmojis(raw)
+    root.emojisLoaded = true
     if (root.opened) root.rebuildDisplay()
   }
 
   function rebuildDisplay() {
+    pointerGate.reset()
     var out = EmojiSearch.filterEmojis(root.emojis, root.filterText, 1000)
     root.filteredEmojis = out
 
@@ -89,6 +92,7 @@ Item {
   function select(delta) {
     var count = root.filteredEmojis.length
     if (count === 0) return
+    pointerGate.reset()
     if (!cursorActive) {
       cursorActive = true
       selectedIndex = delta < 0 ? count - 1 : 0
@@ -101,6 +105,7 @@ Item {
   function selectRow(delta) {
     var count = root.filteredEmojis.length
     if (count === 0) return
+    pointerGate.reset()
     if (!cursorActive) {
       cursorActive = true
       selectedIndex = delta < 0 ? count - 1 : 0
@@ -117,6 +122,7 @@ Item {
   function selectPage(delta) {
     var count = root.filteredEmojis.length
     if (count === 0) return
+    pointerGate.reset()
     if (!cursorActive) {
       cursorActive = true
       selectedIndex = delta < 0 ? count - 1 : 0
@@ -147,6 +153,11 @@ Item {
     if (!emoji) return
     root.dismiss()
     Quickshell.execDetached([root.omarchyPath + "/bin/omarchy-menu-emoji-insert", emoji])
+  }
+
+  PointerMoveGate {
+    id: pointerGate
+    referenceItem: card
   }
 
   FileView {
@@ -257,12 +268,26 @@ Item {
 
           GridView {
             id: resultGrid
+            objectName: "emojiGrid"
             anchors.fill: parent
             model: root.filteredEmojis
             clip: true
             cellWidth: root.cellWidth
             cellHeight: root.cellHeight
             boundsBehavior: Flickable.StopAtBounds
+
+            WheelHandler {
+              acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+              target: null
+              onWheel: function(event) {
+                var delta = event.pixelDelta.y * Style.touchpadScrollFactor || event.angleDelta.y / 120 * root.cellHeight * 3
+                if (delta === 0) return
+                pointerGate.reset()
+                var bottom = resultGrid.originY + Math.max(0, resultGrid.contentHeight - resultGrid.height)
+                resultGrid.contentY = Math.max(resultGrid.originY, Math.min(bottom, resultGrid.contentY - delta))
+                event.accepted = true
+              }
+            }
 
             delegate: Rectangle {
               required property int index
@@ -290,7 +315,8 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onContainsMouseChanged: if (containsMouse) {
+                onPositionChanged: function(mouse) {
+                  if (!pointerGate.moved(mouseArea, mouse)) return
                   root.cursorActive = true
                   root.selectedIndex = index
                 }
@@ -307,7 +333,7 @@ Item {
             anchors.centerIn: parent
             width: parent.width - 2 * root.contentMargin
             spacing: Style.space(8)
-            visible: root.filteredEmojis.length === 0
+            visible: root.emojisLoaded && root.filteredEmojis.length === 0
 
             Text {
               text: "󰈉"

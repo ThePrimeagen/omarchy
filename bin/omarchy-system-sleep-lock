@@ -40,13 +40,21 @@ if [[ ! $budget_ms =~ ^[0-9]+$ ]] || (( budget_ms < 1 || budget_ms > budget_cap_
   budget_ms=$(derive_budget_ms)
 fi
 
-# EPOCHREALTIME renders with the locale's decimal separator, so drop every
-# non-digit rather than assuming a period. A comma would otherwise read as
-# bash's comma operator and silently void the deadline.
-deadline_ms=$((10#${EPOCHREALTIME//[!0-9]/} / 1000 + budget_ms))
+# /proc/uptime ticks on CLOCK_BOOTTIME (10ms resolution) with an ASCII dot in
+# every locale, so NTP wall-clock steps cannot cut the wait short or overrun
+# logind's window.
+read_uptime_ms() {
+  local up
+  read -r up _ </proc/uptime
+  REPLY=$((10#${up/./} * 10))
+}
+
+read_uptime_ms
+deadline_ms=$((REPLY + budget_ms))
 
 remaining_ms() {
-  echo $((deadline_ms - 10#${EPOCHREALTIME//[!0-9]/} / 1000))
+  read_uptime_ms
+  echo $((deadline_ms - REPLY))
 }
 
 # Clamping to what is left as well as to the call's own limit is what lets the
@@ -104,6 +112,14 @@ report_unsecured() {
 
   exit 1
 }
+
+# When passwordless login is active, waking from sleep should also stay
+# passwordless: skip locking, still reconcile clamshell state, and release the
+# sleep inhibitor immediately.
+if omarchy-setup-security-passwordless-login --active; then
+  sync_clamshell
+  exit 0
+fi
 
 # Request the lock before touching monitor state, so a stuck Hyprland IPC call
 # cannot consume the window before Quickshell has begun securing the session.

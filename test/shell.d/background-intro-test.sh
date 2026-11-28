@@ -240,3 +240,40 @@ touch "$toggle"
 PATH="$command_bin:$PATH" HOME="$intro_home" OMARCHY_PATH="$prepare_root" COMMAND_LOG="$command_log" "$ROOT/bin/omarchy-theme-bg-boot-intro" --prepare-theme demo
 [[ ! -s $command_log ]] || fail "disabled intros do not warm the renderer"
 pass "picker preparation respects the remembered background, login startup, and intro toggle"
+
+require_quickshell "BackgroundIntro framePoll failure cutoff test"
+
+qml_fixture_scratch
+trap 'qml_fixture_cleanup; rm -rf "$test_tmp"' EXIT
+
+mkdir -p "$QML_FIXTURE_TMP/home/.local/state/omarchy"
+printf 'framepoll-test-session\n' >"$QML_FIXTURE_TMP/home/.local/state/omarchy/background-intro.session-id"
+
+cat >"$QML_FIXTURE_TMP/bin/omarchy-theme-bg-boot-intro" <<'SH'
+#!/bin/bash
+exit 0
+SH
+cat >"$QML_FIXTURE_TMP/bin/owe" <<'SH'
+#!/bin/bash
+printf '%s\n' "$*" >>"$OMARCHY_QML_TEST_OWE_LOG"
+exit 1
+SH
+chmod +x "$QML_FIXTURE_TMP/bin/omarchy-theme-bg-boot-intro" "$QML_FIXTURE_TMP/bin/owe"
+
+owe_poll_log="$QML_FIXTURE_TMP/owe-poll.log"
+: >"$owe_poll_log"
+cover_snapshot="$QML_FIXTURE_TMP/previous-1.ppm"
+cover_snapshot_next="$QML_FIXTURE_TMP/previous-2.ppm"
+printf 'P6\n4 4\n255\n' >"$cover_snapshot"
+dd if=/dev/zero bs=48 count=1 status=none >>"$cover_snapshot"
+cp "$cover_snapshot" "$cover_snapshot_next"
+
+OMARCHY_SESSION_ID=framepoll-test-session \
+OMARCHY_QML_TEST_OWE_LOG="$owe_poll_log" \
+OMARCHY_QML_TEST_SNAPSHOT="$cover_snapshot" \
+OMARCHY_QML_TEST_SNAPSHOT_NEXT="$cover_snapshot_next" \
+  run_qml_fixture background-intro "BackgroundIntro stops framePoll after persistent owe failures and does not cache cover snapshots" services Commons
+
+poll_count=$(grep -c '^render-status$' "$owe_poll_log" || true)
+(( poll_count == 5 )) || fail "BackgroundIntro stops polling owe after 5 consecutive failures" "expected 5, got $poll_count"
+pass "BackgroundIntro stops polling owe after 5 consecutive failures"

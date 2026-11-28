@@ -131,6 +131,7 @@ New migration format:
 - Use helper commands such as `omarchy-cmd-present`, `omarchy-cmd-missing`,
   `omarchy-pkg-add`, `omarchy-pkg-drop`, `omarchy-pkg-present`, and
   `omarchy-pkg-missing` when appropriate.
+- Don't stop the update to ask the user to close an app. When a change can only land while an app is closed (a running browser writes its own Preferences back over it), queue an Omarchy command that finishes it with `omarchy-provision-next-boot add <omarchy-command>` and `omarchy-state set reboot-required`. Hyprland's start runs the queue before the user opens anything, and a command that fails stays queued for the next login.
 - Never restart the Omarchy shell. `omarchy update` restarts it unconditionally
   after migrations run, and the login-time shell already runs current code and
   hot-reloads `shell.json` edits.

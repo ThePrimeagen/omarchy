@@ -4,30 +4,36 @@ source "$(dirname "${BASH_SOURCE[0]}")/base-test.sh"
 
 require_command lua
 
-for bell_supported in false true; do
-  OMARCHY_BELL_SUPPORTED="$bell_supported" lua - <<'LUA' || fail "look and feel loads before and after a Hyprland upgrade"
-local supported = os.getenv("OMARCHY_BELL_SUPPORTED") == "true"
-local bell
+for newer_options in false true; do
+  OMARCHY_NEWER_OPTIONS="$newer_options" lua - <<'LUA' || fail "look and feel loads before and after a Hyprland upgrade"
+local supported = os.getenv("OMARCHY_NEWER_OPTIONS") == "true"
+local newer = { ["misc.bell_sound"] = "default", ["misc.startup_hold_layer"] = "", ["cursor.hide_at_startup"] = false }
+local set = {}
 hl = {
   get_config = function(key)
-    assert(key == "misc.bell_sound")
-    if supported then return "default" end
-    return nil, "unknown config key 'misc.bell_sound'"
+    assert(newer[key] ~= nil, key)
+    if supported then return newer[key] end
+    return nil, "unknown config key '" .. key .. "'"
   end,
   config = function(config)
-    if config.misc then
-      bell = config.misc.bell_sound
-      assert(supported or bell == nil, "unknown config key 'misc.bell_sound'")
+    for section, options in pairs(config) do
+      for option, value in pairs(options) do
+        local key = section .. "." .. option
+        assert(supported or newer[key] == nil, "unknown config key '" .. key .. "'")
+        set[key] = value
+      end
     end
   end,
   curve = function() end,
   animation = function() end,
 }
 dofile(os.getenv("ROOT") .. "/default/hypr/looknfeel.lua")
-assert(bell == (supported and "none" or nil))
+assert(set["misc.bell_sound"] == (supported and "none" or nil))
+assert(set["misc.startup_hold_layer"] == (supported and "overlay:omarchy-background" or nil))
+assert(set["cursor.hide_at_startup"] == (supported or nil))
 LUA
 done
-pass "look and feel mutes bells only when the running compositor supports it"
+pass "look and feel mutes bells, holds the splash's frame and hides the startup cursor only when the running compositor supports them"
 
 run_application_bindings() {
   local home="$1"
@@ -175,18 +181,14 @@ pass "default binding variable disables all Omarchy bindings"
 
 dictation_home="$tmpdir/dictation-home"
 missing_bin="$tmpdir/missing-bin"
-mkdir -p "$dictation_home" "$missing_bin"
+mkdir -p "$dictation_home/.config/omarchy/defaults" "$missing_bin"
 ln -s "$(command -v lua)" "$missing_bin/lua"
 ln -s "$(command -v lspci)" "$missing_bin/lspci"
 ln -s "$(command -v sort)" "$missing_bin/sort"
 dictation_output=$(PATH="$missing_bin" run_omarchy_bindings "$dictation_home") ||
   fail "unconfigured dictation leaves application shortcuts available"
 if grep -Fq 'dictation' <<<"$dictation_output"; then fail "unconfigured dictation leaves application shortcuts available"; fi
-cat > "$missing_bin/omarchy-default-dictation" <<'SH'
-#!/bin/bash
-echo future-backend
-SH
-chmod +x "$missing_bin/omarchy-default-dictation"
+printf 'future-backend\n' > "$dictation_home/.config/omarchy/defaults/dictation"
 dictation_output=$(PATH="$missing_bin" run_omarchy_bindings "$dictation_home") ||
   fail "a selected backend that is not installed leaves application shortcuts available"
 if grep -Fq 'dictation' <<<"$dictation_output"; then fail "a selected backend that is not installed leaves application shortcuts available"; fi
@@ -260,3 +262,53 @@ number_claims=$(cut -f1 <<<"$panels_output" | grep -cE '^SUPER \+ CTRL \+ code:1
 (( number_claims == 9 )) ||
   fail "only the bar panel hotkeys bind SUPER + CTRL + a number" "$number_claims"
 pass "bar panel hotkeys bind SUPER + CTRL + a number without a collision"
+
+# Native Linux Steam games keep their own window class instead of
+# steam_app_<appid>, so steam.lua detects them from SteamGameId in
+# /proc/<pid>/environ on window.open and starts them fullscreen.
+# Use Lua's own PID (with SteamGameId set) and this shell's PID (without it)
+# so we read real /proc/<pid>/environ files with no background processes.
+unset SteamGameId SteamAppId
+HOME="$fresh_home" OMARCHY_PATH="$ROOT" SteamGameId=239820 PLAIN_APP_PID="$$" lua - <<'LUA' || fail "native Steam games fullscreen on open while dialogs and non-Steam apps do not"
+package.path = os.getenv("OMARCHY_PATH") .. "/?.lua;" .. package.path
+local handlers, dispatches = {}, {}
+hl = {
+  window_rule = function() end,
+  on = function(event, fn) handlers[event] = fn end,
+  dispatch = function(cmd) table.insert(dispatches, cmd) end,
+  dsp = {
+    window = {
+      tag = function(spec) return { kind = "tag", tag = spec.tag, window = spec.window } end,
+      fullscreen = function(spec) return { kind = "fullscreen", mode = spec.mode, action = spec.action, window = spec.window } end,
+    },
+  },
+}
+require("default.hypr.helpers")
+require("default.hypr.apps.steam")
+local on_open = assert(handlers["window.open"], "steam.lua did not subscribe to window.open")
+local stat = assert(io.open("/proc/self/stat", "r"))
+local game_pid = tonumber(stat:read("*a"):match("^(%d+)"))
+stat:close()
+local plain_pid = tonumber(os.getenv("PLAIN_APP_PID"))
+
+local function check(win)
+  dispatches = {}
+  on_open(win)
+  return dispatches
+end
+
+local native = check({ class = "Gamedevtycoon64-bin", pid = game_pid, floating = false, fullscreen = 0, tags = {} })
+assert(#native == 2 and native[1].kind == "tag" and native[1].tag == "+steam-game", "native game not tagged")
+assert(native[2].kind == "fullscreen" and native[2].mode == "fullscreen" and native[2].action == "set", "native game not fullscreened")
+
+local on_float_ws = check({ class = "Gamedevtycoon64-bin", pid = game_pid, floating = true, fullscreen = 0, tags = { "omarchy-mode-opened*" } })
+assert(#on_float_ws == 2 and on_float_ws[2].kind == "fullscreen", "native game on floating workspace not fullscreened")
+
+assert(#check({ class = "Gamedevtycoon64-bin", pid = game_pid, floating = true, fullscreen = 0, tags = {} }) == 0, "floating game dialog should stay floating")
+assert(#check({ class = "google-chrome", pid = game_pid, floating = false, fullscreen = 0, tags = { "chromium-based-browser*" } }) == 0, "browser launched from a game should be ignored")
+assert(#check({ class = "foot", pid = game_pid, floating = false, fullscreen = 0, tags = { "terminal*" } }) == 0, "terminal launched from a game should be ignored")
+assert(#check({ class = "steam", pid = game_pid, floating = false, fullscreen = 0, tags = {} }) == 0, "steam client should be ignored")
+assert(#check({ class = "steam_app_battlenet", pid = game_pid, floating = false, fullscreen = 0, tags = {} }) == 0, "battle.net should be ignored")
+assert(#check({ class = "foot", pid = plain_pid, floating = false, fullscreen = 0, tags = {} }) == 0, "non-Steam window should be ignored")
+LUA
+pass "native Linux Steam games fullscreen on open without affecting dialogs or other apps"

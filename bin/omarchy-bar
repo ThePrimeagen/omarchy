@@ -228,10 +228,10 @@ cmd_position() {
 }
 
 # The bar background is opaque, glassy, or none. A shell.json from before it
-# had one says transparent instead, which is none, and setting a background
-# drops it.
+# had one says transparent instead, which is none when true and opaque when
+# false, and setting a background drops it.
 current_background() {
-  jq -r '.bar.background // (if .bar.transparent == true then "none" else "opaque" end)' "$(source_file)"
+  jq -r '.bar.background // (if .bar.transparent == false then "opaque" else "none" end)' "$(source_file)"
 }
 
 cmd_background() {

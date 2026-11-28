@@ -44,6 +44,7 @@ Item {
   property string backgroundRows: ""
   property bool backgroundMode: false
   property bool backgroundOpenPending: false
+  property int backgroundRowsGeneration: 0
   property string currentBackgroundPath: ""
   property string initialBackgroundSelection: ""
   property var extraThemeNames: []
@@ -72,13 +73,27 @@ Item {
   readonly property int previewRadius: Math.max(1, Math.min(16, Math.ceil((panel.width - expandedWidth) / (2 * (sliceWidth + sliceSpacing))) + 1))
   onPreviewRadiusChanged: updateVisibleItems()
 
-  onOpenedChanged: if (!opened) { layoutSettled = false; renderedFrames = 0; deleteConfirmOpen = false; pendingDeleteTheme = ""; deleteSelectionPath = ""; awaitingDeleteRefresh = false }
+  property var scrubAnchor: null
+
+  onOpenedChanged: {
+    disarmPointer()
+    if (!opened) { layoutSettled = false; renderedFrames = 0; deleteConfirmOpen = false; pendingDeleteTheme = ""; deleteSelectionPath = ""; awaitingDeleteRefresh = false }
+  }
+  onDeleteConfirmOpenChanged: disarmPointer()
+
+  PointerMoveGate {
+    id: pointerGate
+  }
 
   PreviewHold {
     id: previewHold
     active: root.opened
-    // The selected preview decodes first again on the next open.
-    onHeldChanged: if (!held) root.neighborImagesEnabled = false
+    // Release delegates and reset decode ordering once the grace period ends.
+    onHeldChanged: {
+      if (!held) root.neighborImagesEnabled = false
+      root.updateVisibleItems()
+      if (held) Qt.callLater(root.enableNeighborsWhenReady)
+    }
   }
 
   function scriptPath(name) {
@@ -152,6 +167,11 @@ Item {
     return ImagePickerModel.firstMatchingIndex(imageArray, filterText)
   }
 
+  function disarmPointer() {
+    pointerGate.reset()
+    scrubAnchor = null
+  }
+
   function select(index, immediate) {
     if (imageArray.length === 0) return
     if (index < 0) index = 0
@@ -160,6 +180,23 @@ Item {
     if (index === selectedIndex && immediate !== true) return
 
     selectedIndex = index
+  }
+
+  function selectFromKeyboard(direction) {
+    disarmPointer()
+    selectAdjacent(direction)
+  }
+
+  function handlePointerMove(pos) {
+    if (matchingImageIndices.length === 0 || !pointerGate.moved(scrubBand, pos)) return
+
+    var readingX = carousel.mirrored ? scrubBand.width - pos.x : pos.x
+    var currentPos = matchingImageIndices.indexOf(selectedIndex)
+    if (!scrubAnchor) {
+      scrubAnchor = ImagePickerModel.createScrubAnchor(matchingImageIndices.length, currentPos, readingX, scrubBand.width)
+    }
+
+    select(matchingImageIndices[ImagePickerModel.scrubPosition(matchingImageIndices.length, currentPos, scrubAnchor, readingX)])
   }
 
   function selectAdjacent(direction) {
@@ -177,6 +214,7 @@ Item {
   }
 
   function updateFilter(nextFilterText) {
+    disarmPointer()
     filterText = nextFilterText
 
     if (!itemMatches(selectedIndex)) {
@@ -276,6 +314,8 @@ Item {
     root.neighborImagesEnabled = false
     root.imageArray = newImages
     root.imagesLoaded = true
+    if (root.backgroundMode && !root.initialBackgroundSelection)
+      root.initialBackgroundSelection = root.currentPath()
     Qt.callLater(root.enableNeighborsWhenReady)
 
     if (reveal !== false) {
@@ -308,6 +348,7 @@ Item {
     filterable = nextFilterable === true || nextFilterable === "true"
     filterText = ""
     layoutSettled = false
+    disarmPointer()
 
     if (imageRows && imageRows === loadedImageRows && imageArray.length > 0) {
       root.select(root.selectedImageIndex(), true)
@@ -339,6 +380,7 @@ Item {
   }
 
   property var imageArray: []
+  onImageArrayChanged: disarmPointer()
   readonly property var matchingImageIndices: ImagePickerModel.matchingIndices(imageArray, filterText)
   onMatchingImageIndicesChanged: updateVisibleItems()
   onSelectedIndexChanged: {
@@ -366,7 +408,8 @@ Item {
   }
 
   function updateVisibleItems() {
-    ImagePickerModel.syncWindow(visibleImages, ImagePickerModel.visibleWindow(matchingImageIndices, selectedIndex, previewRadius))
+    var window = previewHold.held ? ImagePickerModel.visibleWindow(matchingImageIndices, selectedIndex, previewRadius) : []
+    ImagePickerModel.syncWindow(visibleImages, window)
   }
 
   function enableNeighborsWhenReady() {
@@ -392,7 +435,8 @@ Item {
     if (themeRows) {
       openThemeRows()
     } else {
-      // First open before the startup refresh has landed.
+      // First open before theme rows have been loaded.
+      closeSelector("")
       themeOpenPending = true
     }
     refreshThemeRows()
@@ -409,6 +453,7 @@ Item {
     if (backgroundRows) {
       openBackgroundRows()
     } else {
+      closeSelector("")
       backgroundOpenPending = true
     }
     refreshCurrentBackground()
@@ -423,11 +468,13 @@ Item {
 
   function refreshBackgroundRows() {
     if (backgroundRowsProc.running) { backgroundRowsProc.queued = true; return }
+    backgroundRowsProc.activeGeneration = root.backgroundRowsGeneration
     backgroundRowsProc.running = true
   }
 
   function refreshCurrentBackground() {
     if (currentBackgroundProc.running) { currentBackgroundProc.queued = true; return }
+    currentBackgroundProc.activeGeneration = root.backgroundRowsGeneration
     currentBackgroundProc.running = true
   }
 
@@ -444,7 +491,7 @@ Item {
       }
     } else if (changed && backgroundMode && opened) {
       if (rows) {
-        selectedImage = currentPath() || currentBackgroundPath
+        selectedImage = (initialBackgroundSelection ? currentPath() : "") || currentBackgroundPath
         imageRows = rows
         loadRows(rows, false)
       } else {
@@ -529,22 +576,32 @@ Item {
     watchChanges: true
     onFileChanged: {
       reload()
+      root.backgroundRowsGeneration += 1
       root.backgroundRows = ""
-      root.refreshBackgroundRows()
-      root.refreshCurrentBackground()
+      root.currentBackgroundPath = ""
+      root.initialBackgroundSelection = ""
+      if (root.backgroundOpenPending || (root.opened && root.backgroundMode)) {
+        root.refreshBackgroundRows()
+        root.refreshCurrentBackground()
+      }
     }
   }
 
   Process {
     id: backgroundRowsProc
     property bool queued: false
+    property int activeGeneration: 0
     command: [root.omarchyPath + "/bin/omarchy-theme-bg-switcher", "--print-rows"]
     stdout: StdioCollector {
-      onStreamFinished: root.updateBackgroundRows(String(text || "").trim())
+      onStreamFinished: {
+        if (backgroundRowsProc.activeGeneration !== root.backgroundRowsGeneration) return
+        root.updateBackgroundRows(String(text || "").trim())
+      }
     }
     onExited: {
       if (queued) {
         queued = false
+        activeGeneration = root.backgroundRowsGeneration
         running = true
       }
     }
@@ -553,10 +610,12 @@ Item {
   Process {
     id: currentBackgroundProc
     property bool queued: false
+    property int activeGeneration: 0
     command: ["readlink", "-f", root.stateHome + "/omarchy/current/background"]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
+        if (currentBackgroundProc.activeGeneration !== root.backgroundRowsGeneration) return
         var resolved = String(text || "").trim()
         if (!resolved) return
         root.currentBackgroundPath = resolved
@@ -573,6 +632,7 @@ Item {
     onExited: {
       if (queued) {
         queued = false
+        activeGeneration = root.backgroundRowsGeneration
         running = true
       }
     }
@@ -629,14 +689,6 @@ Item {
       root.refreshExtraThemes()
       root.refreshThemeRows()
     }
-  }
-
-  Component.onCompleted: {
-    refreshThemeRows()
-    refreshBackgroundRows()
-    refreshCurrentBackground()
-    refreshExtraThemes()
-    refreshStockThemes()
   }
 
   function startImageScan(serial, dirs) {
@@ -722,7 +774,6 @@ Item {
     // leaving the picker invisible behind its own open overlay.
     if (opened || requestActive) return
 
-    previewHold.warm()
     requestSerial += 1
     imageRows = nextImageRows
     selectedImage = nextSelectedImage
@@ -730,12 +781,15 @@ Item {
     filterable = nextFilterable === true || nextFilterable === "true"
     filterText = ""
     layoutSettled = false
+    disarmPointer()
 
     if (imageRows && imageRows === loadedImageRows && imageArray.length > 0) {
       selectedIndex = selectedImageIndex()
       imagesLoaded = true
+      previewHold.warm()
     } else if (imageRows) {
       loadRows(imageRows, false)
+      previewHold.warm()
     }
   }
 
@@ -839,10 +893,10 @@ Item {
               root.updateFilter(Util.editedFilter(event, root.filterText))
               event.accepted = true
             } else if (Util.readingKey(event) === Qt.Key_Left || (event.key === Qt.Key_Tab && event.modifiers & Qt.ShiftModifier) || event.key === Qt.Key_Backtab) {
-              root.selectAdjacent(-1)
+              root.selectFromKeyboard(-1)
               event.accepted = true
             } else if (Util.readingKey(event) === Qt.Key_Right || event.key === Qt.Key_Tab) {
-              root.selectAdjacent(1)
+              root.selectFromKeyboard(1)
               event.accepted = true
             } else if (root.filterable && event.text && event.text.length === 1 && event.text.charCodeAt(0) >= 32 && event.text.charCodeAt(0) !== 127 && (event.modifiers === Qt.NoModifier || event.modifiers === Qt.ShiftModifier)) {
               root.updateFilter(root.filterText + event.text)
@@ -892,7 +946,7 @@ Item {
                 id: maskShape
                 anchors.fill: parent
                 visible: false
-                layer.enabled: true
+                layer.enabled: root.opened
 
                 Shape {
                   anchors.fill: parent
@@ -912,7 +966,7 @@ Item {
 
               Item {
                 anchors.fill: parent
-                layer.enabled: true
+                layer.enabled: maskShape.layer.enabled
                 layer.smooth: true
                 layer.effect: MultiEffect {
                   maskEnabled: true
@@ -1009,6 +1063,27 @@ Item {
           horizontalAlignment: Text.AlignHCenter
           elide: Text.ElideRight
         }
+    }
+
+    Item {
+      id: scrubBand
+      anchors.left: parent.left
+      anchors.right: parent.right
+      y: card.y + carousel.y
+      height: carousel.height
+
+      MouseArea {
+        anchors.fill: parent
+        enabled: root.scrubAnchor !== null
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.applySelected()
+      }
+
+      HoverHandler {
+        enabled: root.opened && root.layoutSettled && !root.deleteConfirmOpen && root.imageArray.length > 0
+        onPointChanged: if (hovered) root.handlePointerMove(point.position)
+        onHoveredChanged: if (!hovered) root.scrubAnchor = null
+      }
     }
 
     // Unlike the picker itself, the confirmation keeps the faded backdrop:

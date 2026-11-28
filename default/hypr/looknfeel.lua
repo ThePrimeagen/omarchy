@@ -17,7 +17,8 @@ hl.config({
     resize_on_border = true,
     extend_border_grab_area = 8,
     hover_icon_on_border = true,
-    allow_tearing = false,
+    -- Permit tearing for fullscreen windows that opt in; desktop stays tear-free.
+    allow_tearing = true,
     layout = "dwindle",
   },
 
@@ -90,6 +91,24 @@ hl.animation({ leaf = "layersOut", enabled = true, speed = 1.2, bezier = "linear
 hl.animation({ leaf = "fadeLayersIn", enabled = true, speed = 1.43, bezier = "almostLinear" })
 hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.11, bezier = "almostLinear" })
 hl.animation({ leaf = "workspaces", enabled = false })
+-- Off so a monitor's first frames aren't zoomed in over the boot splash's last
+-- one, which startup can hold on screen (below), and so off on hotplug too.
+hl.animation({ leaf = "monitorAdded", enabled = false })
+
+-- A monitor that took over the boot splash's last frame keeps it on screen
+-- until the startup cover (shell/startup-cover.qml) is opaque, for 5 seconds
+-- at most, instead of Hyprland's first frames ("The handoff to the desktop" in
+-- docs/boot-splash.md). A running Hyprland an update reloads can predate the
+-- option.
+if hl.get_config("misc.startup_hold_layer") ~= nil then
+  hl.config({ misc = { startup_hold_layer = "overlay:omarchy-background" } })
+end
+
+-- Nor does Hyprland's own cursor show over that frame or the cover: none until
+-- the client under the pointer sets one or the pointer moves.
+if hl.get_config("cursor.hide_at_startup") ~= nil then
+  hl.config({ cursor = { hide_at_startup = true } })
+end
 
 hl.config({
   dwindle = {
@@ -114,6 +133,8 @@ hl.config({
     anr_missed_pings = 3,
     on_focus_under_fullscreen = 1,
     initial_workspace_tracking = 0,
+    -- Fullscreen-only VRR so the desktop stays free of refresh-rate flicker.
+    vrr = 2,
     -- Let a fresh shell re-acquire the session lock after the lock client
     -- died, so omarchy-restart-shell can recover the LOCK failsafe.
     allow_session_lock_restore = true,
@@ -131,6 +152,9 @@ hl.config({
     -- Keep HDR displays in SDR when a window goes fullscreen. Auto-switching
     -- left SDR content looking washed out on the Pro Display XDR.
     cm_auto_hdr = 0,
+    -- Scan out all fullscreen windows directly; 2 (auto) misses games that
+    -- don't set Wayland's game content-type hint.
+    direct_scanout = 1,
   },
 
   binds = {

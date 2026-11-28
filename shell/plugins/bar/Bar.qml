@@ -42,18 +42,25 @@ Item {
   // killing the entire shell. Hidden panels stay mapped but park off-screen
   // without an exclusion zone; updated by the FileView watcher further down.
   property bool barHidden: false
+  readonly property bool sessionLocked: !!(root.shell && root.shell.sessionLocked)
   property string home: Quickshell.env("HOME")
   property string stateHome: home + "/.local/state"
   property string omarchyConfigDir: home + "/.config/omarchy"
   property var fallbackBarConfig: ({
     position: "top",
-    background: "opaque",
+    background: "none",
     layout: { left: [], centerBegin: [], center: [], centerEnd: [], right: [] }
   })
   property var layoutConfig: fallbackBarConfig.layout
   property bool requestedTransparent: false
   property bool useTransparentForeground: false
   property bool transparent: false
+  // The shell has just started. A bar going clear at runtime keeps its
+  // background until its text color is known, but at startup there is no bar
+  // on screen to keep: holding the background there shows a solid bar for the
+  // second the color takes, then drops it. So a starting bar goes clear at
+  // once, in the theme's text color until its own arrives.
+  property bool starting: true
   // A see-through bar that Hyprland blurs behind (the bar-glassy toggle), so
   // its theme background stays faintly. A transparent bar wins over it.
   property bool glassy: false
@@ -226,6 +233,8 @@ Item {
     api.fontFamily = Qt.binding(function() { return root.fontFamily })
     api.position = Qt.binding(function() { return root.position })
     api.vertical = Qt.binding(function() { return root.vertical })
+    api.barHidden = Qt.binding(function() { return root.barHidden })
+    api.sessionLocked = Qt.binding(function() { return root.sessionLocked })
     api.barSize = Qt.binding(function() { return root.barSize })
     api.transparent = Qt.binding(function() { return root.transparent })
     api.foregroundAnimationEnabled = Qt.binding(function() { return root.foregroundAnimationEnabled })
@@ -780,7 +789,7 @@ Item {
     position = normalizePosition(config.position)
     // opaque, glassy or none; a config from before background says
     // transparent instead.
-    var look = config.background || (config.transparent === true ? "none" : "opaque")
+    var look = config.background || (config.transparent === false ? "opaque" : "none")
     setRequestedTransparency(look === "none")
     // A bar going clear waits for its text color before dropping its
     // background, so a glassy one stays glassy until then rather than
@@ -1005,8 +1014,7 @@ Item {
 
   function moduleDropAtScene(scenePoint, sourceSlot) {
     var sourceWindow = root.slotWindow(sourceSlot) || root.barDragWindow
-    // A drop lands only over the bar strip. The window spans its whole
-    // screen, so its own bounds are not the bar's.
+    // A drop lands only over the bar strip.
     if (moduleRemoveDistance(windowScreenPoint(scenePoint, sourceWindow)) > 0) return null
 
     // The tray cannot go into its own drawer.
@@ -1309,8 +1317,6 @@ Item {
 
   // How far past the bar the drag point sits, in screen coordinates: past
   // the strip its screen's bar surface draws, thickness deep along its edge.
-  // The strip, not the window, is the boundary: the window spans the whole
-  // screen (BarPanel).
   function moduleRemoveDistance(screenPoint) {
     var screen = barDragScreen
     if (!screen) return 0
@@ -1448,6 +1454,7 @@ Item {
       restoreForegroundAnimation()
       return
     }
+    if (starting) transparent = true
     scheduleTransparentForegroundRefresh()
   }
 
@@ -1483,6 +1490,14 @@ Item {
   onThemeForegroundChanged: scheduleTransparentForegroundRefresh()
   onThemeContrastForegroundChanged: scheduleTransparentForegroundRefresh()
 
+  // The saved config lands a moment after the built-in one, and the text
+  // color a second later; past that, the bar is one the user has seen.
+  Timer {
+    interval: 3000
+    running: true
+    onTriggered: root.starting = false
+  }
+
   Timer {
     id: transparentForegroundTimer
     interval: 120
@@ -1497,6 +1512,7 @@ Item {
         var value = String(line || "").trim()
         if (!/^#[0-9A-Fa-f]{6}$/.test(value)) return
 
+        root.starting = false
         root.foregroundAnimationEnabled = false
         root.transparentForeground = value
         if (root.requestedTransparent) {
@@ -1683,39 +1699,32 @@ Item {
     // instead of growing once the windows are laid out. The wait ends once, for
     // good: when the mode settles it, or after two seconds without one.
     visible: cutoutWaitOver || !cutoutPending
-    // An explicit zone instead of Auto: the reserved area stays the strip's
-    // thickness though the window spans its screen.
+    // An explicit zone instead of Auto, so it moves with the surface's
+    // thickness in the same commit (settle below).
     exclusionMode: root.barHidden ? ExclusionMode.Ignore : ExclusionMode.Normal
-    exclusiveZone: thickness
+    exclusiveZone: surfaceThickness
 
-    // While this window's widget or bar-move drag is live, the whole surface
-    // takes input (mask below), so the pointer never leaves the bar surface
-    // however far the drag goes. That is what keeps the gesture alive: while
-    // nothing on the workspace holds keyboard focus (an empty workspace),
-    // Hyprland picks a pointer target again on a surface commit, and a
-    // pointer that has strayed onto another surface is pulled off the bar
-    // mid-drag, ending the gesture with a synthesized release.
     // sameWindow, not identity: the drag records the QsWindow interface of
     // the slot's window, which is not this PanelWindow object itself.
     readonly property bool dragActive: (root.barDragSource !== null && root.sameWindow(root.barDragWindow, barWindow)) ||
       (root.barMoveActive && root.sameWindow(root.barMoveWindow, barWindow))
 
-    // Parked by the whole surface, which spans its screen, so none of it
-    // stays on screen: not the strip, however thick a notch floor makes it,
-    // nor the clear rest that a drag takes input on.
-    readonly property real parkDistance: root.vertical ? implicitWidth : implicitHeight
+    // Parked by its whole thickness, so none of it stays on screen however
+    // thick a notch floor makes it.
+    // qmllint disable unresolved-type
     margins {
-      top: root.barHidden && root.position === "top" ? -barWindow.parkDistance : 0
-      bottom: root.barHidden && root.position === "bottom" ? -barWindow.parkDistance : 0
-      left: root.barHidden && root.position === "left" ? -barWindow.parkDistance : 0
-      right: root.barHidden && root.position === "right" ? -barWindow.parkDistance : 0
+      top: root.barHidden && barWindow.surfaceEdge === "top" ? -barWindow.surfaceThickness : 0
+      bottom: root.barHidden && barWindow.surfaceEdge === "bottom" ? -barWindow.surfaceThickness : 0
+      left: root.barHidden && barWindow.surfaceEdge === "left" ? -barWindow.surfaceThickness : 0
+      right: root.barHidden && barWindow.surfaceEdge === "right" ? -barWindow.surfaceThickness : 0
     }
+    // qmllint enable unresolved-type
 
     anchors {
-      top: root.position === "top" || root.vertical
-      bottom: root.position === "bottom" || root.vertical
-      left: root.position === "left" || !root.vertical
-      right: root.position === "right" || !root.vertical
+      top: barWindow.surfaceEdge === "top" || barWindow.surfaceVertical
+      bottom: barWindow.surfaceEdge === "bottom" || barWindow.surfaceVertical
+      left: barWindow.surfaceEdge === "left" || !barWindow.surfaceVertical
+      right: barWindow.surfaceEdge === "right" || !barWindow.surfaceVertical
     }
 
     readonly property var panelMode: root.panelModeFor(screen)
@@ -1725,7 +1734,6 @@ Item {
     readonly property bool cutoutPending: BarModel.cutoutPending(root.displayCutouts, root.position, screen.name, screen.width, screen.height, screen.devicePixelRatio, panelMode)
     property bool cutoutWaitOver: false
     onCutoutPendingChanged: if (!cutoutPending) cutoutWaitOver = true
-    Component.onCompleted: if (!cutoutPending) cutoutWaitOver = true
 
     Timer {
       interval: 2000
@@ -1736,16 +1744,125 @@ Item {
     // The same thickness the bar publishes for its screen (screenBarSizes).
     readonly property int thickness: root.thicknessFor(screen)
 
-    // The surface spans its screen at all times, transparent past the strip
-    // it paints; a drag toggles only its input region. Growing the surface
-    // for a drag instead flashes the strip's stale buffer stretched across
-    // the new size until the next frame lands, and the size can't come from
-    // anchoring all four edges either, which would void the exclusive zone
-    // (layer-shell reserves space from the one anchored edge) and drop tiled
-    // windows behind the bar. Glassy blur stays on the strip: Hyprland's
-    // ignore_alpha leaves the clear rest of the surface unblurred.
-    implicitWidth: root.vertical ? (screen ? screen.width : thickness) : 0
-    implicitHeight: root.vertical ? 0 : (screen ? screen.height : thickness)
+    // The surface is the strip and nothing more: a drag that strays off it
+    // keeps the pointer because the compositor holds a pressed surface's
+    // pointer focus until release. Omarchy's Hyprland carries that for an
+    // empty workspace (held-pointer-without-keyboard-focus.patch); stock
+    // Hyprland drops it there unless something holds keyboard focus.
+    //
+    // A resize, moving to a side edge or changing thickness, commits the new
+    // size with the last buffer still attached, and Hyprland draws that
+    // buffer across the new size until a frame at it lands: the strip laid
+    // out for its new size, stretched or squeezed into the box. So a resize
+    // settles: the strip turns clear, the surface resizes behind a clear
+    // buffer, and the strip comes back once a frame at the new size is up.
+    // Until its first frame is up the surface follows the bar directly, so a
+    // bar that waits for its notch floor maps at it.
+    property string surfaceEdge: root.position
+    property int surfaceThickness: thickness
+    readonly property bool surfaceVertical: surfaceEdge === "left" || surfaceEdge === "right"
+    implicitWidth: surfaceVertical ? surfaceThickness : 0
+    implicitHeight: surfaceVertical ? 0 : surfaceThickness
+
+    property bool presented: false
+    // clearing: waiting on a clear frame before resizing. revealing: waiting
+    // on a frame at the new size before showing the strip again.
+    property string settle: ""
+    property int settleFrames: 0
+    // A binding, so the strip is clear in the next frame whatever order the
+    // position and thickness handlers run in.
+    readonly property bool resizeDue: presented && (root.vertical !== surfaceVertical || thickness !== surfaceThickness)
+
+    function holdSurface() {
+      surfaceEdge = root.position
+      surfaceThickness = thickness
+    }
+
+    function finishSettle() {
+      settleWatchdog.stop()
+      holdSurface()
+      settle = ""
+    }
+
+    function requestFrame() {
+      var window = barStrip.Window.window
+      if (window) window.update()
+    }
+
+    // Runs once every binding on the position and thickness has caught up.
+    // Mid-settle, the resize takes whatever is current when it lands. Moving
+    // between opposite edges keeps the size, and with nothing on screen to
+    // stretch, a resize needs no settle either.
+    function follow() {
+      if (!presented || settle !== "") return
+      if (resizeDue && visible && !root.barHidden && !underFullscreen && surfaceThickness > 0 && thickness > 0) {
+        settle = "clearing"
+        settleFrames = 0
+        settleWatchdog.restart()
+        requestFrame()
+      } else {
+        holdSurface()
+      }
+    }
+
+    Component.onCompleted: if (!cutoutPending) cutoutWaitOver = true
+    onThicknessChanged: followLater.restart()
+    Connections {
+      target: root
+      function onPositionChanged() { followLater.restart() }
+      function onBarHiddenChanged() { if (root.barHidden && barWindow.settle !== "") barWindow.finishSettle() }
+    }
+
+    Timer {
+      id: followLater
+      interval: 0
+      onTriggered: barWindow.follow()
+    }
+
+    // Frames stop for a surface Hyprland isn't showing, such as one on an
+    // output that went to sleep mid-settle.
+    Timer {
+      id: settleWatchdog
+      interval: 500
+      onTriggered: if (barWindow.settle !== "") barWindow.finishSettle()
+    }
+
+    Connections {
+      target: !barWindow.presented && barWindow.visible ? barStrip.Window.window : null
+      function onFrameSwapped() {
+        barWindow.holdSurface()
+        barWindow.presented = true
+      }
+    }
+
+    // Counts this window's own presented frames, asking for the next each
+    // time. Two after the strip turns clear, the clear one is up even with
+    // an opaque frame already in flight.
+    Connections {
+      target: barWindow.settle !== "" ? barStrip.Window.window : null
+      function onFrameSwapped() {
+        barWindow.settleFrames++
+        if (barWindow.settle === "clearing") {
+          if (barWindow.settleFrames >= 2) {
+            barWindow.holdSurface()
+            barWindow.settle = "revealing"
+            barWindow.settleFrames = 0
+          }
+        } else if (barWindow.resizeDue) {
+          barWindow.settle = "clearing"
+          barWindow.settleFrames = 0
+          settleWatchdog.restart()
+        } else {
+          var span = barWindow.surfaceVertical ? barWindow.width : barWindow.height
+          if (span === barWindow.surfaceThickness && barWindow.settleFrames >= 1) {
+            barWindow.finishSettle()
+            return
+          }
+        }
+        barWindow.requestFrame()
+      }
+    }
+
     color: "transparent"
     surfaceFormat.opaque: false
     WlrLayershell.namespace: "omarchy-bar"
@@ -1771,19 +1888,13 @@ Item {
       }
     }
 
-    // Idle, only the strip takes input, so the clear expanse passes clicks
-    // through to the windows and desktop below. Under a fullscreen window
-    // nothing does: Hyprland 0.56 passes the pointer through a faded top
-    // layer only while it holds the layer below fullscreen, and it lifts
-    // every layer on the monitor back above whenever a window on any other
-    // workspace leaves fullscreen, or the layer remaps. The invisible strip
-    // would then take the clicks meant for the top of the fullscreen window.
-    mask: dragActive ? null : (underFullscreen ? noInputRegion : stripInputRegion)
-
-    Region {
-      id: stripInputRegion
-      item: barStrip
-    }
+    // Under a fullscreen window the strip takes no input: Hyprland 0.56
+    // passes the pointer through a faded top layer only while it holds the
+    // layer below fullscreen, and it lifts every layer on the monitor back
+    // above whenever a window on any other workspace leaves fullscreen, or
+    // the layer remaps. The invisible strip would then take the clicks meant
+    // for the top of the fullscreen window.
+    mask: underFullscreen && !dragActive ? noInputRegion : null
 
     Region {
       id: noInputRegion
@@ -1792,6 +1903,7 @@ Item {
     // The bar itself, along its screen edge.
     Item {
       id: barStrip
+      opacity: barWindow.settle === "" && !barWindow.resizeDue ? 1 : 0
 
       x: root.position === "right" ? parent.width - barWindow.thickness : 0
       y: root.position === "bottom" ? parent.height - barWindow.thickness : 0
@@ -1829,7 +1941,6 @@ Item {
       })
 
       anchor {
-        id: tooltipAnchor
         window: barWindow
         adjustment: PopupAdjustment.Slide
         edges: Edges.Top | Edges.Left
@@ -1857,8 +1968,10 @@ Item {
           }
 
           var point = barWindow.contentItem.mapFromItem(target, localX, localY)
-          tooltipAnchor.rect.x = Math.round(point.x)
-          tooltipAnchor.rect.y = Math.round(point.y)
+          // qmllint disable unresolved-type
+          tooltipWindow.anchor.rect.x = Math.round(point.x)
+          tooltipWindow.anchor.rect.y = Math.round(point.y)
+          // qmllint enable unresolved-type
         }
       }
 
@@ -2660,6 +2773,8 @@ Item {
     property string fixedEdge: "center"
     // Whether that slot is in the tray's drawer.
     property bool inTraySection: false
+    // Whether a fullscreen window covers this widget's bar surface.
+    readonly property bool underFullscreen: !!owner && !!owner.window && !!owner.window.underFullscreen
     readonly property string moduleName: root.entryId(entry)
     readonly property var moduleSettings: root.entrySettings(entry)
     readonly property string customType: root.customModuleType(entry)
@@ -2767,6 +2882,7 @@ Item {
     onModuleSettingsChanged: injectProps()
     onFixedEdgeChanged: injectProps()
     onInTraySectionChanged: injectProps()
+    onUnderFullscreenChanged: injectProps()
 
     function injectProps() {
       var target = activeItem
@@ -2779,6 +2895,8 @@ Item {
         ? root : root.pluginBarApiFor(pluginApiId, moduleName, registered)
       if ("moduleName" in target) target.moduleName = moduleName
       if ("settings" in target) target.settings = moduleSettings
+      if ("underFullscreen" in target && ((registered && firstParty) || target.acceptsUnderFullscreen === true))
+        target.underFullscreen = underFullscreen
     }
 
     Component {
@@ -3021,7 +3139,7 @@ Item {
       propagateComposedEvents: true
       // Only the hovered slot needs the hit test; without the guard every
       // slot on every monitor re-ran it on each click target change.
-      cursorShape: moduleHover.hovered && root.moduleClickTargetAt(slot, mouseX, mouseY) ? Qt.PointingHandCursor : Qt.ArrowCursor
+      cursorShape: moduleHover.hovered && root.moduleClickTargetAt(slot, moduleHover.point.position.x, moduleHover.point.position.y) ? Qt.PointingHandCursor : Qt.ArrowCursor
       // Do not assign drag.target here: the section's layout places
       // ModuleSlot, and moving slot.x/slot.y by hand fights it. The ghost
       // follows the pointer instead.
