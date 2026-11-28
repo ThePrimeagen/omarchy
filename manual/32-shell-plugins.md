@@ -25,7 +25,7 @@ omarchy plugin disable omarchy.weather
 
 Or use the menu: _Setup > Plugins_ has Enable, Disable, Add, Clone, and Remove, each with a picker that only offers the plugins that make sense for that action.
 
-Enabled state is stored in `~/.config/omarchy/shell.json`, and the rule differs slightly for the two kinds of plugin. A third-party plugin is enabled exactly when its id appears somewhere in that file — as a bar layout entry, as an entry in `plugins[]`, or as `bar.id`. First-party plugins that aren't bar widgets are the other way around: they're on by default and only turn off by being listed in `disabledPlugins[]`.
+Plugin settings are stored in `~/.config/omarchy/shell.json`. A third-party plugin is enabled exactly when its id appears somewhere in that file, as a bar layout entry, an entry in `plugins[]`, or `bar.id`. Built-in panels, menus, overlays, and services are on by default. An entry in `disabledPlugins[]` switches one off, and an installed and enabled clone can take its place.
 
 A full bar plugin has no off state at all. There's always exactly one bar, so you replace it by enabling another one. Bar widget placement is covered in [the top bar](05-the-top-bar.md).
 
